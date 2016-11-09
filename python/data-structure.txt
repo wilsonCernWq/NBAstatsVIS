@@ -1,0 +1,20 @@
+player
+-- info
+    player['info']['PERSON_ID']
+    player['info']['FIRST_NAME']
+    player['info']['LAST_NAME']
+    player['info']['BIRTHDATE']
+    player['info']['SCHOOL']
+    player['info']['COUNTRY']
+    player['info']['HEIGHT']
+    player['info']['WEIGHT']
+    player['info']['SEASON_EXP']
+    player['info']['JERSEY']
+    player['info']['POSITION']
+    player['info']['ROSTERSTATUS']
+    player['info']['TEAM']
+    player['info']['FROM_YEAR']
+    player['info']['TO_YEAR']
+    player['info']['DLEAGUE']
+    player['info']['ALL_STAR']
+-- career
