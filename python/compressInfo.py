@@ -189,7 +189,7 @@ for entry in data['rowSet']:
                 if i % 2 == 0:
                     season = 'RegularSeason'
                 else:
-                    season = 'RegularSeason'
+                    season = 'PostSeason'
                 # get game data
                 gameid = int(game[2])
                 typeid = graphdir[graphtip[int(i/2)]]
@@ -201,7 +201,7 @@ for entry in data['rowSet']:
                         player['season'][season][yid]['GameList'][gameid].extend(graphext)
                         player['season'][season][yid]['GameList'][gameid][typeid] = game[-1]
     player['season']['headerGame'] = info[0]['resultSets'][5]['headers']
-    player['season']['headerGame'].append(graphtip[1:])
+    player['season']['headerGame'].extend(graphtip[1:])
 
     # 4) shotchart
     f = open(entry[4] + '/shotchart.json', 'r')
