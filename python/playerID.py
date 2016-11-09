@@ -15,7 +15,7 @@ data = rawData['resultSets'][0]
 data.pop('name')
 
 # change data format
-data['headers'] = ['playerID','Name','FromYear','ToYear','Code','Historical']
+data['headers'] = ['playerID', 'Name', 'FromYear', 'ToYear', 'Code', 'Historical']
 for i in range(0, len(data['rowSet'])):
 
     # remove data
@@ -43,7 +43,7 @@ for i in range(0, len(data['rowSet'])):
 
 # write into JSON file
 string = json.dumps(data)
-f = open('playerID.json','w+')
+f = open('playerID.json', 'w+')
 f.write(string)
 f.close()
 
