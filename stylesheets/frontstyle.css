@@ -1,0 +1,24 @@
+.view-right-sidebar {
+    display: inline-block;
+    width: 40%;
+    float: right;
+    background: #FFACAA;
+}
+
+.view-left-sidebar {
+    display: inline-block;
+    width: 60%;
+    float: left;
+    background: #81bdff;
+}
+
+.view-menu {
+    height: 50px;
+    background: #ffffff;
+}
+
+.view-block {
+    width: 100%;
+    background: #46ff42;
+    margin-bottom: 10px;
+}
