@@ -1,0 +1,81 @@
+player
+  |
+  |__ info
+  |     |__ PERSON_ID
+  |     |__ FIRST_NAME
+  |     |__ LAST_NAME
+  |     |__ BIRTHDATE
+  |     |__ SCHOOL
+  |     |__ COUNTRY
+  |     |__ HEIGHT
+  |     |__ WEIGHT
+  |     |__ SEASON_EXP
+  |     |__ JERSEY
+  |     |__ POSITION
+  |     |__ ROSTERSTATUS
+  |     |__ TEAM
+  |     |__ FROM_YEAR
+  |     |__ TO_YEAR
+  |     |__ DLEAGUE
+  |     |__ ALL_STAR
+  |
+  |__ career
+  |     |
+  |     |__ headerRow
+  |     |     = ["GP", "GS", "MIN", "FGM", "FGA", "FG_PCT", "FG3M",
+  |     |        "FG3A", "FG3_PCT", "FTM", "FTA", "FT_PCT", "OREB",
+  |     |        "DREB", "REB", "AST", "STL", "BLK", "TOV", "PF", "PTS"]
+  |     |
+  |     |__ headerCol = ['PerGame', 'Totals']
+  |     |
+  |     |__ RegularSeason = [ ${Career Data per Game}, ${Career Data Totals} ]
+  |     |
+  |     |__ PostSeason    = [ ${Career Data per Game}, ${Career Data Totals} ]
+  |
+  |__ season
+        |
+        |__ headerRowTotals
+        |     = ["PLAYER_AGE", "GP", "GS", "MIN", "FGM", "FGA", "FG_PCT", "FG3M",
+        |        "FG3A", "FG3_PCT", "FTM", "FTA", "FT_PCT", "OREB", "DREB", "REB",
+        |        "AST", "STL", "BLK", "TOV", "PF", "PTS"]
+        |
+        |__ headerRowRank
+        |     = ["RANK_PG_MIN", "RANK_PG_FGM", "RANK_PG_FGA", "RANK_FG_PCT", "RANK_PG_FG3M",
+        |        "RANK_PG_FG3A", "RANK_FG3_PCT", "RANK_PG_FTM", "RANK_PG_FTA", "RANK_FT_PCT",
+        |        "RANK_PG_OREB", "RANK_PG_DREB", "RANK_PG_REB", "RANK_PG_AST", "RANK_PG_STL",
+        |        "RANK_PG_BLK", "RANK_PG_TOV", "RANK_PG_PTS", "RANK_PG_EFF"]
+        |
+        |__ headerCol = ['PerGame', 'Totals']
+        |
+        |__ headerGame
+        |     = ["PLAYER_ID", "PLAYER_NAME", "GAME_ID", "GAME_DATE", "TEAM_ABBREVIATION",
+        |        "TEAM_NAME", "VS_TEAM_ID", "VS_TEAM_ABBREVIATION", "VS_TEAM_NAME",
+        |        "TOV", "PTS", "FGM", "FGA", "FG3M", "FG3A", "PF", "BLK", "STL", "AST", "REB"]
+        |
+        |__ RegularSeason
+              |
+              |__ ${year}
+                      |__ totals = [ ... [ ${Season Data per Game} ${Season Data Totals} ] ... ]
+                      |__ rank   = [ ... [ ${Season Rank per Game} ${Season Rank Totals} ] ... ]
+                      |__ GameList
+                      |     |__ ${gameID} = [ ${Game Data} ]
+                      |
+                      |__ shotchart
+                            |
+                            |__ Details
+                            |     |
+                            |     |__ header
+                            |     |     = ["GAME_ID", "GAME_EVENT_ID", "PERIOD", "MINUTES_REMAINING",
+                            |     |        "SECONDS_REMAINING", "EVENT_TYPE", "ACTION_TYPE",
+                            |     |        "SHOT_TYPE", "SHOT_ZONE_BASIC", "SHOT_ZONE_AREA",
+                            |     |        "SHOT_ZONE_RANGE", "SHOT_DISTANCE", "LOC_X", "LOC_Y",
+                            |     |        "SHOT_ATTEMPTED_FLAG", "SHOT_MADE_FLAG"]
+                            |     |__ row = [ ... ${Shot Details} ... ]
+                            |
+                            |__ Averages
+                                  |
+                                  |__ header
+                                  |     = ["SHOT_ZONE_BASIC", "SHOT_ZONE_AREA",
+                                  |        "SHOT_ZONE_RANGE", "FGA", "FGM", "FG_PCT"]
+                                  |
+                                  |__ row = [ ... ${League Average Shot Details} ... ]

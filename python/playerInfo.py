@@ -51,7 +51,7 @@ permode = ['PerGame', 'Totals']
 contextmeasure = ['FGA']
 
 # open file
-f = open('playerID-full.json', 'r')
+f = open('playerID-current.json', 'r')
 data = f.read()
 f.close()
 
