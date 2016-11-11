@@ -11,20 +11,26 @@
         Info['rowSet'].forEach(function(d, i) { if (d[4] == 'kobe_bryant') id = i; });
         var playerInfo = Info['rowSet'][id];
 
-        // -- Load Player Data
+        // -- TODO Complete All Views
         d3.json('data/player/' + playerInfo[4] + '.json', function (errorPlayer, player) {
             if (errorPlayer) throw errorPlayer;
-
             console.log(player);
 
             var w = window.innerWidth - margin * 2;
-            var h = 200;
+            var h = window.innerHeight;
 
+            // --- Info View
             var infoView = new InfoView('#infoView');
             infoView.init();
             infoView.update(playerInfo[0], player);
 
-            var gameMeshView = new GameMeshView('#gameMeshView', w, h);
+            // -- Ranking View
+            var ranking = new Ranking('#rankView', w, 900);
+            ranking.init();
+            ranking.update(playerInfo[0], player, player['info']['FROM_YEAR'], player['info']['TO_YEAR'], 'REB');
+
+            // -- Game Mesh View
+            var gameMeshView = new GameMeshView('#gameMeshView', w, 200);
             gameMeshView.init();
             gameMeshView.update(playerInfo[0], player, player['info']['FROM_YEAR'], player['info']['TO_YEAR']);
 
