@@ -24,10 +24,14 @@
             infoView.init();
             infoView.update(playerInfo[0], player);
 
+            var generalView = new GeneralView('#generalView', 400, 230);
+            generalView.init();
+            generalView.update(playerInfo[0], player);
+
             // -- Ranking View
-            var ranking = new Ranking('#rankView', w, 900);
+            var ranking = new Ranking('#rankView', w, 300);
             ranking.init();
-            ranking.update(playerInfo[0], player, player['info']['FROM_YEAR'], player['info']['TO_YEAR'], 'REB');
+            ranking.update(playerInfo[0], player, player['info']['FROM_YEAR'], player['info']['TO_YEAR'], 'PTS');
 
             // -- Game Mesh View
             var gameMeshView = new GameMeshView('#gameMeshView', w, 200);

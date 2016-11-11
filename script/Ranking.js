@@ -34,7 +34,7 @@ Ranking.prototype.update = function (id, player, yearFrom, yearTo, attribute) {
     }
     queue.awaitAll(function(error, files) {
         if (error) throw error;
-        console.log(files);
+        // console.log(files);
 
         var attrID = files[0]["resultSet"]["headers"].indexOf(attribute);
         var maxPlayer = d3.max(files, function (d) { return d["resultSet"]["rowSet"].length; });
@@ -74,7 +74,7 @@ Ranking.prototype.update = function (id, player, yearFrom, yearTo, attribute) {
                     return undefined;
                 }
             });
-            console.log(entries);
+            // console.log(entries);
 
             var scale = d3.scaleLinear().domain([0, maxValue]).range([0, barWidth]);
 

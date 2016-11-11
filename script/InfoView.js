@@ -17,13 +17,16 @@ InfoView.prototype.init = function(){
     // var box = d3.select(this.svgId).getBoundingClientRect();
     // this.svgWidth  = box.width;
     // this.svgHeight = box.height;
-    this.svgWidth  = 185;
-    this.svgHeight = 230;
+    this.svgWidth  = 230;
+    this.svgHeight = 185;
+    this.div = d3.select(this.svgId).select('div');
     this.svg = d3.select(this.svgId).select('svg');
     this.svg
         .attr('width', this.svgWidth)
         .attr('height', this.svgHeight);
     this.svg.append('image');
+
+
 };
 
 /**
@@ -51,6 +54,25 @@ InfoView.prototype.update = function(id, player){
         img.attr("xlink:href", 'data/playerIcon/NoFound.png');
     }
 
+    this.div.select('h1')
+        .text(player['info']['FIRST_NAME'] + ' ' + player['info']['LAST_NAME']);
+    this.div.selectAll('li').remove();
+    this.div.append('li')
+        .text('Birthday: ' + player['info']['BIRTHDATE'].slice(0,10));
+    this.div.append('li')
+        .text('Position: ' + player['info']['POSITION']);
+    this.div.append('li')
+        .text('Team: ' + player['info']['TEAM']);
+    this.div.append('li')
+        .text('Height: ' + player['info']['HEIGHT']);
+    this.div.append('li')
+        .text('Weight: ' + player['info']['WEIGHT'] + ' lbs');
+    this.div.append('li')
+        .text('Country: ' + player['info']['COUNTRY']);
+    this.div.append('li')
+        .text('School: ' + player['info']['SCHOOL']);
+    this.div.append('li')
+        .text('Seasons: ' + player['info']['FROM_YEAR'] + ' - ' + player['info']['TO_YEAR']);
 
 };
 
