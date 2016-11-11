@@ -4,10 +4,8 @@ import requests
 for y in range(1946, 2016):
     year = str(y)
     year += '-' + str(y+1)[-2:]
-    url = 'http://stats.nba.com/stats/leaguedashplayerstats?GameScope=&PlayerExperience=&PlayerPosition=&' \
-          'StarterBench=&MeasureType=Scoring&PerMode=Totals&PlusMinus=Y&PaceAdjust=Y&Rank=Y&Season=' + year + \
-          '&SeasonType=Regular+Season&Outcome=&Location=&Month=0&SeasonSegment=&DateFrom=&DateTo&OpponentTeamID=0&' \
-          'VsConference=&VsDivision=&GameSegment=&Period=0&LastNGames=0'
+    url = 'http://stats.nba.com/stats/leagueleaders?LeagueID=00&PerMode=PerGame&StatCategory=PTS&Season=' + \
+          year + '&SeasonType=Regular+Season&Scope=RS'
 
     # request data
     response = requests.get(url, headers={'User-Agent': 'Chrome/39.0.2171.95'})
