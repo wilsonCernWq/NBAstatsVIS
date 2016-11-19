@@ -7,6 +7,7 @@
  * In this function you want to input all initial variables the class will need
  */
 function GeneralView(svgid, width, height){
+    this.debug = true;
     this.svgId = svgid;
     this.svgWidth  = width;
     this.svgHeight = height;
@@ -19,7 +20,7 @@ GeneralView.prototype.init = function(){
 
     this.svg = d3.select(this.svgId).select('svg')
         .attr('width', this.svgWidth)
-        .attr('height', this.svgHeight)
+        .attr('height', this.svgHeight);
 
     this.group = this.svg.append('g');
     this.group
@@ -44,7 +45,6 @@ GeneralView.prototype.update = function(id, player){
         .attr('width', 20)
         .attr('height', function (d) { return d * 4; });
 
-    //this.svg.selectAll('text').remove();
     this.svg.selectAll('text').data(head).enter()
         .append('text')
         .attr('x', function (d, i) { return 7 + i * 40; })

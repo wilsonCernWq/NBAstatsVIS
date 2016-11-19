@@ -1,5 +1,9 @@
+var infoView, generalView, ranking, gameMeshView;
+
 (function main() {
-    console.log('This is where the program starts');
+    var debug = true;
+
+    if (debug)  console.log('This is where the program starts');
 
     var margin = 8;
 
@@ -14,27 +18,28 @@
         // -- TODO Complete All Views
         d3.json('data/player/' + playerInfo[4] + '.json', function (errorPlayer, player) {
             if (errorPlayer) throw errorPlayer;
-            console.log(player);
+
+            if (debug) console.log(playerInfo[4], player);
 
             var w = window.innerWidth - margin * 2;
             var h = window.innerHeight;
 
             // --- Info View
-            var infoView = new InfoView('#infoView');
+            infoView = new InfoView('#infoView');
             infoView.init();
             infoView.update(playerInfo[0], player);
 
-            var generalView = new GeneralView('#generalView', 400, 230);
+            generalView = new GeneralView('#generalView', 400, 230);
             generalView.init();
             generalView.update(playerInfo[0], player);
 
             // -- Ranking View
-            var ranking = new Ranking('#rankView', w, 300);
+            ranking = new Ranking('rankView', 300);
             ranking.init();
             ranking.update(playerInfo[0], player, player['info']['FROM_YEAR'], player['info']['TO_YEAR'], 'PTS');
 
             // -- Game Mesh View
-            var gameMeshView = new GameMeshView('#gameMeshView', w, 200);
+            gameMeshView = new GameMeshView('gameMeshView', 1000, 10000);
             gameMeshView.init();
             gameMeshView.update(playerInfo[0], player, player['info']['FROM_YEAR'], player['info']['TO_YEAR']);
 
@@ -43,3 +48,9 @@
     })
 
 }) ();
+
+window.onresize = resize;
+
+function resize() {
+    gameMeshView.resize();
+}

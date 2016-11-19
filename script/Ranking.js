@@ -2,20 +2,27 @@
  * Constructor
  * In this function you want to input all initial variables the class will need
  */
-function Ranking (svgid, width, height) {
-    this.svgId = svgid;
-    this.svgWidth  = width;
-    this.svgHeight = height;
+function Ranking (svgid, height) {
+    this.divId = svgid;
+    this.height = height;
 }
 
 /**
  * Initialization
  */
 Ranking.prototype.init = function () {
-    this.svg = d3.select(this.svgId).select("svg");
+
+    var div = document.getElementById(this.divId);
+    var style = window.getComputedStyle(div,null);
+
+    this.svgWidth  = parseInt(style.getPropertyValue("width"),10);
+    this.svgHeight = this.height;
+
+    this.svg = d3.select('#' + this.divId).select("svg");
     this.svg
         .attr("width", this.svgWidth)
         .attr("height", this.svgHeight);
+
 };
 
 /**
@@ -77,7 +84,6 @@ Ranking.prototype.update = function (id, player, yearFrom, yearTo, attribute) {
             // console.log(entries);
 
             var scale = d3.scaleLinear().domain([0, maxValue]).range([0, barWidth]);
-
             var rect = d3.select('#season-'  + data['parameters']['Season']).selectAll("rect").data(entries);
             rect.exit().remove();
             rect = rect.enter().append('rect').merge(rect);
