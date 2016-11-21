@@ -1,32 +1,33 @@
 function TemplateClass(divId, width, height) {
+    var self = this;
 
     /**
      * Constructor
-     * In this function you want to input all initial variables the class will need
+     * In self function you want to input all initial variables the class will need
      * @param divId ID of that divide in HTML
      * @param width
      * @param height
      */
 
-    this.debug  = true;
-    this.divId  = divId;
-    this.width  = width;
-    this.height = height;
+    self.debug  = true;
+    self.divId  = divId;
+    self.width  = width;
+    self.height = height;
 
     /**
      * Initialization
      */
-    this.init = function () {};
+    self.init = function () {};
 
     /**
-     * This is a function to draw/update view
+     * self is a function to draw/update view
      */
-    this.update = function () {};
+    self.update = function () {};
 
     /**
-     * This is a function to resize image
+     * self is a function to resize image
      */
-    this.resize = function (width, heigh) {};
+    self.resize = function (width, heigh) {};
 
 }
 

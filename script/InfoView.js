@@ -7,52 +7,53 @@
  * </svg>
  */
 function InfoView (){
+    var self = this;
 
     /**
      * Initialization
      */
-    this.init = function()
+    self.init = function()
     {
         // calculate svg default size & get the correct width of the window
         var div   = document.getElementById('infoView');  // shortcuts
         var style = window.getComputedStyle(div, null);   // shortcuts
         // save width and height
-        this.width  = parseInt(style.getPropertyValue("width"), 10);
-        this.height = 400;
+        self.width  = parseInt(style.getPropertyValue("width"), 10);
+        self.height = 400;
         // setup class fields
-        this.div = d3.select('#infoView');
-        this.div.selectAll('svg').remove(); // cleanup everything
-        this.svg = this.div.append('svg')
-            .attr('width', this.width)
-            .attr('height', this.height);
+        self.div = d3.select('#infoView');
+        self.div.selectAll('svg').remove(); // cleanup everything
+        self.svg = self.div.append('svg')
+            .attr('width', self.width)
+            .attr('height', self.height);
         // assign groups
         // 1)
-        this.grpInfo = this.svg.append('g').attr('id','leftPlot');
-        this.grpInfo.append('image');
+        self.grpInfo = self.svg.append('g').attr('id','leftPlot');
+        self.grpInfo.append('image');
         // 2)
-        this.grpAxis = this.svg.append('g').attr('id','yearAxis');
-        this.grpAxis.append('g').attr('id','axisGroup');
-        this.grpAxis.append('g').attr('id','barsGroup');
-        this.grpAxis.append('g').attr('id','brushGroup');
+        self.grpAxis = self.svg.append('g').attr('id','yearAxis');
+        self.grpAxis.append('g').attr('id','axisGroup');
+        self.grpAxis.append('g').attr('id','barsGroup');
+        self.grpAxis.append('g').attr('id','brushGroup');
     };
 
     /**
-     * This is a function to draw/update view
+     * self is a function to draw/update view
      */
-    this.update = function(player) {
-        this.OneView(this.grpInfo, player);
-        this.SeasonAxis(this.grpAxis, player);
+    self.update = function(player) {
+        self.OneView(self.grpInfo, player);
+        self.SeasonAxis(self.grpAxis, player);
     };
 
     /**
      * Function to resize
      */
-    this.resize = function () {
+    self.resize = function () {
 
     };
 
     // function to check if the icon file exist
-    this.fileExists = function  (url)
+    self.fileExists = function  (url)
     {
         var http = new XMLHttpRequest();
         http.open('HEAD', url, true);
@@ -61,7 +62,7 @@ function InfoView (){
     };
 
     // generate one view under a group tag
-    this.OneView = function (group, player) {
+    self.OneView = function (group, player) {
         var id = player.info.PERSON_ID;
         var textSize = 18,
             headSize = 50;
@@ -78,7 +79,7 @@ function InfoView (){
             .attr('width',  imageWidth)
             .attr('height', imageHeight);
         var url = 'data/playerIcon/' + id + '.png';
-        if (this.fileExists(url)) {
+        if (self.fileExists(url)) {
             img.attr("xlink:href", url);
         } else {
             img.attr("xlink:href", 'data/playerIcon/NoFound.png');
@@ -119,7 +120,7 @@ function InfoView (){
      * @param player
      * @constructor
      */
-    this.SeasonAxis = function (group, player) {
+    self.SeasonAxis = function (group, player) {
         var margin = {left: 10, right: 10};
         var span = 0.5;
 
@@ -127,7 +128,7 @@ function InfoView (){
         var eYear = player.info.TO_YEAR;
         var numOfYears = eYear - sYear + 1;
 
-        var fullRange = (this.width * span - margin.left - margin.right);
+        var fullRange = (self.width * span - margin.left - margin.right);
         var pad = 1;
 
         // --------------
