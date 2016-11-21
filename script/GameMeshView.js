@@ -38,56 +38,55 @@ function date2value (date)
 }
 
 /**
- * Constructor
- * In this function you want to input all initial variables the class will need
+ * Class to display game details
+ * HTML LOCATION:
+ * <svg>
+ *   <g id="meshGrid"></g>
+ *   <g id="meshAxis"></g>
+ * </svg>
  */
-function GameMeshView (divId) {
+function GameMeshView () {
+    /**
+     * Debug Flag
+     * @type {boolean}
+     */
     this.debug  = true;
-    this.divId  = divId;
-    this.marginPER = {left: 0.1, right: 0.6, top: 0, bottom: 0};
-    // statistical attributes
-    this.nbin = 48;
-    this.step = 100 / this.nbin;
-
-    this.histid = function (x) {
-        return Math.max(Math.ceil(date2value(x) / this.step - 1), 0);
-    };
 
     /**
      * Initialization
      */
-    this.init = function () {
+    this.init = function (height)
+    {
         // calculate svg default size & get the correct width of the window
-        var div   = document.getElementById(this.divId);  // shortcuts
-        var style = window.getComputedStyle(div, null); // shortcuts
-        // setup svg attributes
-        this.svgWidth  = parseInt(style.getPropertyValue("width"), 10);
-        this.svgHeight = 1000;
-        this.svg = d3.select('#' + this.divId).select('svg');
-        this.setSize();
-    };
-
-    /**
-     * Reset SVG size
-     * @param contentX
-     * @param contentY
-     */
-    this.setSize = function (contentX, contentY) {
-        if (contentX) {
-            this.svgWidth = contentX / (1 - this.marginPER.left - this.marginPER.right);
-        }
-        if (contentY) {
-            this.svgHeight = contentY / (1 - this.marginPER.top - this.marginPER.bottom);
-        }
+        var div   = document.getElementById('gameMeshView');  // shortcuts
+        var style = window.getComputedStyle(div, null);       // shortcuts
+        // setup lengths
+        this.width  = parseInt(style.getPropertyValue("width"), 10); // compute the divide window width
+        this.height = height;                                        // maximum window height
+        // define plot margin (it gives the minimal margin)
         this.margin = {
-            left:   this.marginPER.left   * this.svgWidth,
-            right:  this.marginPER.right  * this.svgWidth,
-            top:    this.marginPER.top    * this.svgHeight,
-            bottom: this.marginPER.bottom * this.svgHeight
+            left:   0.1 * this.width,
+            right:  0.1 * this.width,
+            top:    0.1 * this.height,
+            bottom: 0.1 * this.height
         };
-        this.svg
-            .attr('width', this.svgWidth)
-            .attr('height', this.svgHeight)
+        this.hSpan = this.width  - this.margin.left - this.margin.right;  // the area that rect will be plotted
+        this.vSpan = this.height - this.margin.top  - this.margin.bottom;// the area that rect will be plotted
+
+        // setup SVG properties
+        d3.select('#gameMeshView').selectAll('svg').remove(); // clean up everything
+        this.svg = d3.select('#gameMeshView').append('svg');
+        this.svg.attr('width',  this.width).attr('height', this.height);
+        this.grpGrid = this.svg.append('g').attr('id','meshGrid');
+        this.grpAxis = this.svg.append('g').attr('id','meshAxis');
+
+        // histogram parameters
+        this.nbin = 48;
+        this.step = 100 / this.nbin;
+        // get the index in the histogram
+        this.histid = function (x) {
+            return Math.max(Math.ceil(date2value(x) / this.step - 1), 0);
+        };
     };
 
     /**
@@ -118,12 +117,14 @@ function GameMeshView (divId) {
         // organize game list object into array (kind of histogram)
         // it will produce a array for every day (period of 3-5 days)
         var gamesTotal = []; //< array of total dates
+        var yearsList  = [];
         for (var year = yearFrom; year <= yearTo; ++year) {
             // initialize all variables
             var gamesInEachYear, // array data in new format
                 games,           // short reference for game list in original format
                 gameid;          // game index
-            if (year in rSeason) { // if the player played in this year
+            if (year in rSeason) {   // if the player played in this year
+                yearsList.push(year); // register this year
                 // initialize the game list for this year
                 gamesInEachYear = [];
                 // somehow fast initialize the array doesn't work
@@ -133,8 +134,8 @@ function GameMeshView (divId) {
                         'sumOfValues': 0,
                         'gameList': [],
                         'year': year,
-                        'xpos': j, //< horizontal
-                        'ypos': i  //< vertical
+                        'xpos': i, //< horizontal
+                        'ypos': j  //< vertical
                     });
                 }
                 // game list for regular season
@@ -164,16 +165,16 @@ function GameMeshView (divId) {
         var numOfRow = 1 + d3.max(gamesTotal, function (entry) { return entry.ypos; });
 
         // build bars --> essentially squares
-        var boxSize = (this.svgWidth - this.margin.left - this.margin.right) / numOfCol;
+        var boxSize = Math.min(this.hSpan / numOfCol, this.vSpan / numOfRow);
         var padSize = boxSize * 0.1;
         var barSize = boxSize - padSize;
 
         // adjust svg size based on the
-        this.setSize(null, numOfRow * boxSize);
+        //this.setSize(null, numOfRow * boxSize);
 
         // scales
         var xScale = d3.scaleLinear() // position scales
-            .domain([0, numOfCol]).range([0, this.svgWidth - this.margin.left - this.margin.right]);
+            .domain([0, numOfCol]).range([0, numOfCol * boxSize]);
         var yScale = d3.scaleLinear() // position scales
             .domain([0, numOfRow]).range([0, numOfRow * boxSize]);
         var cScale = d3.scaleLinear() // color scale
@@ -184,10 +185,7 @@ function GameMeshView (divId) {
         var xoff = this.margin.left + padSize;
         var yoff = this.margin.top  + padSize;
         // draw squares
-        var svgR = this.svg.selectAll('rect').data(gamesTotal);
-        svgR.exit().remove();
-        svgR = svgR.enter().append('rect').merge(svgR);
-        svgR
+        d3SelectAll(this.grpGrid, 'rect', gamesTotal)
             .on('mouseover', function (d) { if (debug) console.log(d); })
             .attr('x', function (d) { return xoff + xScale(d.xpos); })
             .attr('y', function (d) { return yoff + yScale(d.ypos); })
@@ -197,7 +195,13 @@ function GameMeshView (divId) {
                 return d.gameList.length == 0 ? cScale(d.sumOfValues) : cScale(d.sumOfValues / d.gameList.length);
             });
         // axis
-        // var yearAxis = d3.axisBottom().
+        var yearAxis = d3.axisLeft()
+            .scale(d3.scaleLinear().domain([-0.5, numOfRow - 0.5]).range([0, numOfRow * boxSize]))
+            .ticks(numOfRow)
+            .tickFormat(function(i) { return yearsList[i]; });
+        this.grpAxis
+            .attr('transform','translate(' + this.margin.left + ',' + this.margin.top + ')')
+            .call(yearAxis);
 
     };
 
@@ -205,7 +209,7 @@ function GameMeshView (divId) {
      * This is a function to resize image
      */
     this.resize = function () {
-        this.init();
+        this.init(1000);
         this.update(this.playerid, this.player, this.yearFrom, this.yearTo);
     };
 }

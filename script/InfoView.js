@@ -1,7 +1,10 @@
 /**
  * Class to display general information of a player
  * HTML LOCATION:
- *   <div id="infoView"> --> <svg> --> <g id="leftPlot">
+ * <svg>
+ *   <g id="leftPlot" ></g>
+ *   <g id="yearAxis"> </g>
+ * </svg>
  */
 function InfoView (){
 
@@ -18,17 +21,16 @@ function InfoView (){
         this.height = 400;
         // setup class fields
         this.div = d3.select('#infoView');
-        this.svg = d3.select('#infoView').select('svg')
+        this.div.selectAll('svg').remove(); // cleanup everything
+        this.svg = this.div.append('svg')
             .attr('width', this.width)
             .attr('height', this.height);
         // assign groups
         // 1)
-        this.grpInfo = d3.select('#leftPlot');
-        this.grpInfo.selectAll('image').remove();
+        this.grpInfo = this.svg.append('g').attr('id','leftPlot');
         this.grpInfo.append('image');
         // 2)
-        this.grpAxis = d3.select('#yearAxis');
-        this.grpAxis.selectAll('g').remove();
+        this.grpAxis = this.svg.append('g').attr('id','yearAxis');
         this.grpAxis.append('g').attr('id','axisGroup');
         this.grpAxis.append('g').attr('id','barsGroup');
         this.grpAxis.append('g').attr('id','brushGroup');

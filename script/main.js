@@ -100,9 +100,9 @@ function main() {
             //ranking.update(playerInfo[0], player, player['info']['FROM_YEAR'], player['info']['TO_YEAR'], 'PTS');
 
             // -- Game Mesh View
-            //gameMeshView = new GameMeshView('gameMeshView', 1000, 10000);
-            //gameMeshView.init();
-            //gameMeshView.update(playerInfo[0], player, player['info']['FROM_YEAR'], player['info']['TO_YEAR']);
+            gameMeshView = new GameMeshView();
+            gameMeshView.init(800);
+            gameMeshView.update(playerInfo[0], player, player.info.FROM_YEAR, player.info.TO_YEAR);
 
         })
 
@@ -114,5 +114,5 @@ function main() {
  * resizing function
  */
 function resize() {
-    //gameMeshView.resize();
+    gameMeshView.resize();
 }
