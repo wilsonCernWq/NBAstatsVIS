@@ -43,6 +43,7 @@ function InfoView (){
      * self is a function to draw/update view
      */
     self.update = function(player) {
+        self.player = player;
         self.OneView(self.grpInfo, player);
         self.SeasonAxis(self.grpAxis, player);
     };
@@ -51,31 +52,48 @@ function InfoView (){
      * Function to resize
      */
     self.resize = function () {
-
+        // adjust svg size only
+        var div   = document.getElementById('infoView');  // shortcuts
+        var style = window.getComputedStyle(div, null);   // shortcuts
+        self.width  = parseInt(style.getPropertyValue("width"), 10);
+        self.height = 400;
+        self.svg.attr('width', self.width).attr('height', self.height);
+        self.update(self.player);
     };
 
-    // function to check if the icon file exist
+    /**
+     * function to check if the icon file exist
+     * @param url path to the file
+     * @returns {boolean} if the file exists
+     */
     self.fileExists = function  (url)
     {
         var http = new XMLHttpRequest();
-        http.open('HEAD', url, true);
+        http.open('HEAD', url, true); //< make sure async is true
         http.send();
         return http.status != 404;
     };
 
-    // generate one view under a group tag
+    /**
+     * generate one view under a group tag
+     * @param group
+     * @param player
+     * @constructor
+     */
     self.OneView = function (group, player) {
         var id = player.info.PERSON_ID;
-        var ratio = self.width / 1829;
-        var textSize = 18,
-            headSize = 50;
-        var textHeight = 32,
-            headHeight = 80;
-        var textYOffset  = 10,
-            textXOffset  = 350;
-        var imageWidth   = 230,
-            imageHeight  = 185,
-            imageYOffset = 20;
+        var ratio = self.width / 1300; // rescaling ratio
+
+        // parameters
+        var headSize   = 50 * ratio,
+            headHeight = 80 * ratio;
+        var textSize   = 16 * ratio,
+            textHeight = 26 * ratio;
+        var textYOffset  = 10 * ratio,
+            textXOffset  = 350 * ratio;
+        var imageWidth   = 230 * ratio,
+            imageHeight  = 185 * ratio,
+            imageYOffset = 20 * ratio;
 
         // attach an image under the svg
         var img = group.select('image').attr('x',(textXOffset - imageWidth)/2).attr('y',imageYOffset)
@@ -104,7 +122,7 @@ function InfoView (){
         group.selectAll('text').remove();
         group.selectAll('text').data(infodata).enter().append('text')
             .attr('x', textXOffset)
-            .attr('y', function (d, i) { return textYOffset + textHeight + i * textHeight })
+            .attr('y', function (d, i) { return textYOffset + (1 + i) * textHeight })
             .text(function (d) { return d; })
             .style('font-size', textSize)
             .style('font-family', 'Verdana');
@@ -118,88 +136,107 @@ function InfoView (){
     };
 
     /**
-     *
+     * generate the axis under a group tag
      * @param group
      * @param player
      * @constructor
      */
-    self.SeasonAxis = function (group, player) {
-        var margin = {left: 10, right: 10};
-        var span = 0.5;
-
+    self.SeasonAxis = function (group, player)
+    {
         var sYear = player.info.FROM_YEAR;
         var eYear = player.info.TO_YEAR;
         var numOfYears = eYear - sYear + 1;
+        // rescaling ratio
+        var ratio = self.width / 1300; // rescaling ratio
+        // parameters
+        var margin = {left: 10, right: 10}; // margin for the  axis
+        var spanRatio = 0.43;   // the percentage that the axis will span
+        var totalOffsetY = 265 * ratio, // this equals to the icon image height + name font height
+            totalPadding = 30 * ratio;  // this is the margin for axis and info view
+        var axisSize = 20 * ratio,  // the height of axis
+            axisFont = 12 * ratio;
+        var barsOffY = 5 * ratio,   // padding between bar and axis
+            barsSize = 10 * ratio,  // rect size
+            barsPad  = 0.9 * ratio, // padding between two neighboring bars
+            barsStroke = 2 * ratio; // bar stroke
+        var logoOffY  = 18 * ratio, // padding between team logo and bars
+            logoSize  = 45 * ratio, // size of logo image
+            logoShift = 5 * ratio;  // shift logo so that it lies in the center of the bar
+        var brushPad = 10 * ratio;  // padding for brush
+        // -- calculate total plotting area
+        var plotOffY = totalOffsetY + totalPadding + logoOffY + logoSize;
+        var plotWidth = self.width * spanRatio - margin.left - margin.right; // the width that will be plotted
+        var plotHeight = logoOffY + logoSize + axisSize;
 
-        var fullRange = (self.width * span - margin.left - margin.right);
-        var pad = 1;
-
-        // --------------
+        // prepare data structore for the plot
         var year, team = null, teamList = [];
-
         for (year = sYear; year <= eYear; ++year) {
             if (player.season.RegularSeason.hasOwnProperty(year)) {
                 if (team != player.season.RegularSeason[year].team) {
+                    // remember current team
                     team = player.season.RegularSeason[year].team;
-                    teamList.push({
-                        team: team,
-                        yearFrom: year,
-                        yearTo: year
-                    });
+                    // create new data object
+                    teamList.push({ team: team, yearFrom: year, yearTo: year});
                 } else {
-                    teamList[teamList.length-1].yearTo = year;
+                    teamList[teamList.length-1].yearTo = year; // update yearTo information
                 }
             }
         }
 
-        group.attr('transform', 'translate(0,350)');
-
-
-        var yScale = d3.scaleLinear()
-            .domain([sYear - 0.5, eYear + 0.5])
-            .range([margin.left, fullRange + margin.left]);
-
-        var axis = d3.axisBottom().scale(yScale).ticks(numOfYears,'d').tickSizeOuter(0);
-
-        group.select('#axisGroup').call(axis);
+        // DRAWING
+        // creat scale and axis
+        var scale = d3.scaleLinear()
+            .domain([sYear - 0.5, eYear + 0.5]) // the range is being shifted, for axis ticks
+            .range([margin.left, plotWidth + margin.left]);
+        var axis  = d3.axisBottom().scale(scale).ticks(numOfYears,'d').tickSizeOuter(0);
+        // adjust group properties
+        group
+            .attr('transform', 'translate(0,' + plotOffY + ')') // shift group position
+            .select('#axisGroup')
+            .call(axis) // create axis (the axis will be created at level y = 0)
+            .selectAll('text')
+            .style('font-size', axisFont); // adjust axis font size
 
         // draw bars
-        // console.log(teamList);
         d3SelectAll(group.select('#barsGroup'), 'rect', teamList)
-            .attr('x', function (d) { return yScale(d.yearFrom-0.5) + pad; })
-            .attr('y', -14)
-            .attr('width', function (d) { return yScale(d.yearTo + 0.5) - yScale(d.yearFrom - 0.5) - pad; })
-            .attr('height', 10)
-            .style('stroke-width', 2)
-            .style('stroke', 'black')
-            .style('fill', function (d) { return teamInfo[d.team][1]; });
-
+            .attr('x', function (d) { return scale(d.yearFrom - 0.5) + barsPad; }) // shift things back
+            .attr('y', -barsSize - barsOffY) // shift bar based on axis position
+            .attr('width', function (d) { return scale(d.yearTo + 0.5) - scale(d.yearFrom - 0.5) - barsPad; })
+            .attr('height', barsSize)
+            .style('stroke-width', barsStroke) // give rect some strokes
+            .style('stroke', 'black')          // stroke color based on team color 2
+            .style('fill', function (d) { return teamInfo[d.team][1]; }); // filling with team color 1
+        // draw team logo
         d3SelectAll(group.select('#barsGroup'), 'image', teamList)
-            .attr('x', function (d) { return yScale(d.yearFrom - 0.5); })
-            .attr('y', -65)
-            .attr('width',  50)
-            .attr('height', 50)
-            .attr("xlink:href", function (d) { return 'data/logo/' + d.team + '_logo.svg'; } );
-
+            .attr('x', function (d) { // --> (somehow the logo is aligned at the center) applied a shift
+                return scale((d.yearFrom + d.yearTo)/2 - 0.5) + logoShift; // logo align center
+            })
+            .attr('y', -logoSize - logoOffY) // shift logo based on axis position
+            .attr('width',  logoSize)
+            .attr('height', logoSize)
+            .attr("xlink:href", function (d) { return 'data/logo/' + d.team + '_logo.svg'; } ); // load data
+        // draw brush
+        // --> reference https://bl.ocks.org/mbostock/6232537
         var brush = d3.brushX()
-            .extent([[margin.left,-70],[margin.left + fullRange,30]])
+            .extent([[margin.left, -logoSize-logoOffY-brushPad],[margin.left+plotWidth, axisSize+brushPad]])
             .on("end", function () {
-                var selected = [];
                 if (!d3.event.sourceEvent) return; // Only transition after input.
                 if (!d3.event.selection) return; // Ignore empty selections
-                {
-                    var value = d3.event.selection.map(yScale.invert);
-                    value[0] = Math.round(value[0]-0.5);
-                    value[1] = Math.round(value[1]-0.5);
-                    console.log('selectiong year: ',value);
-                    value[0] += 0.5;
-                    value[1] += 0.5;
-                    d3.select(this).transition().call(d3.event.target.move, value.map(yScale));
-                }
-
+                // calculate correct year selection
+                var value = d3.event.selection.map(scale.invert);
+                value[0] = Math.round(value[0]-0.5);
+                value[1] = Math.round(value[1]-0.5);
+                // TODO call year selection function
+                // here I simply print things out, in the future, functions should be linked to here
+                console.log('selectiong year: ',value);
+                // adjust brush position so that it snaps on the correct year
+                value[0] += 0.5;
+                value[1] += 0.5;
+                d3.select(this).transition().call(d3.event.target.move, value.map(scale));
             });
-        //
-        group.select('#brushGroup').attr("class", "brush brushInfoView").call(brush);
+        group.select('#brushGroup').attr('class', 'brush brushInfoView').call(brush);
+        group.select('#brushGroup').select('.selection').style('display','none'); // hide selection when resizing
+        group.select('#brushGroup').select('.handle').style('display','none');    // hide selection when resizing
 
     };
 

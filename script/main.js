@@ -114,5 +114,6 @@ function main() {
  * resizing function
  */
 function resize() {
+    infoView.resize();
     gameMeshView.resize();
 }
