@@ -9,6 +9,48 @@ window.onresize = resize;
  * global variables
  */
 var infoView, seasonAxis, generalView, ranking, gameMeshView;
+var teamInfo = {
+    ATL: ['Atlanta Hawks','#E03A3E'],
+    BOS: ['Boston Celtics','#008348'],
+    BKN: ['Brooklyn Nets','#000000'],
+    CHA: ['Charlotte Hornets','#1D1160'],
+    CHI: ['Chicago Bulls','#CE1141'],
+    CLE: ['Cleveland Cavaliers','#860038'],
+    DAL: ['Dallas Mavericks','#007DC5'],
+    DEN: ['Denver Nuggets','#4FA8FF'],
+    DET: ['Detroit Pistons','#006BB6'],
+    GSW: ['Golden State Warriors','#006BB6'],
+    HOU: ['Houston Rockets','#CE1141'],
+    IND: ['Indiana Pacers', '#00275D'],
+    LAC: ['Los Angeles Clippers','#ED174C'],
+    LAL: ['Los Angeles Lakers','#552582'],
+    MEM: ['Memphis Grizzlies','#23375B'],
+    MIA: ['Miami Heat','#98002E'],
+    MIL: ['Milwaukee Bucks','#00471B'],
+    MIN: ['Minnesota Timberwolves','#005083'],
+    NOP: ['New Orleans Pelicans','#002B5C'],
+    NYK: ['New York Knicks','#F58426'],
+    OKC: ['Oklahoma City Thunder','#007DC3'],
+    ORL: ['Orlando Magic','#007DC5'],
+    PHI: ['Philadelphia 76ers','#006BB6'],
+    PHX: ['Phoenix Suns','#E56020'],
+    POR: ['Portland Trail Blazers','#F0163A'],
+    SAC: ['Sacramento Kings','#724C9F'],
+    SAS: ['San Antonio Spurs','#B6BFBF'],
+    TOT: ['Toronto Raptors','#CE1141'],
+    UTA: ['Utah Jazz','#002B5C'],
+    WAS: ['Washington Wizards','#F5002F']
+};
+
+/**
+ * helper functions
+ */
+function d3SelectAll(base, obj, mydata) {
+    var select = base.selectAll(obj).data(mydata);
+    select.exit().remove();
+    select = select.enter().append(obj).merge(select);
+    return select;
+}
 
 /**
  * main function
@@ -30,13 +72,13 @@ function main() {
 
     var debug = true;
 
-    if (debug)  console.log('This is where the program starts');
+    // if (debug)  console.log('This is where the program starts');
 
     d3.json('data/playerindex.json', function (errorPlayerIndex, Info) {
         if (errorPlayerIndex) throw errorPlayerIndex;
 
         // -- TODO Data Query
-        var playerInfo = searchPlayer(Info, 'kobe_bryant');
+        var playerInfo = searchPlayer(Info, 'aaron_brooks');
 
         // -- TODO Complete All Views
         d3.json('data/player/' + playerInfo[4] + '.json', function (errorPlayer, player) {
