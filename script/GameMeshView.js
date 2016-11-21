@@ -67,6 +67,13 @@ function GameMeshView () {
      */
     self.init = function (height)
     {
+        // creat SVG elements
+        d3.select('#gameMeshView').selectAll('svg').remove(); // clean up everything
+        self.svg = d3.select('#gameMeshView').append('svg');
+        self.grpGrid = self.svg.append('g').attr('id','meshGrid');
+        self.grpYAxis = self.svg.append('g').attr('id','meshYAxis');
+        self.grpXAxis = self.svg.append('g').attr('id','meshXAxis');
+
         // calculate svg default size & get the correct width of the window
         var div   = document.getElementById('gameMeshView');  // shortcuts
         var style = window.getComputedStyle(div, null);       // shortcuts
@@ -82,14 +89,8 @@ function GameMeshView () {
         };
         self.hSpan = self.width  - self.margin.left - self.margin.right;  // the area that rect will be plotted
         self.vSpan = self.height - self.margin.top  - self.margin.bottom; // the area that rect will be plotted
-
-        // setup SVG properties
-        d3.select('#gameMeshView').selectAll('svg').remove(); // clean up everything
-        self.svg = d3.select('#gameMeshView').append('svg');
+        // setup SVG size
         self.svg.attr('width',  self.width).attr('height', self.height);
-        self.grpGrid = self.svg.append('g').attr('id','meshGrid');
-        self.grpYAxis = self.svg.append('g').attr('id','meshYAxis');
-        self.grpXAxis = self.svg.append('g').attr('id','meshXAxis');
 
         // histogram parameters
         self.nbin = 48;

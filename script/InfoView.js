@@ -17,16 +17,11 @@ function InfoView (){
         // calculate svg default size & get the correct width of the window
         var div   = document.getElementById('infoView');  // shortcuts
         var style = window.getComputedStyle(div, null);   // shortcuts
-        // save width and height
-        self.width  = parseInt(style.getPropertyValue("width"), 10);
-        self.height = 400;
-        // setup class fields
+        // creat SVG elements
         self.div = d3.select('#infoView');
         self.div.selectAll('svg').remove(); // cleanup everything
-        self.svg = self.div.append('svg')
-            .attr('width', self.width)
-            .attr('height', self.height);
-        // assign groups
+        self.svg = self.div.append('svg');
+        // creat groups
         // 1)
         self.grpInfo = self.svg.append('g').attr('id','leftPlot');
         self.grpInfo.append('image');
@@ -35,6 +30,13 @@ function InfoView (){
         self.grpAxis.append('g').attr('id','axisGroup');
         self.grpAxis.append('g').attr('id','barsGroup');
         self.grpAxis.append('g').attr('id','brushGroup');
+        // save width and height
+        self.width  = parseInt(style.getPropertyValue("width"), 10);
+        self.height = 400;
+        self.svg
+            .attr('width', self.width)
+            .attr('height', self.height);
+
     };
 
     /**
@@ -64,6 +66,7 @@ function InfoView (){
     // generate one view under a group tag
     self.OneView = function (group, player) {
         var id = player.info.PERSON_ID;
+        var ratio = self.width / 1829;
         var textSize = 18,
             headSize = 50;
         var textHeight = 32,
