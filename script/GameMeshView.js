@@ -1,7 +1,7 @@
 // extend date function
 Date.daysBetween = function( date1, date2 )
 {
-    //Get 1 day in milliseconds
+    //Get one day in milliseconds
     var one_day=1000*60*60*24;
 
     // Convert both dates to milliseconds
@@ -18,7 +18,7 @@ Date.daysBetween = function( date1, date2 )
 /**
  * Class for Game Mesh
  */
-// function to convert mm/dd/yyyy to number between 0 - 10 (max 238 per season)
+// function to convert mm/dd/yyyy to number between 0 - 100 (max 238 per season)
 function date2value (date)
 {
     var y = +date.slice(6,10); // get year in number
@@ -28,13 +28,21 @@ function date2value (date)
         cDate; //< current date
     cDate = new Date(y, m-1, d);
     // shift year to previous year
-    // since NBA season spans from Oct/25 in this year to Jun/17 in the next year
+    // since NBA season spans from Oct/25 in self year to Jun/17 in the next year
     if (m > 9) {
         sDate = new Date(y  , 9, 25);
     } else {
         sDate = new Date(y-1, 9, 25);
     }
-    return Date.daysBetween(sDate, cDate) / 2.38;
+    return Date.daysBetween(sDate, cDate) / 2.4; // map [0,100] to [0,240]
+}
+/// function to convert number 0-100 to mm/dd/xxxx (xxxx = 2000 or 2001)
+function value2date (value)
+{
+    var oneDay=1000*60*60*24; // one day in MS
+    var sDate = new Date(2000, 9, 25); //< an predefined starting date
+    sDate.setTime(sDate.getTime() + oneDay * value * 2.4);
+    return sDate.toDateString().slice(4,10);
 }
 
 /**
@@ -46,67 +54,73 @@ function date2value (date)
  * </svg>
  */
 function GameMeshView () {
+    var self = this;
+
     /**
      * Debug Flag
      * @type {boolean}
      */
-    this.debug  = true;
+    self.debug  = true;
 
     /**
      * Initialization
      */
-    this.init = function (height)
+    self.init = function (height)
     {
         // calculate svg default size & get the correct width of the window
         var div   = document.getElementById('gameMeshView');  // shortcuts
         var style = window.getComputedStyle(div, null);       // shortcuts
         // setup lengths
-        this.width  = parseInt(style.getPropertyValue("width"), 10); // compute the divide window width
-        this.height = height;                                        // maximum window height
+        self.width  = parseInt(style.getPropertyValue("width"), 10); // compute the divide window width
+        self.height = height;                                        // maximum window height
         // define plot margin (it gives the minimal margin)
-        this.margin = {
-            left:   0.1 * this.width,
-            right:  0.1 * this.width,
-            top:    0.1 * this.height,
-            bottom: 0.1 * this.height
+        self.margin = {
+            left:   0.1 * self.width,
+            right:  0.1 * self.width,
+            top:    0.1 * self.height,
+            bottom: 0.1 * self.height
         };
-        this.hSpan = this.width  - this.margin.left - this.margin.right;  // the area that rect will be plotted
-        this.vSpan = this.height - this.margin.top  - this.margin.bottom;// the area that rect will be plotted
+        self.hSpan = self.width  - self.margin.left - self.margin.right;  // the area that rect will be plotted
+        self.vSpan = self.height - self.margin.top  - self.margin.bottom; // the area that rect will be plotted
 
         // setup SVG properties
         d3.select('#gameMeshView').selectAll('svg').remove(); // clean up everything
-        this.svg = d3.select('#gameMeshView').append('svg');
-        this.svg.attr('width',  this.width).attr('height', this.height);
-        this.grpGrid = this.svg.append('g').attr('id','meshGrid');
-        this.grpAxis = this.svg.append('g').attr('id','meshAxis');
+        self.svg = d3.select('#gameMeshView').append('svg');
+        self.svg.attr('width',  self.width).attr('height', self.height);
+        self.grpGrid = self.svg.append('g').attr('id','meshGrid');
+        self.grpYAxis = self.svg.append('g').attr('id','meshYAxis');
+        self.grpXAxis = self.svg.append('g').attr('id','meshXAxis');
 
         // histogram parameters
-        this.nbin = 48;
-        this.step = 100 / this.nbin;
+        self.nbin = 48;
+        self.step = 100 / self.nbin;
         // get the index in the histogram
-        this.histid = function (x) {
-            return Math.max(Math.ceil(date2value(x) / this.step - 1), 0);
+        self.histValue2Id = function (x) {
+            return Math.max(Math.ceil(date2value(x) / self.step - 1), 0);
+        };
+        self.histId2Value = function (i) {
+            return value2date(i * self.step);
         };
     };
 
     /**
-     * This is a function to draw/update view
+     * self is a function to draw/update view
      * @param playerid
      * @param player
      * @param yearFrom
      * @param yearTo
      */
-    this.update = function (playerid, player, yearFrom, yearTo)
+    self.update = function (playerid, player, yearFrom, yearTo)
     {
         // to remember variables for resizing
-        this.playerid = playerid;
-        this.player = player;
-        this.yearFrom = yearFrom;
-        this.yearTo = yearTo;
+        self.playerid = playerid;
+        self.player = player;
+        self.yearFrom = yearFrom;
+        self.yearTo = yearTo;
 
         // TODO SETUP DATA
         // shortcut variable names
-        var debug = this.debug;
+        var debug = self.debug;
         var rSeason = player.season.RegularSeason;
         var pSeason = player.season.PostSeason;
 
@@ -123,13 +137,13 @@ function GameMeshView () {
             var gamesInEachYear, // array data in new format
                 games,           // short reference for game list in original format
                 gameid;          // game index
-            if (year in rSeason) {   // if the player played in this year
-                yearsList.push(year); // register this year
-                // initialize the game list for this year
+            if (year in rSeason) {   // if the player played in self year
+                yearsList.push(year); // register self year
+                // initialize the game list for self year
                 gamesInEachYear = [];
                 // somehow fast initialize the array doesn't work
                 // --> JS uses pass by reference by default maybe
-                for (i = 0; i < this.nbin; ++i) {
+                for (i = 0; i < self.nbin; ++i) {
                     gamesInEachYear.push({
                         'sumOfValues': 0,
                         'gameList': [],
@@ -141,7 +155,7 @@ function GameMeshView () {
                 // game list for regular season
                 games = rSeason[year].GameList;
                 for (gameid in games) { // scan over all games
-                    i = this.histid(games[gameid][3]);
+                    i = self.histValue2Id(games[gameid][3]);
                     gamesInEachYear[i].sumOfValues += games[gameid][10];
                     gamesInEachYear[i].gameList.push(games[gameid]);
                 }
@@ -149,7 +163,7 @@ function GameMeshView () {
                 if (pSeason.hasOwnProperty(year)) {
                     games = pSeason[year].GameList;
                     for (gameid in games) { // scan over all games
-                        i = this.histid(games[gameid][3]);
+                        i = self.histValue2Id(games[gameid][3]);
                         gamesInEachYear[i].sumOfValues += games[gameid][10];
                         gamesInEachYear[i].gameList.push(games[gameid]);
                     }
@@ -165,51 +179,62 @@ function GameMeshView () {
         var numOfRow = 1 + d3.max(gamesTotal, function (entry) { return entry.ypos; });
 
         // build bars --> essentially squares
-        var boxSize = Math.min(this.hSpan / numOfCol, this.vSpan / numOfRow);
+        var boxSize = Math.min(self.hSpan / numOfCol, self.vSpan / numOfRow);
         var padSize = boxSize * 0.1;
         var barSize = boxSize - padSize;
 
         // adjust svg size based on the
-        //this.setSize(null, numOfRow * boxSize);
+        //self.setSize(null, numOfRow * boxSize);
 
         // scales
-        var xScale = d3.scaleLinear() // position scales
+        var xScale = d3.scaleLinear() // position scales (shifted scale for axis display)
             .domain([0, numOfCol]).range([0, numOfCol * boxSize]);
         var yScale = d3.scaleLinear() // position scales
-            .domain([0, numOfRow]).range([0, numOfRow * boxSize]);
+            .domain([-0.5, numOfRow - 0.5]).range([0, numOfRow * boxSize]);
         var cScale = d3.scaleLinear() // color scale
             .domain([0, 50]).range(['#E6E6E6', '#FF0A00']);
 
         // TODO DRAWING
         // align squares based on margins
-        var xoff = this.margin.left + padSize;
-        var yoff = this.margin.top  + padSize;
+        var xoff = self.margin.left + padSize;
+        var yoff = self.margin.top  + padSize;
         // draw squares
-        d3SelectAll(this.grpGrid, 'rect', gamesTotal)
-            .on('mouseover', function (d) { if (debug) console.log(d); })
+        d3SelectAll(self.grpGrid, 'rect', gamesTotal)
+            .on('mouseover', function (d) { /* if (debug) console.log(d); */ })
             .attr('x', function (d) { return xoff + xScale(d.xpos); })
-            .attr('y', function (d) { return yoff + yScale(d.ypos); })
+            .attr('y', function (d) { return yoff + yScale(d.ypos - 0.5); })
             .attr('width',  barSize)
             .attr('height', barSize)
             .style('fill', function (d) {
                 return d.gameList.length == 0 ? cScale(d.sumOfValues) : cScale(d.sumOfValues / d.gameList.length);
             });
-        // axis
+        // draw axis
+        // 1) Y axis
         var yearAxis = d3.axisLeft()
-            .scale(d3.scaleLinear().domain([-0.5, numOfRow - 0.5]).range([0, numOfRow * boxSize]))
+            .scale(yScale)
             .ticks(numOfRow)
-            .tickFormat(function(i) { return yearsList[i]; });
-        this.grpAxis
-            .attr('transform','translate(' + this.margin.left + ',' + this.margin.top + ')')
+            .tickFormat(function(i) { return yearsList[i]; })
+            .tickSizeOuter(0);
+        // 2) X axis
+        var dateAxis = d3.axisTop()
+            .scale(xScale)
+            .ticks(self.nbin / 2) // 2 days per tick
+            .tickFormat(function(i) { return self.histId2Value(i); })
+            .tickSizeOuter(0);
+        self.grpYAxis
+            .attr('transform','translate(' + self.margin.left + ',' + self.margin.top + ')')
             .call(yearAxis);
+        self.grpXAxis
+            .attr('transform','translate(' + self.margin.left + ',' + self.margin.top + ')')
+            .call(dateAxis);
 
     };
 
     /**
-     * This is a function to resize image
+     * self is a function to resize image
      */
-    this.resize = function () {
-        this.init(1000);
-        this.update(this.playerid, this.player, this.yearFrom, this.yearTo);
+    self.resize = function () {
+        self.init(1000);
+        self.update(self.playerid, self.player, self.yearFrom, self.yearTo);
     };
 }
