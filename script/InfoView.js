@@ -22,11 +22,16 @@ function InfoView (){
             .attr('width', this.width)
             .attr('height', this.height);
         // assign groups
+        // 1)
         this.grpInfo = d3.select('#leftPlot');
+        this.grpInfo.selectAll('image').remove();
         this.grpInfo.append('image');
+        // 2)
         this.grpAxis = d3.select('#yearAxis');
+        this.grpAxis.selectAll('g').remove();
         this.grpAxis.append('g').attr('id','axisGroup');
         this.grpAxis.append('g').attr('id','barsGroup');
+        this.grpAxis.append('g').attr('id','brushGroup');
     };
 
     /**
@@ -188,7 +193,7 @@ function InfoView (){
 
             });
         //
-        group.select('#barsGroup').append('g').attr("class", "brush brushInfoView").call(brush);
+        group.select('#brushGroup').attr("class", "brush brushInfoView").call(brush);
 
     };
 
