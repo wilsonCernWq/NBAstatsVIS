@@ -1,93 +1,155 @@
 /**
- * Created by Qi on 2016/11/10.
+ * Class to display general information of a player
+ * HTML LOCATION:
+ *   <div id="infoView"> --> <svg> --> <g id="leftPlot">
  */
+function InfoView (){
 
-/**
- * Constructor
- * In this function you want to input all initial variables the class will need
- */
-function InfoView(svgid, width, height){
-    this.svgId = svgid;
-}
+    /**
+     * Initialization
+     */
+    this.init = function()
+    {
+        // calculate svg default size & get the correct width of the window
+        var div   = document.getElementById('infoView');  // shortcuts
+        var style = window.getComputedStyle(div, null);   // shortcuts
+        // save width and height
+        this.width  = parseInt(style.getPropertyValue("width"), 10);
+        this.height = 400;
+        // setup class fields
+        this.div = d3.select('#infoView');
+        this.svg = d3.select('#infoView').select('svg')
+            .attr('width', this.width)
+            .attr('height', this.height);
+        // assign groups
+        this.grpInfo = d3.select('#leftPlot');
+        this.grpInfo.append('image');
+        this.grpAxis = d3.select('#yearAxis');
+        this.grpAxis.append('path');
+    };
 
-/**
- * Initialization
- */
-InfoView.prototype.init = function(){
-    // var box = d3.select(this.svgId).getBoundingClientRect();
-    // this.svgWidth  = box.width;
-    // this.svgHeight = box.height;
-    this.svgWidth  = 230;
-    this.svgHeight = 185;
-    this.div = d3.select(this.svgId).select('div');
-    this.svg = d3.select(this.svgId).select('svg');
-    this.svg
-        .attr('width', this.svgWidth)
-        .attr('height', this.svgHeight);
-    this.svg.append('image');
+    /**
+     * This is a function to draw/update view
+     */
+    this.update = function(player) {
+        this.OneView(this.grpInfo, player);
+        this.SeasonAxis(this.grpAxis, player);
+    };
 
+    /**
+     * Function to resize
+     */
+    this.resize = function () {
 
-};
+    };
 
-/**
- * This is a function to draw/update view
- */
-InfoView.prototype.update = function(id, player){
-    var fileExists = function (url)
+    // function to check if the icon file exist
+    this.fileExists = function  (url)
     {
         var http = new XMLHttpRequest();
         http.open('HEAD', url, false);
         http.send();
-        return http.status!=404;
+        return http.status != 404;
     };
 
-    var img = this.svg.select('image')
-        .attr('x',0)
-        .attr('y',0)
-        .attr('width', this.svgWidth)
-        .attr('height', this.svgHeight);
+    // generate one view under a group tag
+    this.OneView = function (group, player) {
+        var id = player.info.PERSON_ID;
+        var textSize = 18,
+            headSize = 50;
+        var textHeight = 32,
+            headHeight = 80;
+        var textYOffset  = 10,
+            textXOffset  = 300;
+        var imageWidth   = 230,
+            imageHeight  = 185,
+            imageYOffset = 20;
 
-    var url = 'data/playerIcon/' + id + '.png';
-    if (fileExists(url)) {
-        img.attr("xlink:href", url);
-    } else {
-        img.attr("xlink:href", 'data/playerIcon/NoFound.png');
-    }
+        // attach an image under the svg
+        var img = group.select('image').attr('x',(textXOffset - imageWidth)/2).attr('y',imageYOffset)
+            .attr('width',  imageWidth)
+            .attr('height', imageHeight);
+        var url = 'data/playerIcon/' + id + '.png';
+        if (this.fileExists(url)) {
+            img.attr("xlink:href", url);
+        } else {
+            img.attr("xlink:href", 'data/playerIcon/NoFound.png');
+        }
 
-    this.div.select('h1')
-        .text(player['info']['FIRST_NAME'] + ' ' + player['info']['LAST_NAME']);
-    this.div.selectAll('li').remove();
-    this.div.append('li')
-        .text('Birthday: ' + player['info']['BIRTHDATE'].slice(0,10));
-    this.div.append('li')
-        .text('Position: ' + player['info']['POSITION']);
-    this.div.append('li')
-        .text('Team: ' + player['info']['TEAM']);
-    this.div.append('li')
-        .text('Height: ' + player['info']['HEIGHT']);
-    this.div.append('li')
-        .text('Weight: ' + player['info']['WEIGHT'] + ' lbs');
-    this.div.append('li')
-        .text('Country: ' + player['info']['COUNTRY']);
-    this.div.append('li')
-        .text('School: ' + player['info']['SCHOOL']);
-    this.div.append('li')
-        .text('Seasons: ' + player['info']['FROM_YEAR'] + ' - ' + player['info']['TO_YEAR']);
+        // attach player information (construct data)
+        var infodata = [];
+        infodata.push('Birthday: ' + player.info.BIRTHDATE.slice(0,10));
+        infodata.push('Position: ' + player.info.POSITION);
+        infodata.push('Team: '     + player.info.TEAM);
+        infodata.push('Height: '   + player.info.HEIGHT);
+        infodata.push('Weight: '   + player.info.WEIGHT + ' lbs');
+        infodata.push('Country: '  + player.info.COUNTRY);
+        infodata.push('School: '   + player.info.SCHOOL);
+        infodata.push('Seasons: '  + player.info.FROM_YEAR + ' - ' + player.info.TO_YEAR);
 
-};
+        // draw texts
+        var tsize = infodata.length;
+        group.selectAll('text').remove();
+        group.selectAll('text').data(infodata).enter().append('text')
+            .attr('x', textXOffset)
+            .attr('y', function (d, i) { return textYOffset + textHeight + i * textHeight })
+            .text(function (d) { return d; })
+            .style('font-size', textSize)
+            .style('font-family', 'Verdana');
+        group.append('text') // attach header (player name)
+            .attr('x', textXOffset/2)
+            .attr('y', imageHeight + headHeight)
+            .text(player.info.FIRST_NAME + ' ' + player.info.LAST_NAME)
+            .style('font-size', headSize)
+            .style('font-family', 'Fantasy')
+            .style('text-anchor', 'middle');
+    };
 
-/**
- * This is a function to resize image
- */
-InfoView.prototype.resize = function(width, heigh){
+    /**
+     *
+     * @param group
+     * @param player
+     * @constructor
+     */
+    this.SeasonAxis = function (group, player) {
+        var sYear = player.info.FROM_YEAR;
+        var eYear = player.info.TO_YEAR;
+        var numOfYears = eYear - sYear + 1;
 
-};
+        var halfStep = this.width / numOfYears / 2;
 
-/**
- * Helper function
- */
-InfoView.prototype.helper = function () {
+        var i;
 
-};
+        var seasonList = [];
 
+        for (i = sYear; i <= eYear; ++i) {
+            var entry = {
+                year: i,
+                team: null
+            };
+            if (player.season.RegularSeason.hasOwnProperty(i)) {
+                entry.team = player.season.RegularSeason[i].team;
+            }
+            seasonList.push(entry);
+        }
+
+
+        group.attr('transform', 'translate(0,350)');
+
+        var yScale = d3.scaleLinear()
+            .domain([0, numOfYears - 1])
+            .range([halfStep, this.width/2 - halfStep]);
+
+        var axis = d3.axisBottom()
+            .scale(yScale)
+            .ticks(numOfYears)
+            .tickFormat(function (i) { return sYear + i; });
+
+        group.append('g').call(axis);
+
+        
+
+    };
+
+}
 

@@ -197,7 +197,7 @@ function GameMeshView (divId) {
                 return d.gameList.length == 0 ? cScale(d.sumOfValues) : cScale(d.sumOfValues / d.gameList.length);
             });
         // axis
-        //var yearAxis = d3.axisBottom().
+        // var yearAxis = d3.axisBottom().
 
     };
 
@@ -209,7 +209,3 @@ function GameMeshView (divId) {
         this.update(this.playerid, this.player, this.yearFrom, this.yearTo);
     };
 }
-
-
-
-

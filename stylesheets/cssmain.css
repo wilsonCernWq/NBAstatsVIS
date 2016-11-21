@@ -1,13 +1,3 @@
-.view-right-sidebar {
-    display: inline-block;
-    float: right;
-}
-
-.view-left-sidebar {
-    display: inline-block;
-    float: left;
-}
-
 .view-menu {
     height: 50px;
 }
@@ -18,4 +8,8 @@
     margin-right: 100px;
     background: #ffffff;
     border: solid 1px;
+}
+.yeaAxis {
+    stroke-dasharray: 5, 5;
+    stroke: #000000
 }
