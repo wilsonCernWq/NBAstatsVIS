@@ -87,7 +87,7 @@ function main() {
 
             // --- Info View
             infoView = new InfoView();
-            infoView.init();
+            infoView.init(400);
             infoView.update(player);
 
             //generalView = new GeneralView('#generalView', 400, 230);
@@ -95,9 +95,9 @@ function main() {
             //generalView.update(playerInfo[0], player);
 
             // -- Ranking View
-            //ranking = new Ranking('rankView', 300);
-            //ranking.init();
-            //ranking.update(playerInfo[0], player, player['info']['FROM_YEAR'], player['info']['TO_YEAR'], 'PTS');
+            ranking = new Ranking();
+            ranking.init(500);
+            ranking.update(playerInfo[0], player, player.info.FROM_YEAR, player.info.TO_YEAR, 'PTS');
 
             // -- Game Mesh View
             gameMeshView = new GameMeshView();
