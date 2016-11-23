@@ -154,7 +154,7 @@ function InfoView (){
         var totalOffsetY = 265 * ratio, // this equals to the icon image height + name font height
             totalPadding = 30 * ratio;  // this is the margin for axis and info view
         var axisSize = 20 * ratio,  // the height of axis
-            axisFont = 12 * ratio;
+            axisFont = 10 * ratio;
         var barsOffY = 5 * ratio,   // padding between bar and axis
             barsSize = 10 * ratio,  // rect size
             barsPad  = 0.9 * ratio, // padding between two neighboring bars
