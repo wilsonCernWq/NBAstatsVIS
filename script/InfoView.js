@@ -12,7 +12,7 @@ function InfoView (){
     /**
      * Initialization
      */
-    self.init = function()
+    self.init = function(height)
     {
         // calculate svg default size & get the correct width of the window
         var div   = document.getElementById('infoView');  // shortcuts
@@ -32,7 +32,7 @@ function InfoView (){
         self.grpAxis.append('g').attr('id','brushGroup');
         // save width and height
         self.width  = parseInt(style.getPropertyValue("width"), 10);
-        self.height = 400;
+        self.height = height;
         self.svg
             .attr('width', self.width)
             .attr('height', self.height);
