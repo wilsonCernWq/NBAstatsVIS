@@ -86,21 +86,17 @@ function main() {
         if (errorPlayerIndex) throw errorPlayerIndex;
 
         // -- TODO Data Query
-        var playerInfo = searchPlayer(Info, 'kobe_bryant');
+        var playerInfo = searchPlayer(Info, 'michael_jordan');
 
         // -- TODO Complete All Views
         d3.json('data/player/' + playerInfo[4] + '.json', function (errorPlayer, player) {
             if (errorPlayer) throw errorPlayer;
             if (debug) console.log(playerInfo[4], player);
 
-            // --- Info View
+            // -- Info View
             infoView = new InfoView();
             infoView.init(400);
             infoView.update(player);
-
-            //generalView = new GeneralView('#generalView', 400, 230);
-            //generalView.init();
-            //generalView.update(playerInfo[0], player);
 
             // -- Ranking View
             ranking = new Ranking();
@@ -109,7 +105,7 @@ function main() {
 
             // -- Game Mesh View
             gameMeshView = new GameMeshView();
-            gameMeshView.init(800);
+            gameMeshView.init(600);
             gameMeshView.update(playerInfo[0], player, player.info.FROM_YEAR, player.info.TO_YEAR);
 
         })

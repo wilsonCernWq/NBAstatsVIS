@@ -44,8 +44,9 @@ function InfoView (){
      */
     self.update = function(player) {
         self.player = player;
-        self.OneView(self.grpInfo, player);
+        self.OneInfo(self.grpInfo, player);
         self.SeasonAxis(self.grpAxis, player);
+
     };
 
     /**
@@ -80,7 +81,7 @@ function InfoView (){
      * @param player
      * @constructor
      */
-    self.OneView = function (group, player) {
+    self.OneInfo = function (group, player) {
         var id = player.info.PERSON_ID;
         var ratio = self.width / 1300; // rescaling ratio
 
@@ -179,6 +180,8 @@ function InfoView (){
                 } else {
                     teamList[teamList.length-1].yearTo = year; // update yearTo information
                 }
+            } else {
+                team = null;
             }
         }
 
@@ -195,7 +198,6 @@ function InfoView (){
             .call(axis) // create axis (the axis will be created at level y = 0)
             .selectAll('text')
             .style('font-size', axisFont); // adjust axis font size
-
         // draw bars
         d3SelectAll(group.select('#barsGroup'), 'rect', teamList)
             .attr('x', function (d) { return scale(d.yearFrom - 0.5) + barsPad; }) // shift things back
@@ -237,6 +239,31 @@ function InfoView (){
         group.select('#brushGroup').select('.selection').style('display','none'); // hide selection when resizing
         group.select('#brushGroup').select('.handle').style('display','none');    // hide selection when resizing
 
+    };
+
+
+    /**
+     * self is a function to draw/update view
+     */
+    self.RadialView = function(playerid, player){
+        // var data = player['career']['RegularSeason'][0].slice(14);
+        // var head = player['career']['headerRow'].slice(14);
+        //
+        // console.log(data);
+        //
+        // self.group.selectAll('rect').remove();
+        // self.group.selectAll('rect').data(data).enter()
+        //     .append('rect')
+        //     .attr('x', function (d, i) { return 10 + i * 40; })
+        //     .attr('y', 20)
+        //     .attr('width', 20)
+        //     .attr('height', function (d) { return d * 4; });
+        //
+        // self.svg.selectAll('text').data(head).enter()
+        //     .append('text')
+        //     .attr('x', function (d, i) { return 7 + i * 40; })
+        //     .attr('y', 50)
+        //     .text(function (d) { return d; });
     };
 
 }
