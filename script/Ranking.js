@@ -232,7 +232,7 @@ function Ranking () {
                 .attr('y', function (d) { return barH * d.rowset.length + textFont * 0.6 + textMargin; })
                 .text(function (d) { return d.rowset.length; })
                 .style('font-size', textFont);
-            
+
         });
     };
 }

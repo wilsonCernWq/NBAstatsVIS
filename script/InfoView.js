@@ -227,7 +227,7 @@ function InfoView (){
                 value[1] = Math.round(value[1]-0.5);
                 // TODO call year selection function
                 // here I simply print things out, in the future, functions should be linked to here
-                console.log('selectiong year: ',value);
+                console.log('selecting year: ',value);
                 // adjust brush position so that it snaps on the correct year
                 value[0] += 0.5;
                 value[1] += 0.5;
