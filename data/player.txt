@@ -40,10 +40,10 @@ player
         |        "AST", "STL", "BLK", "TOV", "PF", "PTS"]
         |
         |__ headerRowRank
-        |     = ["RANK_PG_MIN", "RANK_PG_FGM", "RANK_PG_FGA", "RANK_FG_PCT", "RANK_PG_FG3M",
+        |     = ["RANK_PG_MIN",  "RANK_PG_FGM",  "RANK_PG_FGA", "RANK_FG_PCT", "RANK_PG_FG3M",
         |        "RANK_PG_FG3A", "RANK_FG3_PCT", "RANK_PG_FTM", "RANK_PG_FTA", "RANK_FT_PCT",
         |        "RANK_PG_OREB", "RANK_PG_DREB", "RANK_PG_REB", "RANK_PG_AST", "RANK_PG_STL",
-        |        "RANK_PG_BLK", "RANK_PG_TOV", "RANK_PG_PTS", "RANK_PG_EFF"]
+        |        "RANK_PG_BLK",  "RANK_PG_TOV",  "RANK_PG_PTS", "RANK_PG_EFF"]
         |
         |__ headerCol = ['PerGame', 'Totals']
         |
