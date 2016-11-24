@@ -118,6 +118,10 @@ The field ClutchTime must match the regular expression '^((Last 5 Minutes)|(Last
 
 http://stats.nba.com/stats/leaguedashplayerstats?GameScope=&PlayerExperience=&PlayerPosition=&StarterBench=&MeasureType=Scoring&PerMode=Totals&PlusMinus=Y&PaceAdjust=Y&Rank=Y&Season=2015-16&SeasonType=Regular+Season&Outcome=&Location=&Month=0&SeasonSegment=&DateFrom=&DateTo&OpponentTeamID=0&VsConference=&VsDivision=&GameSegment=&Period=0&LastNGames=0
 
+http://stats.nba.com/stats/leaguedashplayershotlocations?MeasureType=Base&PerMode=PerGame&PlusMinus=Y&PaceAdjust=N&Rank=Y&Season=2009-10&SeasonType=Regular+Season&Outcome=&Location=&Month=0&SeasonSegment=&DateFrom=&DateTo=&OpponentTeamID=0&VsConference=&VsDivision=&GameSegment=&Period=0&LastNGames=0&DistanceRange=By%20Zone&GameScope=&PlayerExperience=&PlayerPosition=&StarterBench=
+
+http://stats.nba.com/stats/leaguedashplayerbiostats?PerMode=PerGame&&LeagueID=00&&Season=2009-10&&SeasonType=Regular+Season
+
 The field PlayerPosition must match the regular expression '((F)|(C)|(G)|(C-F)|(F-C)|(F-G)|(G-F))?'.
 The field PlayerExperience must match the regular expression '((Rookie)|(Sophomore)|(Veteran))?'.
 The field MeasureType must match the regular expression '^(Base)|(Advanced)|(Misc)|(Four Factors)|(Scoring)|(Opponent)|(Usage)|(Defense)$'.

@@ -86,7 +86,7 @@ function main() {
         if (errorPlayerIndex) throw errorPlayerIndex;
 
         // -- TODO Data Query
-        var playerInfo = searchPlayer(Info, 'michael_jordan');
+        var playerInfo = searchPlayer(Info, 'jianlian_yi');
 
         // -- TODO Complete All Views
         d3.json('data/player/' + playerInfo[4] + '.json', function (errorPlayer, player) {

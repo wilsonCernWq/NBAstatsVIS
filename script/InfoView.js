@@ -206,7 +206,14 @@ function InfoView (){
             .attr('height', barsSize)
             .style('stroke-width', barsStroke) // give rect some strokes
             .style('stroke', 'black')          // stroke color based on team color 2
-            .style('fill', function (d) { return teamInfo[d.team][1]; }); // filling with team color 1
+            .style('fill', function (d) {
+                try {
+                    return teamInfo[d.team][1];
+                } catch (e) {
+                    console.log(d.team);
+                }
+
+            }); // filling with team color 1
         // draw team logo
         d3SelectAll(group.select('#barsGroup'), 'image', teamList)
             .attr('x', function (d) { // --> (somehow the logo is aligned at the center) applied a shift
