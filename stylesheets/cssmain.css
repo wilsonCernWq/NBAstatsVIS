@@ -1,3 +1,4 @@
+/* general html styles */
 .view-menu {
     height: 50px;
 }
@@ -9,7 +10,65 @@
     background: #ffffff;
     border: solid 1px;
 }
-.yeaAxis {
-    stroke-dasharray: 5, 5;
-    stroke: #000000
+
+/* info view */
+.info-text {
+    font-size: 10px;
+    font-family: Verdana;
+    text-anchor: middle;
+}
+
+.info-title {
+    font-size: 10px;
+    font-family: Fantasy;
+    text-anchor: middle;
+}
+
+
+/* rank view */
+.rank-bar {
+    fill: #E6E6E6;
+}
+
+.rank-tooltip {
+    position: absolute;
+    text-align: center;
+    width: 60px;
+    height: 12px;
+    padding: 8px;
+    margin-top: -20px;
+    font: 10px sans-serif;
+    background: #DDDDDD;
+    pointer-events: none;
+    border: solid 1px;
+}
+
+.rank-area {
+    fill: #4860f5;
+    stroke: #4860f5;
+    opacity: 0.5;
+}
+
+.rank-circle {
+    fill: #ff8151;
+    stroke: #f5256e;
+    opacity: 0.5;
+}
+
+.rank-highlight-bar {
+    fill: #f5256e;
+    stroke: none;
+    opacity: 0.5;
+}
+
+.rank-year-text {
+    text-anchor: middle;
+    font: 10px sans-serif;
+    fill: #000000;
+}
+
+.rank-player-text {
+    text-anchor: middle;
+    font: 10px sans-serif;
+    fill: #000000;
 }

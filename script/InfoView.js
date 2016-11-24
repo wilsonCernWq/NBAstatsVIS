@@ -124,15 +124,14 @@ function InfoView (){
             .attr('x', textXOffset)
             .attr('y', function (d, i) { return textYOffset + (1 + i) * textHeight })
             .text(function (d) { return d; })
-            .style('font-size', textSize)
-            .style('font-family', 'Verdana');
+            .classed('info-text', true)
+            .style('font-size', textSize);
         group.append('text') // attach header (player name)
             .attr('x', textXOffset/2)
             .attr('y', imageHeight + headHeight)
             .text(player.info.FIRST_NAME + ' ' + player.info.LAST_NAME)
-            .style('font-size', headSize)
-            .style('font-family', 'Fantasy')
-            .style('text-anchor', 'middle');
+            .classed('info-title', true)
+            .style('font-size', headSize);
     };
 
     /**
