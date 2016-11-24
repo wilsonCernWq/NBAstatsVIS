@@ -45,11 +45,19 @@ var teamInfo = {
 /**
  * helper functions
  */
-function d3SelectAll(base, obj, mydata) {
-    var select = base.selectAll(obj).data(mydata);
-    select.exit().remove();
-    select = select.enter().append(obj).merge(select);
-    return select;
+function d3SelectAll(base, obj, mydata, removeAll) {
+    var select;
+    if (!removeAll) {
+        select = base.selectAll(obj).data(mydata);
+        select.exit().remove();
+        select = select.enter().append(obj).merge(select);
+        return select;
+    } else {
+        base.selectAll(obj).remove();
+        select = base.selectAll(obj).data(mydata);
+        select = select.enter().append(obj).merge(select);
+        return select;
+    }
 }
 
 /**
@@ -78,7 +86,7 @@ function main() {
         if (errorPlayerIndex) throw errorPlayerIndex;
 
         // -- TODO Data Query
-        var playerInfo = searchPlayer(Info, 'aaron_brooks');
+        var playerInfo = searchPlayer(Info, 'kobe_bryant');
 
         // -- TODO Complete All Views
         d3.json('data/player/' + playerInfo[4] + '.json', function (errorPlayer, player) {
