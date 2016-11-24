@@ -61,6 +61,7 @@ function Ranking () {
             // search for the attribute index inside the array
             // -- we input attribute by attribute name, and then search for the attribute index
             var attrID = files[0].resultSet.headers.indexOf(attribute);
+            console.log(files[0].resultSet.headers);
             // restruct data
             var filesMetaInfo = [];
             files.forEach(function (single, i) {
@@ -89,7 +90,7 @@ function Ranking () {
                     rowset: entries
                 });
             });
-            console.log(filesMetaInfo);
+            // console.log(filesMetaInfo);
 
             //----------------------------------------------------------------------------------------------
             // parameters for drawing
@@ -108,43 +109,63 @@ function Ranking () {
             var barMargin = 20, // calculate column width
                 barW = windowW / files.length - barMargin, // bar width
                 barH = windowH / maxPlayer;                // bar height
-            // define value scale
-            var xScale = d3.scaleLinear().domain([0, maxValue]).range([0, barW]);
-            var rScale = d3.scaleLinear().domain([0, maxValue]).range([minRadius, maxRadius]);
             // text parameter
             var textMargin = 8,
                 textFont   = 10;
-
+            // tooltip texts
+            var zoomlen = 3,
+                zoomH = 100, // should be the same as CSS !!!
+                zoomW = 120, // should be the same as CSS !!!
+                zoomFontMT = 11, // text down shifting
+                zoomFontML = 3;  // left margin
+            // define value scale
+            var xScale = d3.scaleLinear().domain([0, maxValue]).range([0, barW]);
+            var rScale = d3.scaleLinear().domain([0, maxValue]).range([minRadius, maxRadius]);
             //----------------------------------------------------------------------------------------------
             // define use objects before drawing
             // tooltip functions
-            {
-                var mouseover = function () {
-                    self.tooltip.style("display", "inline");
-                };
-                var mouseout = function () {
-                    self.tooltip.style("display", "none");
-                };
-                var mousemove = function () {
-                    var Xindex = Math.floor((d3.event.pageX - self.box.left) / (barW + barMargin));
-                    var Yindex = Math.round(d3.event.pageY - self.box.top);
-                    // define style
-                    self.tooltip
-                        .style("left", (d3.event.pageX - 34) + "px")
-                        .style("top", (d3.event.pageY - 12) + "px")
-                        .html("")
-                        .text(Xindex + ", " + Yindex);
-                };
-            }
+            var mouseover = function () {
+                self.tooltip
+                    .style('display', 'inline')
+                    .html('<svg id="rankView-tooltip-svg" width="120" height="100"></svg>');
+            };
+            var mouseout = function () {
+                self.tooltip.style('display', 'none');
+            };
+            var mousemove = function () {
+                // calculate indices
+                var Xindex = Math.floor((d3.event.pageX - self.box.left - self.margin.left) / (barW + barMargin));
+                var Yindex = Math.round((d3.event.pageY - self.box.top - self.margin.top) / barH);
+                // shift tooltip immediately
+                self.tooltip
+                    .style('left', (Xindex * (barW + barMargin) + self.box.left - self.margin.left) + 'px')
+                    .style('top', (d3.event.pageY - 12) + 'px');
+                // retrieve data
+                var maxIndex = filesMetaInfo[Xindex].rowset.length - 1;
+                var Is = Yindex - zoomlen,
+                    Ie = Yindex + zoomlen;
+                if (Is < 0) { Is = 0; Ie = Math.min(Is + 2 * zoomlen + 1, maxIndex); }
+                if (Ie > maxIndex) { Ie = maxIndex; Is = Math.max(Ie - 2 * zoomlen - 1, 0); }
+                var zoomdata = filesMetaInfo[Xindex].rowset.slice(Is,Ie+1);
+                //console.log(zoomdata);
+                // modified svg
+                var plot = d3.select('#rankView-tooltip-svg');
+                d3SelectAll(plot, 'rect', zoomdata)
+                    .attr('x', 0)
+                    .attr('y', function(d,i) { return i * zoomH / (zoomlen*2+1); })
+                    .attr('width', zoomW)
+                    .attr('height', zoomH / (zoomlen*2+1))
+                    .classed('rank-tooltip-rect-frame', true);
+                d3SelectAll(plot, 'text', zoomdata)
+                    .attr('x', zoomFontML)
+                    .attr('y', function(d,i) {
+                        return i * zoomH / (zoomlen*2+1) + zoomFontMT; // down shift texts
+                    })
+                    .text(function (d) { return d[2] + ':' + d[attrID]; })
+            };
             // draw area chart
             var area = d3.area()
-                .x(function (d, i) {
-                    return i * barH;
-                })
-                .y0(0)
-                .y1(function (d) {
-                    return xScale(d[attrID]);
-                });
+                .x(function (d, i) { return i * barH; }).y0(0) .y1(function (d) { return xScale(d[attrID]); });
 
             //----------------------------------------------------------------------------------------------
             // creat groups for every year the player played
@@ -211,16 +232,7 @@ function Ranking () {
                 .attr('y', function (d) { return barH * d.rowset.length + textFont * 0.6 + textMargin; })
                 .text(function (d) { return d.rowset.length; })
                 .style('font-size', textFont);
-
-            // d3SelectAll(currGrp, 'rect', entries)
-            //     .on('mouseover', function (d) { console.log(d); })
-            //     .attr("width", function (d,i) { return d[0] == id ? barHiglight: barW; })
-            //     .attr("height", barH)
-            //     .attr("x", colW * data.index + colW * 0.5)
-            //     .attr("y", function (d,i) { return i * barH; })
-            //     .style("fill", function (d,i) { return d[0] == id ?  "red" : "steelblue"; })
-            //     .style('stroke-width',0);
-
+            
         });
     };
 }

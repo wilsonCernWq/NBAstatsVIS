@@ -15,7 +15,7 @@
 .info-text {
     font-size: 10px;
     font-family: Verdana;
-    text-anchor: middle;
+    text-anchor: start;
 }
 
 .info-title {
@@ -30,17 +30,28 @@
     fill: #E6E6E6;
 }
 
-.rank-tooltip {
+.rank-tooltip { /* I think a fixed window is reasonable here for zooming */
+    pointer-events: none;
     position: absolute;
     text-align: center;
-    width: 60px;
-    height: 12px;
-    padding: 8px;
-    margin-top: -20px;
     font: 10px sans-serif;
-    background: #DDDDDD;
-    pointer-events: none;
     border: solid 1px;
+    background: #DDDDDD;
+    margin-top:  -55px; /* left shift*/
+    margin-left: -70px; /* up shift*/
+    padding: 6px;
+    width:  120px;
+    height: 100px;
+}
+
+.rank-tooltip-rect-frame {
+    fill: #818181;
+    opacity: 0.3;
+}
+
+.rank-tooltip-text {
+    color: #000000;
+    font: 10px sans-serif;
 }
 
 .rank-area {
