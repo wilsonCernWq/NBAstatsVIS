@@ -109,7 +109,8 @@ function InfoView (){
 
         // attach player information (construct data)
         var infodata = [];
-        infodata.push('Team: ' + teamInfo[player.info.TEAM][0]);
+        var teamID = teamList.lookup[player.info.TEAM];
+        infodata.push('Team: ' + teamList.current[teamID].TEAM_CITY + ' ' + teamList.current[teamID].TEAM_NAME);
         infodata.push('Position: ' + player.info.POSITION);
         infodata.push('Height: ' + player.info.HEIGHT + ' ft');
         infodata.push('Weight: ' + player.info.WEIGHT + ' lbs');
@@ -161,7 +162,7 @@ function InfoView (){
             barsStroke = 2 * ratio; // bar stroke
         var logoOffY  = 18 * ratio, // padding between team logo and bars
             logoSize  = 45 * ratio, // size of logo image
-            logoShift = 5 * ratio;  // shift logo so that it lies in the center of the bar
+            logoShift = 2 * ratio;  // shift logo so that it lies in the center of the bar
         var brushPad = 10 * ratio;  // padding for brush
         // -- calculate total plotting area
         var plotOffY = totalOffsetY + totalPadding + logoOffY + logoSize;
@@ -169,16 +170,16 @@ function InfoView (){
         var plotHeight = logoOffY + logoSize + axisSize;
 
         // prepare data structore for the plot
-        var year, team = null, teamList = [];
+        var year, team = null, PlayerTeamList = [];
         for (year = sYear; year <= eYear; ++year) {
             if (player.season.RegularSeason.hasOwnProperty(year)) {
                 if (team != player.season.RegularSeason[year].team) {
                     // remember current team
                     team = player.season.RegularSeason[year].team;
                     // create new data object
-                    teamList.push({ team: team, yearFrom: year, yearTo: year});
+                    PlayerTeamList.push({ team: team, yearFrom: year, yearTo: year});
                 } else {
-                    teamList[teamList.length-1].yearTo = year; // update yearTo information
+                    PlayerTeamList[PlayerTeamList.length-1].yearTo = year; // update yearTo information
                 }
             } else {
                 team = null;
@@ -186,6 +187,7 @@ function InfoView (){
         }
 
         // DRAWING
+        console.log(teamList);
         // creat scale and axis
         var scale = d3.scaleLinear()
             .domain([sYear - 0.5, eYear + 0.5]) // the range is being shifted, for axis ticks
@@ -199,7 +201,7 @@ function InfoView (){
             .selectAll('text')
             .style('font-size', axisFont); // adjust axis font size
         // draw bars
-        d3SelectAll(group.select('#barsGroup'), 'rect', teamList)
+        d3SelectAll(group.select('#barsGroup'), 'rect', PlayerTeamList)
             .attr('x', function (d) { return scale(d.yearFrom - 0.5) + barsPad; }) // shift things back
             .attr('y', -barsSize - barsOffY) // shift bar based on axis position
             .attr('width', function (d) { return scale(d.yearTo + 0.5) - scale(d.yearFrom - 0.5) - barsPad; })
@@ -207,22 +209,20 @@ function InfoView (){
             .style('stroke-width', barsStroke) // give rect some strokes
             .style('stroke', 'black')          // stroke color based on team color 2
             .style('fill', function (d) {
-                try {
-                    return teamInfo[d.team][1];
-                } catch (e) {
-                    console.log(d.team);
-                }
-
-            }); // filling with team color 1
+                return teamList.current[teamList.lookup[d.team]].COLOR_1; // filling with team color 1
+            });
         // draw team logo
-        d3SelectAll(group.select('#barsGroup'), 'image', teamList)
+        d3SelectAll(group.select('#barsGroup'), 'image', PlayerTeamList)
             .attr('x', function (d) { // --> (somehow the logo is aligned at the center) applied a shift
-                return scale((d.yearFrom + d.yearTo)/2 - 0.5) + logoShift; // logo align center
+                return scale((d.yearFrom + d.yearTo)/2 - 0.25) + logoShift; // logo align center
             })
             .attr('y', -logoSize - logoOffY) // shift logo based on axis position
             .attr('width',  logoSize)
             .attr('height', logoSize)
-            .attr("xlink:href", function (d) { return 'data/logo/' + d.team + '_logo.svg'; } ); // load data
+            .attr("xlink:href", function (d) {
+                var teamABBR = teamList.current[teamList.lookup[d.team]].TEAM_ABBREVIATION;
+                return 'data/logo/' + teamABBR + '_logo.svg'; // load data
+            });
         // draw brush
         // --> reference https://bl.ocks.org/mbostock/6232537
         var brush = d3.brushX()

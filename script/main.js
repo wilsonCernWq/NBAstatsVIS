@@ -8,39 +8,8 @@ window.onresize = resize;
 /**
  * global variables
  */
-var infoView, seasonAxis, generalView, ranking, gameMeshView;
-var teamInfo = {
-    ATL: ['Atlanta Hawks','#E03A3E'],
-    BOS: ['Boston Celtics','#008348'],
-    BKN: ['Brooklyn Nets','#000000'],
-    CHA: ['Charlotte Hornets','#1D1160'],
-    CHI: ['Chicago Bulls','#CE1141'],
-    CLE: ['Cleveland Cavaliers','#860038'],
-    DAL: ['Dallas Mavericks','#007DC5'],
-    DEN: ['Denver Nuggets','#4FA8FF'],
-    DET: ['Detroit Pistons','#006BB6'],
-    GSW: ['Golden State Warriors','#006BB6'],
-    HOU: ['Houston Rockets','#CE1141'],
-    IND: ['Indiana Pacers', '#00275D'],
-    LAC: ['Los Angeles Clippers','#ED174C'],
-    LAL: ['Los Angeles Lakers','#552582'],
-    MEM: ['Memphis Grizzlies','#23375B'],
-    MIA: ['Miami Heat','#98002E'],
-    MIL: ['Milwaukee Bucks','#00471B'],
-    MIN: ['Minnesota Timberwolves','#005083'],
-    NOP: ['New Orleans Pelicans','#002B5C'],
-    NYK: ['New York Knicks','#F58426'],
-    OKC: ['Oklahoma City Thunder','#007DC3'],
-    ORL: ['Orlando Magic','#007DC5'],
-    PHI: ['Philadelphia 76ers','#006BB6'],
-    PHX: ['Phoenix Suns','#E56020'],
-    POR: ['Portland Trail Blazers','#F0163A'],
-    SAC: ['Sacramento Kings','#724C9F'],
-    SAS: ['San Antonio Spurs','#B6BFBF'],
-    TOT: ['Toronto Raptors','#CE1141'],
-    UTA: ['Utah Jazz','#002B5C'],
-    WAS: ['Washington Wizards','#F5002F']
-};
+var infoView, ranking, gameMeshView;
+var teamList;
 
 /**
  * helper functions
@@ -63,8 +32,8 @@ function d3SelectAll(base, obj, mydata, removeAll) {
 /**
  * main function
  */
-function main() {
-
+function main()
+{
     /**
      * Function to query the player
      * @param info
@@ -77,41 +46,58 @@ function main() {
         return info['rowSet'][id];
     };
 
-
+    // debug flag
     var debug = true;
 
-    // if (debug)  console.log('This is where the program starts');
-
-    d3.json('data/playerindex.json', function (errorPlayerIndex, Info) {
-        if (errorPlayerIndex) throw errorPlayerIndex;
-
-        // -- TODO Data Query
-        var playerInfo = searchPlayer(Info, 'jianlian_yi');
-
-        // -- TODO Complete All Views
-        d3.json('data/player/' + playerInfo[4] + '.json', function (errorPlayer, player) {
-            if (errorPlayer) throw errorPlayer;
-            if (debug) console.log(playerInfo[4], player);
-
-            // -- Info View
-            infoView = new InfoView();
-            infoView.init(400);
-            infoView.update(player);
-
-            // -- Ranking View
-            ranking = new Ranking();
-            ranking.init(500);
-            ranking.update(playerInfo[0], player, player.info.FROM_YEAR, player.info.TO_YEAR, 'PTS');
-
-            // -- Game Mesh View
-            gameMeshView = new GameMeshView();
-            gameMeshView.init(600);
-            gameMeshView.update(playerInfo[0], player, player.info.FROM_YEAR, player.info.TO_YEAR);
-
-        })
-
-    })
-
+    // load team list
+    d3.csv('data/teamhistory.csv', function (errorHistory, teamListLocal) {
+        if (errorHistory) throw errorHistory;
+        // construct team info lookup list
+        // teamList = teamListLocal;
+        teamList = { lookup:{}, current:{}, history:{} };
+        teamListLocal.forEach(function (d) {
+            var teamid = +d.TEAM_ID;
+            teamList.lookup[d.TEAM_ABBREVIATION] = teamid;
+            if (d.SUMMARY == 'Y') {
+                teamList.current[teamid] = d;
+            } else {
+                if (!teamList.history.hasOwnProperty(d.TEAM_ID)) {
+                    teamList.history[teamid] = [d];
+                } else {
+                    teamList.history[teamid].push(d);
+                }
+            }
+        });
+        // load player list
+        d3.json('data/playerindex.json', function (errorPlayerIndex, playerListLocal) {
+            if (errorPlayerIndex) throw errorPlayerIndex;
+            //
+            // -- TODO Data Query
+            var playerInfo = searchPlayer(playerListLocal, 'kobe_bryant');
+            //
+            // -- TODO Complete All Views
+            d3.json('data/player/' + playerInfo[4] + '.json', function (errorPlayer, player)
+            {
+                if (errorPlayer) throw errorPlayer;
+                if (debug) console.log(playerInfo[4], player);
+                //
+                // -- Info View
+                infoView = new InfoView();
+                infoView.init(400);
+                infoView.update(player);
+                //
+                // -- Ranking View
+                ranking = new Ranking();
+                ranking.init(500);
+                ranking.update(playerInfo[0], player, player.info.FROM_YEAR, player.info.TO_YEAR, 'PTS');
+                //
+                // -- Game Mesh View
+                gameMeshView = new GameMeshView();
+                gameMeshView.init(600);
+                gameMeshView.update(playerInfo[0], player, player.info.FROM_YEAR, player.info.TO_YEAR);
+            });
+        });
+    });
 }
 
 /**
