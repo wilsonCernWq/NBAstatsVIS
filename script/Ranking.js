@@ -61,7 +61,7 @@ function Ranking () {
             // search for the attribute index inside the array
             // -- we input attribute by attribute name, and then search for the attribute index
             var attrID = files[0].resultSet.headers.indexOf(attribute);
-            console.log(files[0].resultSet.headers);
+            // console.log(files[0].resultSet.headers);
             // restruct data
             var filesMetaInfo = [];
             files.forEach(function (single, i) {

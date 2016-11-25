@@ -161,8 +161,7 @@ function InfoView (){
             barsPad  = 0.9 * ratio, // padding between two neighboring bars
             barsStroke = 2 * ratio; // bar stroke
         var logoOffY  = 18 * ratio, // padding between team logo and bars
-            logoSize  = 45 * ratio, // size of logo image
-            logoShift = 2 * ratio;  // shift logo so that it lies in the center of the bar
+            logoSize  = 45 * ratio; // size of logo image
         var brushPad = 10 * ratio;  // padding for brush
         // -- calculate total plotting area
         var plotOffY = totalOffsetY + totalPadding + logoOffY + logoSize;
@@ -187,7 +186,7 @@ function InfoView (){
         }
 
         // DRAWING
-        console.log(teamList);
+        // console.log(teamList);
         // creat scale and axis
         var scale = d3.scaleLinear()
             .domain([sYear - 0.5, eYear + 0.5]) // the range is being shifted, for axis ticks
@@ -199,7 +198,7 @@ function InfoView (){
             .select('#axisGroup')
             .call(axis) // create axis (the axis will be created at level y = 0)
             .selectAll('text')
-            .style('font-size', axisFont); // adjust axis font size
+            .style('font-size', axisFont); // adjust axis font size based on window size
         // draw bars
         d3SelectAll(group.select('#barsGroup'), 'rect', PlayerTeamList)
             .attr('x', function (d) { return scale(d.yearFrom - 0.5) + barsPad; }) // shift things back
@@ -214,7 +213,7 @@ function InfoView (){
         // draw team logo
         d3SelectAll(group.select('#barsGroup'), 'image', PlayerTeamList)
             .attr('x', function (d) { // --> (somehow the logo is aligned at the center) applied a shift
-                return scale((d.yearFrom + d.yearTo)/2 - 0.25) + logoShift; // logo align center
+                return scale((d.yearFrom + d.yearTo)/2) - logoSize/2; // logo align center
             })
             .attr('y', -logoSize - logoOffY) // shift logo based on axis position
             .attr('width',  logoSize)
