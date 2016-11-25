@@ -30,6 +30,8 @@ function InfoView (){
         self.grpAxis.append('g').attr('id','axisGroup');
         self.grpAxis.append('g').attr('id','barsGroup');
         self.grpAxis.append('g').attr('id','brushGroup');
+        // 3)
+
         // save width and height
         self.width  = parseInt(style.getPropertyValue("width"), 10);
         self.height = height;
@@ -42,7 +44,8 @@ function InfoView (){
     /**
      * self is a function to draw/update view
      */
-    self.update = function(player) {
+    self.update = function(player)
+    {
         self.player = player;
         self.OneInfo(self.grpInfo, player);
         self.SeasonAxis(self.grpAxis, player);
@@ -52,7 +55,8 @@ function InfoView (){
     /**
      * Function to resize
      */
-    self.resize = function () {
+    self.resize = function ()
+    {
         // adjust svg size only
         var div   = document.getElementById('infoView');  // shortcuts
         var style = window.getComputedStyle(div, null);   // shortcuts
@@ -81,7 +85,8 @@ function InfoView (){
      * @param player
      * @constructor
      */
-    self.OneInfo = function (group, player) {
+    self.OneInfo = function (group, player)
+    {
         var id = player.info.PERSON_ID;
         var ratio = self.width / 1300; // rescaling ratio
 
@@ -247,9 +252,11 @@ function InfoView (){
 
     };
 
-
     /**
-     * self is a function to draw/update view
+     * Plot Radial View
+     * @param playerid
+     * @param player
+     * @constructor
      */
     self.RadialView = function(playerid, player){
         // var data = player['career']['RegularSeason'][0].slice(14);

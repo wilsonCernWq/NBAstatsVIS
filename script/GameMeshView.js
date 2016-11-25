@@ -18,7 +18,7 @@ Date.daysBetween = function( date1, date2 )
 /**
  * Class for Game Mesh
  */
-// function to convert mm/dd/yyyy to number between 0 - 100 (max 238 per season)
+// function to convert mm/dd/yyyy to number between 0 - 100 (max 250 per season)
 function date2value (date)
 {
     var y = +date.slice(6,10); // get year in number
@@ -34,7 +34,7 @@ function date2value (date)
     } else {
         sDate = new Date(y-1, 9, 25);
     }
-    return Date.daysBetween(sDate, cDate) / 2.4; // map [0,100] to [0,240]
+    return Date.daysBetween(sDate, cDate) / 2.5; // map [0,100] to [0,240]
 }
 /// function to convert number 0-100 to mm/dd/xxxx (xxxx = 2000 or 2001)
 function value2date (value)
@@ -97,6 +97,7 @@ function GameMeshView () {
         self.step = 100 / self.nbin;
         // get the index in the histogram
         self.histValue2Id = function (x) {
+            // console.log(date2value(x) * 2.5);
             return Math.max(Math.ceil(date2value(x) / self.step - 1), 0);
         };
         self.histId2Value = function (i) {

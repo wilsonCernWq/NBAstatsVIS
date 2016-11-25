@@ -17,7 +17,7 @@ player
   |     |__ FROM_YEAR
   |     |__ TO_YEAR
   |     |__ DLEAGUE
-  |     |__ ALL_STAR
+  |     |__ ALL_STAR ?? X
   |
   |__ career
   |     |
@@ -48,9 +48,26 @@ player
         |__ headerCol = ['PerGame', 'Totals']
         |
         |__ headerGame
-        |     = ["PLAYER_ID", "PLAYER_NAME", "GAME_ID", "GAME_DATE", "TEAM_ABBREVIATION",
-        |        "TEAM_NAME", "VS_TEAM_ID", "VS_TEAM_ABBREVIATION", "VS_TEAM_NAME",
-        |        "TOV", "PTS", "FGM", "FGA", "FG3M", "FG3A", "PF", "BLK", "STL", "AST", "REB"]
+        |     = ["PLAYER_ID",
+        |        "PLAYER_NAME", X
+        |        "GAME_ID",
+        |        "GAME_DATE",
+        |        "TEAM_ABBREVIATION",
+        |        "TEAM_NAME",
+        |        "VS_TEAM_ID", X
+        |        "VS_TEAM_ABBREVIATION",
+        |        "VS_TEAM_NAME",
+        |        "TOV",
+        |        "PTS",
+        |        "FGM",
+        |        "FGA",
+        |        "FG3M",
+        |        "FG3A",
+        |        "PF",
+        |        "BLK",
+        |        "STL",
+        |        "AST",
+        |        "REB"]
         |
         |__ RegularSeason
               |
