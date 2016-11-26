@@ -112,13 +112,14 @@ function GameMeshView () {
      * @param yearFrom
      * @param yearTo
      */
-    self.update = function (playerid, player, yearFrom, yearTo,attribute)
+    self.update = function (playerid, player, yearFrom, yearTo, attribute)
     {
         // to remember variables for resizing
         self.playerid = playerid;
         self.player = player;
         self.yearFrom = yearFrom;
         self.yearTo = yearTo;
+        self.attribute = attribute;
 
         // SETUP DATA
         // shortcut variable names
@@ -237,6 +238,6 @@ function GameMeshView () {
      */
     self.resize = function () {
         self.init(1000);
-        self.update(self.playerid, self.player, self.yearFrom, self.yearTo);
+        self.update(self.playerid, self.player, self.yearFrom, self.yearTo, self.attribute);
     };
 }
