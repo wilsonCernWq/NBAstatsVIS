@@ -17,20 +17,23 @@ player
   |     |__ FROM_YEAR
   |     |__ TO_YEAR
   |     |__ DLEAGUE
-  |     |__ ALL_STAR ?? X
+  |     |__ ALL_STAR
+  |     |__ PIE
   |
   |__ career
   |     |
-  |     |__ headerRow
-  |     |     = ["GP", "GS", "MIN", "FGM", "FGA", "FG_PCT", "FG3M",
-  |     |        "FG3A", "FG3_PCT", "FTM", "FTA", "FT_PCT", "OREB",
-  |     |        "DREB", "REB", "AST", "STL", "BLK", "TOV", "PF", "PTS"]
+  |     |__ header
+  |     |     = ["MIN",     "FGM", "FGA", "FG_PCT", "FG3M", "FG3A",
+  |     |        "FG3_PCT", "FTM", "FTA", "FT_PCT", "OREB", "DREB",
+  |     |        "REB",     "AST", "STL", "BLK",    "TOV",  "PF", "PTS"]
   |     |
-  |     |__ headerCol = ['PerGame', 'Totals']
+  |     |__ RegularSeason = [ 'PerGame': ${Career Data per Game},
+  |     |                     "GP": ${data},
+  |     |                     "GS": ${data} ]
   |     |
-  |     |__ RegularSeason = [ ${Career Data per Game}, ${Career Data Totals} ]
-  |     |
-  |     |__ PostSeason    = [ ${Career Data per Game}, ${Career Data Totals} ]
+  |     |__ PostSeason    = [ 'PerGame': ${Career Data per Game},
+  |                           "GP": ${data},
+  |                           "GS": ${data} ]
   |
   |__ season
         |
@@ -69,7 +72,7 @@ player
         |        "AST",
         |        "REB"]
         |
-        |__ RegularSeason
+        |__ RegularSeason (or PostSeason)
               |
               |__ ${year}
                       |__ totals = [ ... [ ${Season Data per Game} ${Season Data Totals} ] ... ]
