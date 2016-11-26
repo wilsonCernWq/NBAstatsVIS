@@ -37,27 +37,23 @@ player
   |
   |__ season
         |
-        |__ headerRowTotals
+        |__ headerData
         |     = ["PLAYER_AGE", "GP", "GS", "MIN", "FGM", "FGA", "FG_PCT", "FG3M",
         |        "FG3A", "FG3_PCT", "FTM", "FTA", "FT_PCT", "OREB", "DREB", "REB",
         |        "AST", "STL", "BLK", "TOV", "PF", "PTS"]
         |
-        |__ headerRowRank
+        |__ headerRank
         |     = ["RANK_PG_MIN",  "RANK_PG_FGM",  "RANK_PG_FGA", "RANK_FG_PCT", "RANK_PG_FG3M",
         |        "RANK_PG_FG3A", "RANK_FG3_PCT", "RANK_PG_FTM", "RANK_PG_FTA", "RANK_FT_PCT",
         |        "RANK_PG_OREB", "RANK_PG_DREB", "RANK_PG_REB", "RANK_PG_AST", "RANK_PG_STL",
         |        "RANK_PG_BLK",  "RANK_PG_TOV",  "RANK_PG_PTS", "RANK_PG_EFF"]
         |
-        |__ headerCol = ['PerGame', 'Totals']
-        |
         |__ headerGame
         |     = ["PLAYER_ID",
-        |        "PLAYER_NAME", X
         |        "GAME_ID",
         |        "GAME_DATE",
         |        "TEAM_ABBREVIATION",
         |        "TEAM_NAME",
-        |        "VS_TEAM_ID", X
         |        "VS_TEAM_ABBREVIATION",
         |        "VS_TEAM_NAME",
         |        "TOV",
@@ -75,8 +71,9 @@ player
         |__ RegularSeason (or PostSeason)
               |
               |__ ${year}
-                      |__ totals = [ ... [ ${Season Data per Game} ${Season Data Totals} ] ... ]
-                      |__ rank   = [ ... [ ${Season Rank per Game} ${Season Rank Totals} ] ... ]
+                      |__ totals = [ ${Season Data per Game} ]
+                      |__ rank   = [ 'PerGame' [ ${Season Rank per Game} ${Season Rank Totals} ] ... ]
+                      |__ team   = ${ TEAM_ABBREVIATION }
                       |__ GameList
                       |     |__ ${gameID} = [ ${Game Data} ]
                       |

@@ -112,7 +112,7 @@ function GameMeshView () {
      * @param yearFrom
      * @param yearTo
      */
-    self.update = function (playerid, player, yearFrom, yearTo)
+    self.update = function (playerid, player, yearFrom, yearTo,attribute)
     {
         // to remember variables for resizing
         self.playerid = playerid;
@@ -120,12 +120,12 @@ function GameMeshView () {
         self.yearFrom = yearFrom;
         self.yearTo = yearTo;
 
-        // TODO SETUP DATA
+        // SETUP DATA
         // shortcut variable names
         var debug = self.debug;
         var rSeason = player.season.RegularSeason;
         var pSeason = player.season.PostSeason;
-
+        var attrID  = player.season.headerGame.indexOf(attribute);
         // counters
         var j = 0; //< index of years
         var i;     //< index of days/entries
@@ -157,16 +157,16 @@ function GameMeshView () {
                 // game list for regular season
                 games = rSeason[year].GameList;
                 for (gameid in games) { // scan over all games
-                    i = self.histValue2Id(games[gameid][3]);
-                    gamesInEachYear[i].sumOfValues += games[gameid][10];
+                    i = self.histValue2Id(games[gameid][2]);
+                    gamesInEachYear[i].sumOfValues += games[gameid][attrID];
                     gamesInEachYear[i].gameList.push(games[gameid]);
                 }
                 // check is the player has played the playoffs
                 if (pSeason.hasOwnProperty(year)) {
                     games = pSeason[year].GameList;
                     for (gameid in games) { // scan over all games
-                        i = self.histValue2Id(games[gameid][3]);
-                        gamesInEachYear[i].sumOfValues += games[gameid][10];
+                        i = self.histValue2Id(games[gameid][2]);
+                        gamesInEachYear[i].sumOfValues += games[gameid][attrID];
                         gamesInEachYear[i].gameList.push(games[gameid]);
                     }
                 }
@@ -193,10 +193,10 @@ function GameMeshView () {
             .domain([0, numOfCol]).range([0, numOfCol * boxSize]);
         var yScale = d3.scaleLinear() // position scales
             .domain([-0.5, numOfRow - 0.5]).range([0, numOfRow * boxSize]);
-        var cScale = d3.scaleLinear() // color scale
+        var cScale = d3.scaleLinear() // color scale TODO NEED TO BE MODIFIED FOR OTHER ATTRIBUTES
             .domain([0, 50]).range(['#E6E6E6', '#FF0A00']);
 
-        // TODO DRAWING
+        // DRAWING
         // align squares based on margins
         var xoff = self.margin.left + padSize;
         var yoff = self.margin.top  + padSize;

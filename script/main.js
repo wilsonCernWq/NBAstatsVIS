@@ -94,7 +94,7 @@ function main()
                 // -- Game Mesh View
                 gameMeshView = new GameMeshView();
                 gameMeshView.init(600);
-                gameMeshView.update(playerInfo[0], player, player.info.FROM_YEAR, player.info.TO_YEAR);
+                gameMeshView.update(playerInfo[0], player, player.info.FROM_YEAR, player.info.TO_YEAR,'PTS');
             });
         });
     });
