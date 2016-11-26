@@ -73,7 +73,7 @@ function main()
             if (errorPlayerIndex) throw errorPlayerIndex;
             //
             // -- TODO Data Query
-            var playerInfo = searchPlayer(playerListLocal, 'tim_duncan');
+            var playerInfo = searchPlayer(playerListLocal, 'russell_westbrook');
             //
             // -- TODO Complete All Views
             d3.json('data/player/' + playerInfo[4] + '.json', function (errorPlayer, player)

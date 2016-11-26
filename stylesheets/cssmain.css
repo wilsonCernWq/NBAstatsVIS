@@ -13,14 +13,30 @@
 
 /* info view */
 .info-text {
-    font-size: 10px;
     font-family: Verdana;
     text-anchor: start;
 }
 
 .info-title {
-    font-size: 10px;
     font-family: Fantasy;
+    text-anchor: middle;
+}
+
+.info-radial-attribute-text {
+    font-family: Verdana;
+    fill: #ffffff;
+    text-anchor: middle;
+}
+
+.info-radial-PIE {
+    font-family: Verdana;
+    fill: #1c1c1c;
+    text-anchor: middle;
+}
+
+.info-radial-attribute-tag {
+    font-family: Verdana;
+    fill: #2e2e2e;
     text-anchor: middle;
 }
 

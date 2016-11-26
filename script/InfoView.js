@@ -31,14 +31,13 @@ function InfoView (){
         self.grpAxis.append('g').attr('id','barsGroup');
         self.grpAxis.append('g').attr('id','brushGroup');
         // 3)
-
+        self.grpRadial = self.svg.append('g').attr('id','radialPlot');
         // save width and height
         self.width  = parseInt(style.getPropertyValue("width"), 10);
         self.height = height;
         self.svg
             .attr('width', self.width)
             .attr('height', self.height);
-
     };
 
     /**
@@ -49,7 +48,7 @@ function InfoView (){
         self.player = player;
         self.OneInfo(self.grpInfo, player);
         self.SeasonAxis(self.grpAxis, player);
-
+        self.RadialView(self.grpRadial, player)
     };
 
     /**
@@ -96,7 +95,7 @@ function InfoView (){
         var textSize   = 16 * ratio,
             textHeight = 26 * ratio;
         var textYOffset  = 10 * ratio,
-            textXOffset  = 350 * ratio;
+            textXOffset  = 450 * ratio;
         var imageWidth   = 230 * ratio,
             imageHeight  = 185 * ratio,
             imageYOffset = 20 * ratio;
@@ -149,9 +148,12 @@ function InfoView (){
      */
     self.SeasonAxis = function (group, player)
     {
+        //
+        // remember input values for reload/resize
         var sYear = player.info.FROM_YEAR;
         var eYear = player.info.TO_YEAR;
         var numOfYears = eYear - sYear + 1;
+        //
         // rescaling ratio
         var ratio = self.width / 1300; // rescaling ratio
         // parameters
@@ -160,11 +162,11 @@ function InfoView (){
         var totalOffsetY = 265 * ratio, // this equals to the icon image height + name font height
             totalPadding = 30 * ratio;  // this is the margin for axis and info view
         var axisSize = 20 * ratio,  // the height of axis
-            axisFont = 10 * ratio;
-        var barsOffY = 5 * ratio,   // padding between bar and axis
-            barsSize = 10 * ratio,  // rect size
-            barsPad  = 0.9 * ratio, // padding between two neighboring bars
-            barsStroke = 2 * ratio; // bar stroke
+            axisFont = 10 * ratio;  // font size of axis ticks
+        var barsOffY   = 5 * ratio,   // padding between bar and axis
+            barsSize   = 10 * ratio,  // rect size
+            barsPad    = 0.9 * ratio, // padding between two neighboring bars
+            barsStroke = 2 * ratio;   // bar stroke
         var logoOffY  = 18 * ratio, // padding between team logo and bars
             logoSize  = 45 * ratio; // size of logo image
         var brushPad = 10 * ratio;  // padding for brush
@@ -172,7 +174,7 @@ function InfoView (){
         var plotOffY = totalOffsetY + totalPadding + logoOffY + logoSize;
         var plotWidth = self.width * spanRatio - margin.left - margin.right; // the width that will be plotted
         var plotHeight = logoOffY + logoSize + axisSize;
-
+        //
         // prepare data structore for the plot
         var year, team = null, PlayerTeamList = [];
         for (year = sYear; year <= eYear; ++year) {
@@ -189,7 +191,7 @@ function InfoView (){
                 team = null;
             }
         }
-
+        //
         // DRAWING
         // console.log(teamList);
         // creat scale and axis
@@ -249,35 +251,139 @@ function InfoView (){
         group.select('#brushGroup').attr('class', 'brush brushInfoView').call(brush);
         group.select('#brushGroup').select('.selection').style('display','none'); // hide selection when resizing
         group.select('#brushGroup').select('.handle').style('display','none');    // hide selection when resizing
-
     };
 
     /**
      * Plot Radial View
-     * @param playerid
+     * @param group
      * @param player
      * @constructor
      */
-    self.RadialView = function(playerid, player){
-        // var data = player['career']['RegularSeason'][0].slice(14);
-        // var head = player['career']['headerRow'].slice(14);
-        //
-        // console.log(data);
-        //
-        // self.group.selectAll('rect').remove();
-        // self.group.selectAll('rect').data(data).enter()
-        //     .append('rect')
-        //     .attr('x', function (d, i) { return 10 + i * 40; })
-        //     .attr('y', 20)
-        //     .attr('width', 20)
-        //     .attr('height', function (d) { return d * 4; });
-        //
-        // self.svg.selectAll('text').data(head).enter()
-        //     .append('text')
-        //     .attr('x', function (d, i) { return 7 + i * 40; })
-        //     .attr('y', 50)
-        //     .text(function (d) { return d; });
+    self.RadialView = function(group, player)
+    {
+        // predefined data range (different range for different data)
+        var bgColor = '#D3D3D3';
+        var dataSet = [
+            // [attribute, min, max, value]
+            ["REB", 0.00, 8.60, '#784a92'],
+            ["AST", 0.00, 5.31, '#54af54'],
+            ["STL", 0.00, 1.06, '#6272a4'],
+            ["BLK", 0.00, 1.33, '#457570'],
+            ["TOV", 2.76, 0.00, '#804F6E'],
+            ["PTS", 0.00, 22.0, '#db7a69']
+        ];
+        // load data
+        var data = player.career.RegularSeason.PerGame;
+        var head = player.career.header;
+        for (var k = 0; k < dataSet.length; ++k) {
+            var attrID = head.indexOf(dataSet[k][0]);
+            dataSet[k].push(data[attrID]);
+        }
+        // parameters
+        var barH = 40,
+            barWMax = 100,
+            barWMin =  50;
+        var attrTextFont = 14,
+            attrTextYOff =  4,
+            attrTextROff = -1;
+        var attrTagFont = 14,
+            attrTagYOff =  4,
+            attrTagROff = -40;
+        var attrPIEFont = 14,
+            attrPIEYOff = 5;
+        // draw background
+        console.log(dataSet);
+        group.attr('transform', 'translate(' + (self.width*3/4) + ',' + (200) + ')');
+        group.selectAll('*').remove();
+        // creat groups
+        group.selectAll('g').data(dataSet).enter().append('g')
+            .attr('transform', function (d,i) {
+                return 'rotate(' + (360 * i / dataSet.length) + ')';
+            });
+        group.selectAll('g').data(dataSet).append('rect')
+            .attr('x', 0).attr('y', -barH/2)
+            .attr('height', barH).attr('width', barWMax + barWMin)
+            .style('fill', bgColor);
+        group.selectAll('g').data(dataSet).append('circle')
+            .attr('cx', barWMax + barWMin).attr('cy', 0).attr('r', barH/2)
+            .style('fill', bgColor);
+        // --- draw data
+        // creat rects
+        group.selectAll('g')
+            .data(dataSet)
+            .append('rect')
+            .attr('x', 0)
+            .attr('y', -barH/2)
+            .attr('height', barH)
+            .attr('width', function (d) {
+                return Math.max(0, Math.min(1, (d[4] - d[1]) / (d[2] - d[1]))) * barWMax + barWMin;
+            })
+            .style('fill', function (d) {
+                return d[3];
+            });
+        // creat circles
+        group.selectAll('g')
+            .data(dataSet)
+            .append('circle')
+            .attr('cx', function (d) {
+                return Math.max(0, Math.min(1, (d[4] - d[1]) / (d[2] - d[1]))) * barWMax + barWMin;
+            })
+            .attr('cy', 0)
+            .attr('r', barH/2)
+            .style('fill', function (d) {
+                return d[3];
+            });
+        // --- other component
+        // central circle
+        group.append('circle')
+            .attr('cx', 0)
+            .attr('cy', 0)
+            .attr('r', 40)
+            .style('fill', '#c3cdeb');
+        // text for attribute index
+        group.append('g').selectAll('text').data(dataSet).enter()
+            .append('text')
+            .classed('info-radial-attribute-text', true)
+            .style('font-size', attrTextFont)
+            .attr('x', function (d, i) {
+                var r = Math.max(0, Math.min(1, (d[4] - d[1]) / (d[2] - d[1]))) * barWMax + barWMin;
+                var t = 2 * Math.PI * i / dataSet.length;
+                return (r - attrTextROff) * Math.cos(t);
+            })
+            .attr('y', function (d, i) {
+                var r = Math.max(0, Math.min(1, (d[4] - d[1]) / (d[2] - d[1]))) * barWMax + barWMin;
+                var t = 2 * Math.PI * i / dataSet.length;
+                return (r - attrTextROff) * Math.sin(t) + attrTextYOff;
+            })
+            .text(function (d) {
+                var r = Math.max(0, Math.min(1, (d[4] - d[1]) / (d[2] - d[1])));
+                r = Math.round(10 * r)/10;
+                return r.toFixed(1);
+            });
+        // text for attribute index
+        group.append('g').selectAll('text').data(dataSet).enter()
+            .append('text')
+            .classed('info-radial-attribute-tag', true)
+            .style('font-size', attrTagFont)
+            .attr('x', function (d, i) {
+                var r = barWMax + barWMin,
+                    t = 2 * Math.PI * i / dataSet.length;
+                return (r - attrTagROff) * Math.cos(t);
+            })
+            .attr('y', function (d, i) {
+                var r = barWMax + barWMin,
+                    t = 2 * Math.PI * i / dataSet.length;
+                return (r - attrTagROff) * Math.sin(t) + attrTagYOff;
+            })
+            .text(function (d,i) { return dataSet[i][0]; });
+        // draw central PIE text
+        if (player.info.PIE) {
+            group.append('text')
+                .classed('info-radial-PIE',true)
+                .attr('x', 0)
+                .attr('y', attrPIEYOff)
+                .text('PIE: ' + (player.info.PIE * 100))
+                .style('font-size',attrPIEFont)
+        }
     };
-
 }
-
