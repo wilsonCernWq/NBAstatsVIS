@@ -161,7 +161,7 @@ function Ranking () {
                     .attr('y', function(d,i) {
                         return i * zoomH / (zoomlen*2+1) + zoomFontMT; // down shift texts
                     })
-                    .text(function (d) { return d[2] + ':' + d[attrID]; })
+                    .text(function (d,i) { return (i+Is+1) + ': ' + d[2] + '  ' + d[attrID]; })
             };
             // draw area chart
             var area = d3.area()
@@ -199,7 +199,10 @@ function Ranking () {
                 .classed('rank-circle', true)
                 .attr('cx', function (d) { return barH * d.rank; })
                 .attr('cy', function (d) { return xScale(d.rowset[d.rank][attrID]); })
-                .attr('r', function (d) { return rScale(d.rowset[d.rank][attrID]); });
+                .attr('r', function (d) { return rScale(d.rowset[d.rank][attrID]); })
+                .on('mouseover', mouseover)
+                .on('mousemove', mousemove)
+                .on('mouseout', mouseout);
             groups.filter(function (d) { return d.rank != -1; })
                 .append('rect')
                 .classed('rank-highlight-bar', true)
@@ -210,7 +213,10 @@ function Ranking () {
                 })
                 .attr('height', function (d) {
                     return xScale(d.rowset[d.rank][attrID]) - rScale(d.rowset[d.rank][attrID]);
-                });
+                })
+                .on('mouseover', mouseover)
+                .on('mousemove', mousemove)
+                .on('mouseout', mouseout);
 
             // plot year axis
             var texts = d3SelectAll(self.grpAxis, 'g', filesMetaInfo, true)
