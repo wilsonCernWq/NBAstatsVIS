@@ -8,7 +8,7 @@ window.onresize = resize;
 /**
  * global variables
  */
-var infoView, ranking, gameMeshView;
+var infoView, ranking, gameMeshView, shotChart;
 var teamList;
 
 /**
@@ -73,7 +73,7 @@ function main()
             if (errorPlayerIndex) throw errorPlayerIndex;
             //
             // -- TODO Data Query
-            var playerInfo = searchPlayer(playerListLocal, 'russell_westbrook');
+            var playerInfo = searchPlayer(playerListLocal, 'kobe_bryant');
             //
             // -- TODO Complete All Views
             d3.json('data/player/' + playerInfo[4] + '.json', function (errorPlayer, player)
@@ -94,10 +94,41 @@ function main()
                 // -- Game Mesh View
                 gameMeshView = new GameMeshView();
                 gameMeshView.init(600);
-                gameMeshView.update(playerInfo[0], player, player.info.FROM_YEAR, player.info.TO_YEAR,'PTS');
+                gameMeshView.update(playerInfo[0], player, player.info.FROM_YEAR, player.info.TO_YEAR, 'PTS');
+                //
+                // -- Shot Chart View
+                shotChart = new ShotChart();
+                shotChart.init(600);
+                shotChart.update(playerInfo[0], player, player.info.FROM_YEAR, player.info.TO_YEAR);
             });
         });
     });
+
+    // debug
+    //*/ track mouse position
+    document.onclick = handleMouseMove;
+    function handleMouseMove(event) {
+        var dot, eventDoc, doc, body, pageX, pageY;
+        event = event || window.event; // IE-ism
+        // If pageX/Y aren't available and clientX/Y are,
+        // calculate pageX/Y - logic taken from jQuery.
+        // (This is to support old IE)
+        if (event.pageX == null && event.clientX != null) {
+            eventDoc = (event.target && event.target.ownerDocument) || document;
+            doc = eventDoc.documentElement;
+            body = eventDoc.body;
+            event.pageX = event.clientX +
+                (doc && doc.scrollLeft || body && body.scrollLeft || 0) -
+                (doc && doc.clientLeft || body && body.clientLeft || 0);
+            event.pageY = event.clientY +
+                (doc && doc.scrollTop || body && body.scrollTop || 0) -
+                (doc && doc.clientTop || body && body.clientTop || 0 );
+        }
+        // Use event.pageX / event.pageY here
+        console.log(event.pageX, event.pageY)
+    }
+    //*/
+
 }
 
 /**
@@ -107,3 +138,4 @@ function resize() {
     infoView.resize();
     gameMeshView.resize();
 }
+

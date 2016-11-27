@@ -292,8 +292,8 @@ function InfoView (){
         var attrPIEFont = 14,
             attrPIEYOff = 5;
         // draw background
-        console.log(dataSet);
-        group.attr('transform', 'translate(' + (self.width*3/4) + ',' + (200) + ')');
+        // console.log(dataSet);
+        group.attr('transform', 'translate(' + (self.width*4/5) + ',' + (200) + ')');
         group.selectAll('*').remove();
         // creat groups
         group.selectAll('g').data(dataSet).enter().append('g')
