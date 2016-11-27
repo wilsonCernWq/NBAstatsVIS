@@ -8,19 +8,20 @@ function Ranking () {
     /**
      * Initialization
      */
-    self.init = function (height) {
+    self.init = function (height)
+    {
         // setup div size
         var div = document.getElementById('rankView');
         var style = window.getComputedStyle(div, null); // console.log(style);
         self.width = parseInt(style.getPropertyValue("width"), 10);
         self.height = height;
-        self.box = div.getBoundingClientRect();
+        self.box = { top: div.offsetTop, left: div.offsetLeft };
         // define plot margin (it gives the minimal margin)
         self.margin = {
-            left: 0.02 * self.width,
-            right: 0.02 * self.width,
-            top: 0.1 * self.height,
-            bottom: 0.1 * self.height
+            left:   0.02 * self.width,
+            right:  0.02 * self.width,
+            top:     0.1 * self.height,
+            bottom:  0.1 * self.height
         };
         // setup SVG
         self.svg = d3.select('#rankView').select("svg");
@@ -135,7 +136,8 @@ function Ranking () {
             var mousemove = function () {
                 // calculate indices
                 var Xindex = Math.floor((d3.event.pageX - self.box.left - self.margin.left) / (barW + barMargin));
-                var Yindex = Math.round((d3.event.pageY - self.box.top - self.margin.top) / barH);
+                var Yindex = Math.round((d3.event.pageY - self.box.top  - self.margin.top ) / barH);
+                //console.log(d3.event.pageY);
                 // shift tooltip immediately
                 self.tooltip
                     .style('left', (Xindex * (barW + barMargin) + self.box.left - self.margin.left) + 'px')
