@@ -98,3 +98,9 @@
     font: 10px sans-serif;
     fill: #000000;
 }
+
+.hexagon {
+    fill: #4584b4;
+    stroke: #ffffff;
+    stroke-width: 1px;
+}

@@ -105,7 +105,7 @@ function main()
     });
 
     // debug
-    //*/ track mouse position
+    /*/ click on screen to track mouse position
     document.onclick = handleMouseMove;
     function handleMouseMove(event) {
         var dot, eventDoc, doc, body, pageX, pageY;
