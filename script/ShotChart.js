@@ -97,7 +97,7 @@ function ShotChart () {
             .attr("class", "hexagon")
             .attr("d", function(d) { return hexbin.hexagon(radius(Math.min(d.length, 100))); })
             .attr("transform", function(d) { return "translate(" + d.x + "," + d.y + ")"; })
-            .style('fill',function(d) { console.log(d); });
+            .style('fill',function(d) {});
 
     }
 }
