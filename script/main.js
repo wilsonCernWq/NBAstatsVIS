@@ -8,43 +8,24 @@ window.onresize = resize;
 /**
  * global variables
  */
-var infoView, ranking, gameMeshView, shotChart;
-var teamList;
-
-/**
- * helper functions
- */
-function d3SelectAll(base, obj, mydata, removeAll) {
-    var select;
-    if (!removeAll) {
-        select = base.selectAll(obj).data(mydata);
-        select.exit().remove();
-        select = select.enter().append(obj).merge(select);
-        return select;
-    } else {
-        base.selectAll(obj).remove();
-        select = base.selectAll(obj).data(mydata);
-        select = select.enter().append(obj).merge(select);
-        return select;
-    }
-}
+var infoView,
+    ranking,
+    gameMeshView,
+    shotChart,
+    menuView;
+var teamList, globPlayerList, currplayer = 'kobe_bryant';
 
 /**
  * main function
  */
-function main()
+function main ()
 {
-    /**
-     * Function to query the player
-     * @param info
-     * @param string
-     * @returns {*}
-     */
-    var searchPlayer = function (info, string) {
-        var id = 0;
-        info['rowSet'].forEach(function(d, i) { if (d[4] == string) id = i; });
-        return info['rowSet'][id];
-    };
+    var self = this;
+    infoView = new InfoView();
+    ranking = new RankView();
+    gameMeshView = new GameMeshView();
+    shotChart = new ShotChart();
+    menuView = new SelectPlayer();
 
     // debug flag
     var debug = true;
@@ -73,34 +54,25 @@ function main()
             if (errorPlayerIndex) throw errorPlayerIndex;
             //
             // -- TODO Data Query
-            var playerInfo = searchPlayer(playerListLocal, 'kobe_bryant');
             //
-            // -- TODO Complete All Views
-            d3.json('data/player/' + playerInfo[4] + '.json', function (errorPlayer, player)
-            {
-                if (errorPlayer) throw errorPlayer;
-                if (debug) console.log(playerInfo[4], player);
-                //
-                // -- Info View
-                infoView = new InfoView();
-                infoView.init(400);
-                infoView.update(player);
-                //
-                // -- Ranking View
-                ranking = new Ranking();
-                ranking.init(500);
-                ranking.update(playerInfo[0], player, player.info.FROM_YEAR, player.info.TO_YEAR, 'PTS');
-                //
-                // -- Game Mesh View
-                gameMeshView = new GameMeshView();
-                gameMeshView.init(600);
-                gameMeshView.update(playerInfo[0], player, player.info.FROM_YEAR, player.info.TO_YEAR, 'PTS');
-                //
-                // -- Shot Chart View
-                shotChart = new ShotChart();
-                shotChart.init(600);
-                shotChart.update(playerInfo[0], player, player.info.FROM_YEAR, player.info.TO_YEAR);
-            });
+            // -- menu
+            var menuFilter = {
+                Initial: null,
+                YearFrom: 1996,
+                YearTo: 2015,
+                AllStar: null,
+                HeightAbove: null,
+                HeightBelow: null,
+                WeightAbove: null,
+                WeightBelow: null,
+                Position: null,
+                Team: null
+            };
+            globPlayerList = playerListLocal;
+            menuView.init(300);
+            menuView.update(playerListLocal, menuFilter);
+            MainReload();
+
         });
     });
 
@@ -129,6 +101,46 @@ function main()
     }
     //*/
 
+}
+
+/**
+ * Function to query the player
+ * @param info
+ * @param string
+ * @returns {*}
+ */
+var searchPlayer = function (info, string) {
+    var id = 0;
+    info['rowSet'].forEach(function(d, i) { if (d[4] == string) id = i; });
+    return info['rowSet'][id];
+};
+
+function MainReload () {
+    var playerInfo = searchPlayer(globPlayerList, currplayer);
+
+    //
+    // -- TODO Complete All Views
+    d3.json('data/player/' + playerInfo[4] + '.json', function (errorPlayer, player)
+    {
+        if (errorPlayer) throw errorPlayer;
+         console.log(playerInfo[4], player, teamList);
+        //
+        // -- Info View
+        infoView.init(400);
+        infoView.update(player);
+        //
+        // -- Ranking View
+        ranking.init(500);
+        ranking.update(playerInfo[0], player, player.info.FROM_YEAR, player.info.TO_YEAR, 'PTS');
+        //
+        // -- Game Mesh View
+        gameMeshView.init(600);
+        gameMeshView.update(playerInfo[0], player, player.info.FROM_YEAR, player.info.TO_YEAR, 'PTS');
+        //
+        // -- Shot Chart View
+        shotChart.init(600);
+        shotChart.update(playerInfo[0], player, player.info.FROM_YEAR, player.info.TO_YEAR);
+    });
 }
 
 /**

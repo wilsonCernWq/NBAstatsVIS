@@ -32,11 +32,11 @@ import os
 # allstar = read_all_star()
 
 # print allstar
-filenames = os.listdir('player')
-os.chdir('player')
+filenames = os.listdir('../data/player')
+# os.chdir('../data/player')
 for fname in filenames:
     print fname
-    f = open(fname, 'r+')
+    f = open('../data/player/' + fname, 'r+')
     player = json.loads(f.read())
     f.close()
 
@@ -126,22 +126,26 @@ for fname in filenames:
     #         # input()
     #
     # BUG 6
-    player['season']['headerData'] = player['season']['headerRowTotals']
-    player['season']['headerRank'] = player['season']['headerRowRank']
-    player['season'].pop('headerRowTotals', None)
-    player['season'].pop('headerRowRank', None)
+    # player['season']['headerData'] = player['season']['headerRowTotals']
+    # player['season']['headerRank'] = player['season']['headerRowRank']
+    # player['season'].pop('headerRowTotals', None)
+    # player['season'].pop('headerRowRank', None)
+    #
+    # player['season']['headerGame'].pop(6)
+    # player['season']['headerGame'].pop(1)
+    # for keyname in ['RegularSeason', 'PostSeason']:
+    #     for k in player['season'][keyname].keys():
+    #         if 'GameList' in player['season'][keyname][k].keys():
+    #             for g in player['season'][keyname][k]['GameList'].keys():
+    #                 player['season'][keyname][k]['GameList'][g].pop(6)
+    #                 player['season'][keyname][k]['GameList'][g].pop(1)
+    #                 # print player['season'][keyname][k]['GameList'][g]
 
-    player['season']['headerGame'].pop(6)
-    player['season']['headerGame'].pop(1)
-    for keyname in ['RegularSeason', 'PostSeason']:
-        for k in player['season'][keyname].keys():
-            if 'GameList' in player['season'][keyname][k].keys():
-                for g in player['season'][keyname][k]['GameList'].keys():
-                    player['season'][keyname][k]['GameList'][g].pop(6)
-                    player['season'][keyname][k]['GameList'][g].pop(1)
-                    # print player['season'][keyname][k]['GameList'][g]
+    player['season']['headerGame'] = ["PLAYER_ID", "GAME_ID", "GAME_DATE", "TEAM_ABBREVIATION", "TEAM_NAME",
+                                      "VS_TEAM_ABBREVIATION", "VS_TEAM_NAME", "TOV", "PTS", "FGM", "FGA", "FG3M",
+                                      "FG3A", "PF", "BLK", "STL", "AST", "REB"]
 
-    f = open(fname, 'w')
+    f = open('./player/' + fname, 'w')
     f.write(json.dumps(player, separators=(',', ':')))
     f.close()
 

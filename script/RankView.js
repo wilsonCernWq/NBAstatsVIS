@@ -2,7 +2,7 @@
  * Constructor
  * In self function you want to input all initial variables the class will need
  */
-function Ranking () {
+function RankView () {
     var self = this;
 
     /**
@@ -121,7 +121,7 @@ function Ranking () {
                 zoomFontML = 3;  // left margin
             // define value scale
             var xScale = d3.scaleLinear().domain([0, maxValue]).range([0, barW]);
-            var rScale = d3.scaleLinear().domain([0, maxValue]).range([minRadius, maxRadius]);
+            var rScale = d3.scaleSqrt().domain([0, maxValue]).range([minRadius, maxRadius]);
             //----------------------------------------------------------------------------------------------
             // define use objects before drawing
             // tooltip functions

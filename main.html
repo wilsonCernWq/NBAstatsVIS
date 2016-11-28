@@ -3,13 +3,14 @@
 <head>
     <meta charset="UTF-8">
     <title>NBAstatsVIS</title>
+
     <link rel="stylesheet" href="stylesheets/cssmain.css">
+
+
 </head>
 <body>
 
-<div class="view-menu">
-    <svg></svg>
-</div>
+<div class="view-menu" id="menuView"></div>
 
 <div class="view-block" id="infoView"></div>
 
@@ -33,8 +34,10 @@
 <script src="external/d3-queue/d3-queue.v3.min.js"></script>
 <script src="external/d3-hexbin/d3.hexbin.min.js"></script>
 
+<script src="script/SelectPlayer.js"></script>
+<script src="script/helper.js"></script>
 <script src="script/InfoView.js"></script>
-<script src="script/Ranking.js"></script>
+<script src="script/RankView.js"></script>
 <script src="script/GameMeshView.js"></script>
 <script src="script/ShotChart.js"></script>
 <script src="script/main.js"></script>

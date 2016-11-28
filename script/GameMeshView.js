@@ -1,50 +1,3 @@
-// extend date function
-Date.daysBetween = function( date1, date2 )
-{
-    //Get one day in milliseconds
-    var one_day=1000*60*60*24;
-
-    // Convert both dates to milliseconds
-    var date1_ms = date1.getTime();
-    var date2_ms = date2.getTime();
-
-    // Calculate the difference in milliseconds
-    var difference_ms = date2_ms - date1_ms;
-
-    // Convert back to days and return
-    return Math.round(difference_ms/one_day);
-};
-
-/**
- * Class for Game Mesh
- */
-// function to convert mm/dd/yyyy to number between 0 - 100 (max 250 per season)
-function date2value (date)
-{
-    var y = +date.slice(6,10); // get year in number
-    var m = +date.slice(0,2);  // ... month ...
-    var d = +date.slice(3,5);  // ... date  ...
-    var sDate, //< starting date
-        cDate; //< current date
-    cDate = new Date(y, m-1, d);
-    // shift year to previous year
-    // since NBA season spans from Oct/25 in self year to Jun/17 in the next year
-    if (m > 9) {
-        sDate = new Date(y  , 9, 25);
-    } else {
-        sDate = new Date(y-1, 9, 25);
-    }
-    return Date.daysBetween(sDate, cDate) / 2.5; // map [0,100] to [0,240]
-}
-/// function to convert number 0-100 to mm/dd/xxxx (xxxx = 2000 or 2001)
-function value2date (value)
-{
-    var oneDay=1000*60*60*24; // one day in MS
-    var sDate = new Date(2000, 9, 25); //< an predefined starting date
-    sDate.setTime(sDate.getTime() + oneDay * value * 2.4);
-    return sDate.toDateString().slice(4,10);
-}
-
 /**
  * Class to display game details
  * HTML LOCATION:
@@ -123,10 +76,11 @@ function GameMeshView () {
 
         // SETUP DATA
         // shortcut variable names
-        var debug = self.debug;
+        // var debug = self.debug;
         var rSeason = player.season.RegularSeason;
         var pSeason = player.season.PostSeason;
         var attrID  = player.season.headerGame.indexOf(attribute);
+        // console.log(attrID);
         // counters
         var j = 0; //< index of years
         var i;     //< index of days/entries
@@ -195,7 +149,7 @@ function GameMeshView () {
         var yScale = d3.scaleLinear() // position scales
             .domain([-0.5, numOfRow - 0.5]).range([0, numOfRow * boxSize]);
         var cScale = d3.scaleLinear() // color scale TODO NEED TO BE MODIFIED FOR OTHER ATTRIBUTES
-            .domain([0, 50]).range(['#E6E6E6', '#FF0A00']);
+            .domain([0, 50]).range(['#E6E6E6', '#FF8B25']);
 
         // DRAWING
         // align squares based on margins

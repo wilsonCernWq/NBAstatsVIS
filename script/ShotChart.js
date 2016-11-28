@@ -69,18 +69,21 @@ function ShotChart () {
         var rowpoint = [];
         for (var y = yearFrom; y <= yearTo; ++y) {
             if (player.season[SeasonType].hasOwnProperty(y)) {
-                player.season[SeasonType][y].shotchart.Details.row.forEach(function (d) {
-                    if (+d[13] < imgH-imgOY) {
-                        var point = [+d[12], +d[13]];
-                        point.data = d;
-                        rowpoint.push(point);
-                    }
-                })
+                if (player.season[SeasonType][y].hasOwnProperty('shotchart')) {
+                    player.season[SeasonType][y].shotchart.Details.row.forEach(function (d) {
+                        if (+d[13] < imgH - imgOY) {
+                            var point = [+d[12], +d[13]];
+                            point.data = d;
+                            rowpoint.push(point);
+                        }
+                    })
+                }
             }
         }
 
+        var maxSize = rowpoint.length/500;
         var radius = d3.scaleSqrt()
-            .domain([0, 100])
+            .domain([0, maxSize])
             .range([0, 8]);
 
         var hexbin = d3.hexbin()
@@ -95,7 +98,7 @@ function ShotChart () {
             .data(hexbin(rowpoint))
             .enter().append("path")
             .attr("class", "hexagon")
-            .attr("d", function(d) { return hexbin.hexagon(radius(Math.min(d.length, 100))); })
+            .attr("d", function(d) { return hexbin.hexagon(radius(Math.min(d.length, maxSize))); })
             .attr("transform", function(d) { return "translate(" + d.x + "," + d.y + ")"; })
             .style('fill',function(d) {});
 

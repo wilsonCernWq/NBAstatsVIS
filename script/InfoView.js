@@ -73,7 +73,7 @@ function InfoView (){
     self.fileExists = function  (url)
     {
         var http = new XMLHttpRequest();
-        http.open('HEAD', url, true); //< make sure async is true
+        http.open('HEAD', url, false); //< make sure async is true
         http.send();
         return http.status != 404;
     };
@@ -106,7 +106,9 @@ function InfoView (){
             .attr('height', imageHeight);
         var url = 'data/playerIcon/' + id + '.png';
         if (self.fileExists(url)) {
+        // try {
             img.attr("xlink:href", url);
+        // } catch(e) {
         } else {
             img.attr("xlink:href", 'data/playerIcon/NoFound.png');
         }
@@ -114,13 +116,17 @@ function InfoView (){
         // attach player information (construct data)
         var infodata = [];
         var teamID = teamList.lookup[player.info.TEAM];
-        infodata.push('Team: ' + teamList.current[teamID].TEAM_CITY + ' ' + teamList.current[teamID].TEAM_NAME);
-        infodata.push('Position: ' + player.info.POSITION);
-        infodata.push('Height: ' + player.info.HEIGHT + ' ft');
-        infodata.push('Weight: ' + player.info.WEIGHT + ' lbs');
-        infodata.push('Birthday: ' + player.info.BIRTHDATE.slice(0,10));
-        infodata.push('Experience: ' + player.info.SEASON_EXP + ' years');
-        infodata.push('Prior School: ' + player.info.SCHOOL);
+        try {
+            infodata.push('Team: ' + teamList.current[teamID].TEAM_CITY + ' ' + teamList.current[teamID].TEAM_NAME);
+        } catch (e) {
+            console.log(player.info.TEAM);
+        }
+        if (player.info.POSITION) { infodata.push('Position: ' + player.info.POSITION); }
+        if (player.info.HEIGHT) { infodata.push('Height: ' + player.info.HEIGHT + ' ft'); }
+        if (player.info.WEIGHT) { infodata.push('Weight: ' + player.info.WEIGHT + ' lbs'); }
+        if (player.info.BIRTHDATE) { infodata.push('Birthday: ' + player.info.BIRTHDATE.slice(0,10)); }
+        if (player.info.SEASON_EXP) { infodata.push('Experience: ' + player.info.SEASON_EXP + ' years'); }
+        if (player.info.SCHOOL) { infodata.push('Prior School: ' + player.info.SCHOOL); }
         infodata.push('Seasons: ' + player.info.FROM_YEAR + ' - ' + player.info.TO_YEAR);
 
         // draw texts
@@ -215,6 +221,7 @@ function InfoView (){
             .style('stroke-width', barsStroke) // give rect some strokes
             .style('stroke', 'black')          // stroke color based on team color 2
             .style('fill', function (d) {
+                console.log(d, d.team);
                 return teamList.current[teamList.lookup[d.team]].COLOR_1; // filling with team color 1
             });
         // draw team logo
@@ -382,7 +389,7 @@ function InfoView (){
                 .classed('info-radial-PIE',true)
                 .attr('x', 0)
                 .attr('y', attrPIEYOff)
-                .text('PIE: ' + (player.info.PIE * 100))
+                .text('PIE: ' + Math.round(player.info.PIE * 10000)/100)
                 .style('font-size',attrPIEFont)
         }
     };
