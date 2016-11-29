@@ -1,153 +1,243 @@
 /**
  * run functions while loading and resizing
- * @type {main}
  */
-window.onload = main;
-window.onresize = resize;
+window.onload   = myOnload;
+window.onresize = myResize;
 
 /**
  * global variables
  */
-var infoView,
-    ranking,
-    gameMeshView,
-    shotChart,
-    menuView;
-var teamList, globPlayerList, currplayer = 'kobe_bryant';
+var globFunc = {
+    infoView: {},
+    rankView: {},
+    gameView: {},
+    shotView: {},
+    menuView: {}
+};
+var globData = {
+    globTeamList: {},
+    globPlayerList: {},
+    currPlayerName: 'kobe_bryant',
+	currPlayerFilter: {
+		Team: null,
+		Hint: null,
+		Position: null,
+		AllStar:  null,
+		YearFrom: null,
+		YearTo:   2015
+	}
+};
+var debugMuteAll = false;
+
+// UI callbacks
+function myQueryTeam(select) {
+	var value = select.options[select.selectedIndex].value;
+	value = value == 'all' ? null : value;
+	if (!debugMuteAll) { console.log('set query for Team!', value); }
+	globData.currPlayerFilter.Team = +value;
+	globFunc.menuView.update();
+}
+
+function myQueryPosition(select) {
+	var value = select.options[select.selectedIndex].value;
+	value = value == 'all' ? null : value;
+	if (!debugMuteAll) { console.log('set query for Position!', value); }
+	globData.currPlayerFilter.Position = +value;
+	globFunc.menuView.update();
+}
+
+function myQueryYearFrom(select) {
+	var value = select.options[select.selectedIndex].value;
+	value = value == 'all' ? null : value;
+	if (!debugMuteAll) { console.log('set query for Year From!', value); }
+	globData.currPlayerFilter.YearFrom = +value;
+	globFunc.menuView.update();
+}
+
+function myQueryYearTo(select) {
+	var value = select.options[select.selectedIndex].value;
+	value = value == 'all' ? null : value;
+	if (!debugMuteAll) { console.log('set query for Year To!', value); }
+	globData.currPlayerFilter.YearTo = +value;
+	globFunc.menuView.update();
+}
+
+function myQueryAllStar(select) {
+	var value = select.options[select.selectedIndex].value;
+	value = value == 'all' ? null : value;
+	if (!debugMuteAll) { console.log('set query for All Star or Not!', value); }
+	globData.currPlayerFilter.AllStar = value;
+	globFunc.menuView.update();
+}
+
+function myQueryAutoHintSubmit() {
+	var value = document.getElementById('edit-queryForm-MenuView').value;
+	value = value == 'all' ? null : value;
+	// print out debug information
+	if (!debugMuteAll) { console.log('set query hint as', value); }
+	globData.currPlayerFilter.Hint = value;
+	globFunc.menuView.update();
+	return false;
+}
+
+/**
+ * Function to change player
+ * Linked to click button
+ */
+function myChangePlayer() {
+	// if (!debugMuteAll) { console.log('asked for changing player!'); }
+	if (globFunc.menuView.hidden) {
+		globFunc.menuView.show();
+	} else {
+		globFunc.menuView.hide();
+	}
+}
+
+// debug
+//*/ click on screen to track mouse position
+// if (!debugMuteAll) { document.onclick = DebugMouseMovePosition; }
+function DebugMouseMovePosition(event) {
+	var eventDoc, doc, body;
+	event = event || window.event; // IE-ism
+	// If pageX/Y aren't available and clientX/Y are,
+	// calculate pageX/Y - logic taken from jQuery.
+	// (This is to support old IE)
+	if (event.pageX == null && event.clientX != null) {
+		eventDoc = (event.target && event.target.ownerDocument) || document;
+		doc = eventDoc.documentElement;
+		body = eventDoc.body;
+		event.pageX = event.clientX +
+			(doc && doc.scrollLeft || body && body.scrollLeft || 0) -
+			(doc && doc.clientLeft || body && body.clientLeft || 0);
+		event.pageY = event.clientY +
+			(doc && doc.scrollTop || body && body.scrollTop || 0) -
+			(doc && doc.clientTop || body && body.clientTop || 0 );
+	}
+	// Use event.pageX / event.pageY here
+	console.log(event.pageX, event.pageY)
+}
+//*/
 
 /**
  * main function
  */
-function main ()
+function myOnload ()
 {
     var self = this;
-    infoView = new InfoView();
-    ranking = new RankView();
-    gameMeshView = new GameMeshView();
-    shotChart = new ShotChart();
-    menuView = new SelectPlayer();
 
-    // debug flag
-    var debug = true;
+    // -------------------------------------------------------
+    // load global class instance, one for each view
+    // -------------------------------------------------------
+	globFunc.menuView = new MenuView();
+	globFunc.infoView = new InfoView();
+    //globFunc.rankView = new RankView();
+    //globFunc.gameView = new GameMeshView();
+    //globFunc.shotView = new ShotChart();
 
+    // -------------------------------------------------------
     // load team list
-    d3.csv('data/teamhistory.csv', function (errorHistory, teamListLocal) {
-        if (errorHistory) throw errorHistory;
+    // -------------------------------------------------------
+    d3.csv('data/teamHistory.csv', function (errorTeamHistory, dataTeamHistory) {
+        if (errorTeamHistory) throw errorTeamHistory;
+
+        // --------------------
+        // [0] ----------------
         // construct team info lookup list
-        // teamList = teamListLocal;
-        teamList = { lookup:{}, current:{}, history:{} };
-        teamListLocal.forEach(function (d) {
-            var teamid = +d.TEAM_ID;
-            teamList.lookup[d.TEAM_ABBREVIATION] = teamid;
-            if (d.SUMMARY == 'Y') {
-                teamList.current[teamid] = d;
+        globData.globTeamList = {lookup: {}, current: {}, history: {}};
+        dataTeamHistory.forEach(function (team) {
+            var teamid = +team.TEAM_ID;
+            globData.globTeamList.lookup[team.TEAM_ABBREVIATION] = teamid;
+            if (team.SUMMARY == 'Y') {
+                globData.globTeamList.current[teamid] = team;
             } else {
-                if (!teamList.history.hasOwnProperty(d.TEAM_ID)) {
-                    teamList.history[teamid] = [d];
+                if (!globData.globTeamList.history.hasOwnProperty(team.TEAM_ID)) {
+                    globData.globTeamList.history[teamid] = [team];
                 } else {
-                    teamList.history[teamid].push(d);
+                    globData.globTeamList.history[teamid].push(team);
                 }
             }
         });
-        // load player list
-        d3.json('data/playerindex.json', function (errorPlayerIndex, playerListLocal) {
-            if (errorPlayerIndex) throw errorPlayerIndex;
-            //
-            // -- TODO Data Query
-            //
-            // -- menu
-            var menuFilter = {
-                Initial: null,
-                YearFrom: 1996,
-                YearTo: 2015,
-                AllStar: null,
-                HeightAbove: null,
-                HeightBelow: null,
-                WeightAbove: null,
-                WeightBelow: null,
-                Position: null,
-                Team: null
-            };
-            globPlayerList = playerListLocal;
-            menuView.init(300);
-            menuView.update(playerListLocal, menuFilter);
-            MainReload();
+        // DEBUG HERE
+        if (!debugMuteAll) {
+            console.log('globData.globTeamList', globData.globTeamList);
+        }
 
+        // --------------------
+        // [1] ----------------
+        // load player list
+        d3.json('data/playerIndex.json', function (errorPlayerIndex, dataPlayerIndex) {
+            if (errorPlayerIndex) throw errorPlayerIndex;
+            // [1.0]
+            // build query filter
+            globData.globPlayerList = dataPlayerIndex;
+            globFunc.menuView.init(400);
+            globFunc.menuView.update();
+	        globFunc.menuView.hide();
+	        // initialize objects
+	        globFunc.infoView.init(600);
+            // DEBUG HERE
+	        if (!debugMuteAll) {}
+            // --------------------
+            // [1.1]
+            MainReload();
         });
     });
-
-    // debug
-    /*/ click on screen to track mouse position
-    document.onclick = handleMouseMove;
-    function handleMouseMove(event) {
-        var dot, eventDoc, doc, body, pageX, pageY;
-        event = event || window.event; // IE-ism
-        // If pageX/Y aren't available and clientX/Y are,
-        // calculate pageX/Y - logic taken from jQuery.
-        // (This is to support old IE)
-        if (event.pageX == null && event.clientX != null) {
-            eventDoc = (event.target && event.target.ownerDocument) || document;
-            doc = eventDoc.documentElement;
-            body = eventDoc.body;
-            event.pageX = event.clientX +
-                (doc && doc.scrollLeft || body && body.scrollLeft || 0) -
-                (doc && doc.clientLeft || body && body.clientLeft || 0);
-            event.pageY = event.clientY +
-                (doc && doc.scrollTop || body && body.scrollTop || 0) -
-                (doc && doc.clientTop || body && body.clientTop || 0 );
-        }
-        // Use event.pageX / event.pageY here
-        console.log(event.pageX, event.pageY)
-    }
-    //*/
-
 }
 
 /**
- * Function to query the player
- * @param info
- * @param string
- * @returns {*}
+ * Load the main project
  */
-var searchPlayer = function (info, string) {
-    var id = 0;
-    info['rowSet'].forEach(function(d, i) { if (d[4] == string) id = i; });
-    return info['rowSet'][id];
-};
+function MainReload ()
+{
+	/**
+	 * Function to query the player
+	 * @param info
+	 * @param string
+	 * @returns {*}
+	 */
+	var searchPlayer = function (info, string) {
+		var id = 0;
+		info['rowSet'].forEach(function(d, i) { if (d[4] == string) id = i; });
+		return info['rowSet'][id];
+	};
 
-function MainReload () {
-    var playerInfo = searchPlayer(globPlayerList, currplayer);
+	// --------------------------------------
+	// get current player info
+	var playerInfo = searchPlayer(globData.globPlayerList, globData.currPlayerName);
 
-    //
-    // -- TODO Complete All Views
-    d3.json('data/player/' + playerInfo[4] + '.json', function (errorPlayer, player)
+	// --------------------------------------
+    // Complete All Views
+    d3.json('data/playerList/' + playerInfo[4] + '.json', function (errorPlayer, player)
     {
         if (errorPlayer) throw errorPlayer;
-         console.log(playerInfo[4], player, teamList);
-        //
+	    // DEBUG HERE
+	    if (!debugMuteAll) {
+		    console.log(playerInfo[4], player);
+	    }
+        // [0]
         // -- Info View
-        infoView.init(400);
-        infoView.update(player);
-        //
+	    globFunc.infoView.update(player);
+        // [1]
         // -- Ranking View
-        ranking.init(500);
-        ranking.update(playerInfo[0], player, player.info.FROM_YEAR, player.info.TO_YEAR, 'PTS');
+        //ranking.init(500);
+        //ranking.update(playerInfo[0], player, player.info.FROM_YEAR, player.info.TO_YEAR, 'PTS');
         //
         // -- Game Mesh View
-        gameMeshView.init(600);
-        gameMeshView.update(playerInfo[0], player, player.info.FROM_YEAR, player.info.TO_YEAR, 'PTS');
+        //gameMeshView.init(600);
+        //gameMeshView.update(playerInfo[0], player, player.info.FROM_YEAR, player.info.TO_YEAR, 'PTS');
         //
         // -- Shot Chart View
-        shotChart.init(600);
-        shotChart.update(playerInfo[0], player, player.info.FROM_YEAR, player.info.TO_YEAR);
+        //shotChart.init(600);
+        //shotChart.update(playerInfo[0], player, player.info.FROM_YEAR, player.info.TO_YEAR);
     });
 }
 
 /**
  * resizing function
  */
-function resize() {
-    infoView.resize();
-    gameMeshView.resize();
+function myResize() {
+	globFunc.menuView.resize();
+	globFunc.infoView.resize();
+    //gameMeshView.resize();
 }
 

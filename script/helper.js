@@ -74,3 +74,12 @@ function value2date (value)
     sDate.setTime(sDate.getTime() + oneDay * value * 2.4);
     return sDate.toDateString().slice(4,10);
 }
+
+function obj2array(x) {
+    // console.log('change object to array', x);
+	var result = [];
+	for (var key in x) {
+		result.push([key, x[key]]);
+	}
+    return result;
+}

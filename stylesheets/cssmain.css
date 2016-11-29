@@ -1,14 +1,37 @@
+/* global */
+form {
+    display: inline;
+}
+
+.scrollable {
+    margin-top: 10px;
+    margin-bottom: 10px;
+    height: 200px;
+    background: #f2f2f2;
+    overflow: scroll;
+}
+
 /* general html styles */
 .view-menu {
-    border: solid 1px;
+    /* border: solid 1px; */
 }
 
 .view-block {
-    margin-top: 50px;
-    margin-left: 100px;
-    margin-right: 100px;
-    background: #ffffff;
-    border: solid 1px;
+    margin-top: 10px;
+    margin-bottom: 10px;
+    /*margin-left: 100px;*/
+    /*margin-right: 100px;*/
+    /*background: #ffffff;*/
+    /*border: solid 1px;*/
+}
+
+/* query */
+.query-text {
+
+}
+
+.query-result-text {
+
 }
 
 /* info view */
@@ -38,6 +61,42 @@
     font-family: Verdana;
     fill: #2e2e2e;
     text-anchor: middle;
+}
+
+/* Creates a small triangle extender for the tooltip */
+.info-d3-tip {
+    line-height: 1;
+    font-family: sans-serif;
+    font-weight: bold;
+    padding: 10px;
+    background: rgba(0, 0, 0, 0.8);
+    color: #ff8b25;
+    border-radius: 2px;
+    text-align: center;
+}
+.info-d3-tip > span {
+    color: #ffffff;
+    font-style: italic;
+    font-weight: normal;
+    font-size: 10px;
+}
+.info-d3-tip:after {
+    box-sizing: border-box;
+    display: inline;
+    font-size: 10px;
+    width: 100%;
+    line-height: 1;
+    color: rgba(0, 0, 0, 0.8);
+    content: "\25BC";
+    position: absolute;
+    text-align: center;
+}
+
+/* Style northward tooltips differently */
+.info-d3-tip.n:after {
+    margin: -1px 0 0 0;
+    top: 100%;
+    left: 0;
 }
 
 /* rank view */

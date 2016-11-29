@@ -1,5 +1,6 @@
 /**
  * Class to display game details
+ * @constructor
  * HTML LOCATION:
  * <svg>
  *   <g id="meshGrid"></g>

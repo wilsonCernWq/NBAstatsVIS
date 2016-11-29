@@ -1,6 +1,6 @@
 /**
- * Constructor
  * In self function you want to input all initial variables the class will need
+ * @constructor
  */
 function RankView () {
     var self = this;

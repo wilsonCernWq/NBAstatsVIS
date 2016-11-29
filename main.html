@@ -1,19 +1,76 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
+
     <meta charset="UTF-8">
     <title>NBAstatsVIS</title>
-
     <link rel="stylesheet" href="stylesheets/cssmain.css">
-
 
 </head>
 <body>
 
-<div class="view-menu" id="menuView"></div>
-
-<div class="view-block" id="infoView"></div>
-
+<div class="view-menu" id="divMenuView" style="display: none">
+    <span class="query-text">Team</span>
+    <select title="queryTeam"
+            id="queryTeam-MenuView"
+            onchange="myQueryTeam(this)">
+    </select>
+    <span class="query-text">Position</span>
+    <select title="queryPosition"
+            id="queryPosition-MenuView"
+            onchange="myQueryPosition(this)">
+        <option value="Guard">Guard</option>
+        <option value="Center">Center</option>
+        <option value="Forward">Forward</option>
+        <option selected value="all">All</option>
+    </select>
+    <span class="query-text">Year From</span>
+    <select title="queryYearFrom"
+            id="queryYearFrom-MenuView"
+            onchange="myQueryYearFrom(this)">
+    </select>
+    <span class="query-text">Year To</span>
+    <select title="queryYearTo"
+            id="queryYearTo-MenuView"
+            onchange="myQueryYearTo(this)">
+    </select>
+    <span class="query-text">All Star</span>
+    <select title="queryAllStar"
+            id="queryAllStar-MenuView"
+            onchange="myQueryAllStar(this)">
+        <option value="yes">Yes</option>
+        <option value="no">No</option>
+        <option selected value="all">All</option>
+    </select>
+    <span class="query-text">Player Name</span>
+    <form title="queryForm" id="queryForm-MenuView" onkeypress="myQueryAutoHintSubmit()">
+        <input id="edit-queryForm-MenuView" title="edit" value=""/>
+        <input type="button" value="Search" onclick="myQueryAutoHintSubmit()"/>
+    </form>
+    <div class="scrollable">
+        <svg id="svgMenuView">
+            <g id="groupMenuViewRect"></g>
+            <g id="groupMenuViewText"></g>
+        </svg>
+    </div>
+</div>
+<div class="view-block" id="divInfoView">
+    <!--<button id="buttonChangePlayer-InfoView"-->
+            <!--onclick="myChangePlayer()"-->
+            <!--style="float: left">-->
+        <!--Change Player-->
+    <!--</button>-->
+    <!--<svg id="svgInfoView">-->
+        <!--<g id="groupLeftPlot-InfoView"><image></image></g>-->
+        <!--<g id="groupYearAxis-InfoView">-->
+            <!--<g id="axisGroup-InfoView"></g>-->
+            <!--<g id="barsGroup-InfoView"></g>-->
+            <!--<g id="brushGroup-InfoView"></g>-->
+        <!--</g>-->
+        <!--<g id="radialPlot-InfoView"></g>-->
+        <!--<g id="tooltip-InfoView"></g>-->
+    <!--</svg>-->
+</div>
 <div class="view-block" id="rankView">
     <svg id="rankViewSVG">
         <g id="rankAxis"></g>
@@ -21,11 +78,8 @@
         <g id="rankLink"></g>
     </svg>
 </div>
-
 <div class="view-block" id="gameMeshView"></div>
-
 <div class="view-block" id="shotChart"></div>
-
 <div class="tooltip" id="tooltiplist"></div>
 
 <script src="external/d3/d3.v4.js"></script>
@@ -34,13 +88,14 @@
 <script src="external/d3-queue/d3-queue.v3.min.js"></script>
 <script src="external/d3-hexbin/d3.hexbin.min.js"></script>
 
-<script src="script/SelectPlayer.js"></script>
 <script src="script/helper.js"></script>
+<script src="script/main.js"></script>
+<script src="script/MenuView.js"></script>
 <script src="script/InfoView.js"></script>
+
 <script src="script/RankView.js"></script>
 <script src="script/GameMeshView.js"></script>
 <script src="script/ShotChart.js"></script>
-<script src="script/main.js"></script>
 
 </body>
 </html>
