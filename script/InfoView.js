@@ -26,6 +26,9 @@ function InfoView ()
 	    self.grpAxis = self.svg.append('g').attr('id','groupYearAxis-InfoView');
 	    self.grpRadial = self.svg.append('g').attr('id','radialPlot-InfoView');
 	    self.grpInfo.append('image');
+	    self.grpAxis.append('g').attr('id', 'axisGroup-InfoView');
+	    self.grpAxis.append('g').attr('id', 'barsGroup-InfoView');
+	    self.grpAxis.append('g').attr('id', 'brushGroup-InfoView');
 	    self.hidden = false;
 
 
@@ -211,7 +214,7 @@ function InfoView ()
         //
         // DRAWING
         // console.log(teamList);
-        // creat scale and axis
+        // create scale and axis
         var scale = d3.scaleLinear()
             .domain([sYear - 0.5, eYear + 0.5]) // the range is being shifted, for axis ticks
             .range([margin.left, plotWidth + margin.left]);
