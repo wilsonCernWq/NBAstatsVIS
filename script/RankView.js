@@ -6,6 +6,15 @@ function RankView ()
 {
     var self = this;
 
+    self.setMargin = function () {
+	    self.margin = {
+		    left:   0.02 * self.svgW,
+		    right:  0.02 * self.svgW,
+		    top:    0.10 * self.svgH,
+		    bottom: 0.05 * self.svgH
+	    };
+    };
+
 	/**
 	 * Initialization
 	 * @param maxHeight
@@ -28,12 +37,7 @@ function RankView ()
         var sty = window.getComputedStyle(div, null); // console.log(style);
         self.svgW = parseInt(sty.getPropertyValue("width"), 10);
         self.svgH = maxHeight;
-        self.margin = { // define plot margin (it gives the minimal margin)
-            left:   0.02 * self.svgW,
-            right:  0.02 * self.svgW,
-            top:    0.10 * self.svgH,
-            bottom: 0.05 * self.svgH
-        };
+	    self.setMargin();
         // [3]
 	    // setup elements
 	    self.svg // setuo SVG attributes
@@ -286,12 +290,7 @@ function RankView ()
 		var div = document.getElementById('divRankView');
 		var sty = window.getComputedStyle(div, null);
 		self.svgW = parseInt(sty.getPropertyValue("width"), 10);
-		self.margin = {
-			left:   0.02 * self.svgW,
-			right:  0.02 * self.svgW,
-			top:    0.10 * self.svgH,
-			bottom: 0.05 * self.svgH
-		};
+		self.setMargin();
 		self.svg.attr("width",  self.svgW);
 		// call update
 		self.update();
