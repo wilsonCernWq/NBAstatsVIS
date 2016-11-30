@@ -13,7 +13,9 @@ function InfoView ()
     self.init = function(height)
     {
     	// [0]
+	    // great HTML structure
 	    self.div = d3.select('#divInfoView');
+	    self.div.selectAll('*').remove(); // prevent bug
 	    // creat button
 	    self.div.append('button')
 		    .attr('id', 'buttonChangePlayer-InfoView')
@@ -30,9 +32,6 @@ function InfoView ()
 	    self.grpAxis.append('g').attr('id', 'barsGroup-InfoView');
 	    self.grpAxis.append('g').attr('id', 'brushGroup-InfoView');
 	    self.hidden = false;
-
-
-	    // self.tooltips = self.svg.append('g').attr('id','tooltip-InfoView');
 	    // [1]
         // calculate svg default size & get the correct width of the window
         var div   = document.getElementById('divInfoView'); // shortcuts
@@ -49,9 +48,9 @@ function InfoView ()
     /**
      * self is a function to draw/update view
      */
-    self.update = function(player)
+    self.update = function()
     {
-        self.player = player;
+        var player = globData.currPlayerData;
         var hView = self.OneInfo(self.grpInfo, player);
 	    var hAxis = self.SeasonAxis(self.grpAxis, player);
         var hRad = self.RadialView(self.grpRadial, player); // console.log(hView, hAxis);
@@ -68,7 +67,7 @@ function InfoView ()
 	    var style = window.getComputedStyle(div, null);     // shortcuts
 	    self.svgW  = parseInt(style.getPropertyValue("width"), 10);
 	    self.svg.attr('width',  self.svgW);
-        self.update(self.player);
+        self.update();
     };
 
     /**
@@ -108,7 +107,7 @@ function InfoView ()
             imageHeight  = 185 * ratio, // profile picture height
 	        imageXOffset = (textXOffset - imageWidth)/2,
             imageYOffset = 20 * ratio;  // space between profile picture and divide border
-	    var groupHeight = 255 * ratio;
+	    var groupHeight  = 255 * ratio;
 	    // [2]
         // attach an image under the svg
         var img = group.select('image')
@@ -258,18 +257,29 @@ function InfoView ()
             .extent([[margin.left, -logoSize-logoOffY-brushPad],[margin.left+plotWidth, axisSize+brushPad]])
             .on("end", function () {
                 if (!d3.event.sourceEvent) return; // Only transition after input.
-                if (!d3.event.selection) return; // Ignore empty selections
-                // calculate correct year selection
-                var value = d3.event.selection.map(scale.invert);
-                value[0] = Math.round(value[0]-0.5);
-                value[1] = Math.round(value[1]-0.5);
-                // TODO call year selection function
-                // here I simply print things out, in the future, functions should be linked to here
-                console.log('selecting year: ',value);
-                // adjust brush position so that it snaps on the correct year
-                value[0] += 0.5;
-                value[1] += 0.5;
-                d3.select(this).transition().call(d3.event.target.move, value.map(scale));
+                if (!d3.event.selection) { // Ignore empty selections
+	                globData.currSelectedYearRange = [null, null];
+                } else {
+	                // calculate correct year selection
+	                var value = d3.event.selection.map(scale.invert);
+	                value[0] = Math.round(value[0] - 0.5);
+	                value[1] = Math.round(value[1] - 0.5);
+	                // ** call year selection function
+	                // here I simply print things out, in the future, functions should be linked to here
+	                if (value[0] < value[1]) {
+		                globData.currSelectedYearRange[0] = value[0] + 1;
+		                globData.currSelectedYearRange[1] = value[1];
+	                } else {
+		                globData.currSelectedYearRange = [null, null];
+	                }
+	                console.log('selecting year: ', globData.currSelectedYearRange);
+	                // adjust brush position so that it snaps on the correct year
+	                value[0] += 0.5;
+	                value[1] += 0.5;
+	                d3.select(this).transition().call(d3.event.target.move, value.map(scale));
+                }
+                // call stuffs
+	            MainReload(false);
             });
         group.select('#brushGroup-InfoView').attr('class', 'brush brushInfoView').call(brush);
         group.select('#brushGroup-InfoView').select('.selection').style('display','none'); // hide selection
@@ -289,7 +299,6 @@ function InfoView ()
     	// compute rescaling ratio
 	    var ratio = self.svgW / 1520; // rescaling ratio
         // predefined data range (different range for different data)
-        var bgColor = '#D3D3D3';
         var dataSet = [
             // [attribute, min, max, value]
             ["REB", 0.00, 8.60, '#784a92'],
@@ -339,8 +348,8 @@ function InfoView ()
 		    .offset([-10, 0])
 		    .html(function(d) {
 		    	var remark = "Index 1.0 indicates the player has rank less than 20 for this attribute";
-			    return "<strong>" + d.comment[0] + d.comment[1] + "</strong><" +
-				    "br/><span style='color:#ff8b25'>" + d.comment[2] + "</span>" +
+			    return "<strong>" + d.comment[0] + d.comment[1] + "</strong>" +
+				    "<br/><span class='important'>" + d.comment[2] + "</span>" +
 				    "<br/><span>" + remark + "</span>";
 		    });
 	    var tipValue = d3.tip()
@@ -375,10 +384,10 @@ function InfoView ()
 		    group.selectAll('g').data(dataSet).append('rect')
 			    .attr('x', 0).attr('y', -barH / 2)
 			    .attr('height', barH).attr('width', barWMax + barWMin)
-			    .style('fill', bgColor);
+			    .classed('info-radial-backgound', true);
 		    group.selectAll('g').data(dataSet).append('circle')
 			    .attr('cx', barWMax + barWMin).attr('cy', 0).attr('r', barH / 2)
-			    .style('fill', bgColor);
+			    .classed('info-radial-backgound', true);
 	    }
         // -- create bars representing data
 	    {
@@ -404,9 +413,7 @@ function InfoView ()
 			    })
 			    .attr('cy', 0)
 			    .attr('r', barH / 2)
-			    .style('fill', function (d) {
-				    return d[3];
-			    });
+			    .style('fill', function (d) { return d[3]; });
 	    }
         // --- other component
 	    // central circle
@@ -414,7 +421,7 @@ function InfoView ()
 		    .attr('cx', 0)
 		    .attr('cy', 0)
 		    .attr('r', 40 * ratio)
-		    .style('fill', '#c3cdeb')
+		    .classed('info-radial-PIE-circle', true) // PIE circle color
 		    .on('mouseover', tipPIE.show)
 		    .on('mouseout', tipPIE.hide);
 	    {
@@ -459,7 +466,19 @@ function InfoView ()
 				    return dataSet[i][0];
 			    })
 			    .on('mouseover', tipLabel.show)
-			    .on('mouseout', tipLabel.hide);
+			    .on('mouseout', tipLabel.hide)
+			    .on('click', function (d) {
+			    	if (d3.select(this).classed('selected')) {
+					    group.selectAll('.selected').classed('selected', false);
+					    globData.currSelectedAttribute = [null,null];
+					    MainReload(false);
+				    } else {
+					    group.selectAll('.selected').classed('selected', false);
+					    d3.select(this).classed('selected', true);
+					    globData.currSelectedAttribute = [d[0], d.comment[0]];
+					    MainReload(false);
+				    }
+			    });
 	    }
         // draw central PIE text
 	    var pie = player.info.PIE ? 'PIE: ' + Math.round(player.info.PIE * 10000)/100 : 'PIE: N/A';
@@ -470,7 +489,7 @@ function InfoView ()
 		    .style('font-size',attrPIEFont)
 		    .classed('info-radial-PIE',true)
 		    .text(pie);
-        return plotHeight + groupYOff;
+        return plotHeight/2 + groupYOff;
     };
 
 	/**

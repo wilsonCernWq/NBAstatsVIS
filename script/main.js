@@ -17,7 +17,11 @@ var globFunc = {
 var globData = {
     globTeamList: {},
     globPlayerList: {},
-    currPlayerName: 'kobe_bryant',
+	currSelectedYearRange: [null,null],
+	currSelectedAttribute: [null,null],
+	currPlayerData: {},
+	currPlayerName: 'kobe_bryant',
+	currPlayerCompare: '',
 	currPlayerFilter: {
 		Team: null,
 		Hint: null,
@@ -130,7 +134,7 @@ function myOnload ()
     // -------------------------------------------------------
 	globFunc.menuView = new MenuView();
 	globFunc.infoView = new InfoView();
-    //globFunc.rankView = new RankView();
+    globFunc.rankView = new RankView();
     //globFunc.gameView = new GameMeshView();
     //globFunc.shotView = new ShotChart();
 
@@ -175,8 +179,9 @@ function myOnload ()
 	        globFunc.menuView.hide();
 	        // initialize objects
 	        globFunc.infoView.init(600);
+	        globFunc.rankView.init(600);
             // DEBUG HERE
-	        if (!debugMuteAll) {}
+	        // if (!debugMuteAll) {}
             // --------------------
             // [1.1]
             MainReload();
@@ -187,7 +192,7 @@ function myOnload ()
 /**
  * Load the main project
  */
-function MainReload ()
+function MainReload(reloadData)
 {
 	/**
 	 * Function to query the player
@@ -195,41 +200,43 @@ function MainReload ()
 	 * @param string
 	 * @returns {*}
 	 */
-	var searchPlayer = function (info, string) {
-		var id = 0;
-		info['rowSet'].forEach(function(d, i) { if (d[4] == string) id = i; });
-		return info['rowSet'][id];
-	};
-
+	// var searchPlayer = function (info, string) {
+	//   var id = 0;
+	// 	 info['rowSet'].forEach(function(d, i) { if (d[4] == string) id = i; });
+	// 	 return info['rowSet'][id];
+	// };
 	// --------------------------------------
 	// get current player info
-	var playerInfo = searchPlayer(globData.globPlayerList, globData.currPlayerName);
-
+	//var playerInfo = searchPlayer(globData.globPlayerList, globData.currPlayerName);
 	// --------------------------------------
     // Complete All Views
-    d3.json('data/playerList/' + playerInfo[4] + '.json', function (errorPlayer, player)
-    {
-        if (errorPlayer) throw errorPlayer;
-	    // DEBUG HERE
-	    if (!debugMuteAll) {
-		    console.log(playerInfo[4], player);
-	    }
-        // [0]
-        // -- Info View
-	    globFunc.infoView.update(player);
-        // [1]
-        // -- Ranking View
-        //ranking.init(500);
-        //ranking.update(playerInfo[0], player, player.info.FROM_YEAR, player.info.TO_YEAR, 'PTS');
-        //
-        // -- Game Mesh View
-        //gameMeshView.init(600);
-        //gameMeshView.update(playerInfo[0], player, player.info.FROM_YEAR, player.info.TO_YEAR, 'PTS');
-        //
-        // -- Shot Chart View
-        //shotChart.init(600);
-        //shotChart.update(playerInfo[0], player, player.info.FROM_YEAR, player.info.TO_YEAR);
-    });
+	if (reloadData == null || reloadData) {
+		d3.json('data/playerList/' + globData.currPlayerName + '.json', function (errorPlayer, player) {
+			if (errorPlayer) throw errorPlayer;
+			// DEBUG HERE
+			if (!debugMuteAll) {
+				console.log(globData.currPlayerName, player);
+			}
+			globData.currPlayerData = player;
+			// [0]
+			// -- Info View
+			globFunc.infoView.update();
+			// [1]
+			// -- Ranking View
+			//ranking.init(500);
+			globFunc.rankView.update();
+			//
+			// -- Game Mesh View
+			//gameMeshView.init(600);
+			//gameMeshView.update(playerInfo[0], player, player.info.FROM_YEAR, player.info.TO_YEAR, 'PTS');
+			//
+			// -- Shot Chart View
+			//shotChart.init(600);
+			//shotChart.update(playerInfo[0], player, player.info.FROM_YEAR, player.info.TO_YEAR);
+		});
+	} else {
+		globFunc.rankView.update();
+	}
 }
 
 /**
@@ -238,6 +245,7 @@ function MainReload ()
 function myResize() {
 	globFunc.menuView.resize();
 	globFunc.infoView.resize();
+	globFunc.rankView.resize();
     //gameMeshView.resize();
 }
 

@@ -11,6 +11,7 @@ form {
     overflow: scroll;
 }
 
+/***********************************************/
 /* general html styles */
 .view-menu {
     /* border: solid 1px; */
@@ -25,46 +26,58 @@ form {
     /*border: solid 1px;*/
 }
 
+/***********************************************/
 /* query */
-.query-text {
+.query-text {  }
 
-}
+.query-result-text {  }
 
-.query-result-text {
-
-}
-
+/***********************************************/
 /* info view */
-.info-text {
+.info-text {  /* The display of player general info */
     font-family: Verdana;
     text-anchor: start;
 }
 
-.info-title {
+.info-title { /* The display of player name */
     font-family: Fantasy;
     text-anchor: middle;
 }
 
-.info-radial-attribute-text {
+.info-radial-attribute-text {  /* Radial Plot index number */
     font-family: Verdana;
     fill: #ffffff;
     text-anchor: middle;
 }
 
-.info-radial-PIE {
-    font-family: Verdana;
-    fill: #1c1c1c;
-    text-anchor: middle;
+.info-radial-backgound {  /* Radial Plot background bar display */
+    fill: #ebebeb;
 }
 
-.info-radial-attribute-tag {
+.info-radial-attribute-tag { /* Radial Plot attribute tag name */
+    font-family: Verdana;
+    fill: #2e2e2e;
+    text-anchor: middle;
+}
+.info-radial-attribute-tag.selected { /* Radial Plot attribute tag name */
+    font-weight:bold;
     font-family: Verdana;
     fill: #2e2e2e;
     text-anchor: middle;
 }
 
+.info-radial-PIE-circle {  /* Radial Plot PIE bg circie display */
+    fill: #c3e5f2;
+}
+
+.info-radial-PIE {  /* Radial Plot PIE Text display */
+    font-family: Verdana;
+    fill: #1c1c1c;
+    text-anchor: middle;
+}
+
 /* Creates a small triangle extender for the tooltip */
-.info-d3-tip {
+.info-d3-tip { /* the top level high light ==> rougly means strong */
     line-height: 1;
     font-family: sans-serif;
     font-weight: bold;
@@ -73,12 +86,17 @@ form {
     color: #ff8b25;
     border-radius: 2px;
     text-align: center;
+    box-shadow: rgba(0, 0, 0, 0.3) 0 2px 10px;
 }
-.info-d3-tip > span {
+.info-d3-tip span {  /* normal text */
     color: #ffffff;
-    font-style: italic;
+    font-style: normal;
     font-weight: normal;
-    font-size: 10px;
+    font-size: 11px;
+}
+.info-d3-tip .important { /* second level text */
+    color: #ff8b25;
+    font-style: italic;
 }
 .info-d3-tip:after {
     box-sizing: border-box;
@@ -91,14 +109,13 @@ form {
     position: absolute;
     text-align: center;
 }
-
-/* Style northward tooltips differently */
-.info-d3-tip.n:after {
+.info-d3-tip.n:after { /* Style northward tooltips differently */
     margin: -1px 0 0 0;
     top: 100%;
     left: 0;
 }
 
+/***********************************************/
 /* rank view */
 .rank-bar {
     fill: #E6E6E6;
@@ -107,15 +124,11 @@ form {
 .rank-tooltip { /* I think a fixed window is reasonable here for zooming */
     pointer-events: none;
     position: absolute;
-    text-align: center;
-    font: 9px sans-serif;
-    border: solid 1px;
-    background: #DDDDDD;
-    margin-top:  -55px; /* left shift*/
-    margin-left: -70px; /* up shift*/
-    padding: 6px;
-    width:  120px;
-    height: 100px;
+    background: #ffd76e;
+    box-shadow: rgba(0, 0, 0, 0.3) 0 2px 10px;
+    fill: #1d3e81;
+    opacity: 0.9;
+    font-family: sans-serif;
 }
 
 .rank-tooltip-rect-frame {
@@ -158,6 +171,13 @@ form {
     fill: #000000;
 }
 
+#titleRankView-RankView {
+    text-anchor: middle;
+    font-weight: bold;
+}
+
+/***********************************************/
+/* shotchart */
 .hexagon {
     fill: #4584b4;
     stroke: #ffffff;
