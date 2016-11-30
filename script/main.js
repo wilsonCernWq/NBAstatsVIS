@@ -135,8 +135,8 @@ function myOnload ()
 	globFunc.menuView = new MenuView();
 	globFunc.infoView = new InfoView();
     globFunc.rankView = new RankView();
-    //globFunc.gameView = new GameMeshView();
-    //globFunc.shotView = new ShotChart();
+    globFunc.gameView = new GameView();
+    globFunc.shotView = new ShotView();
 
     // -------------------------------------------------------
     // load team list
@@ -179,7 +179,9 @@ function myOnload ()
 	        globFunc.menuView.hide();
 	        // initialize objects
 	        globFunc.infoView.init(600);
-	        globFunc.rankView.init(600);
+	        globFunc.rankView.init(300);
+	        globFunc.gameView.init(300);
+	        globFunc.shotView.init(600);
             // DEBUG HERE
 	        // if (!debugMuteAll) {}
             // --------------------
@@ -220,22 +222,15 @@ function MainReload(reloadData)
 			globData.currPlayerData = player;
 			// [0]
 			// -- Info View
-			globFunc.infoView.update();
-			// [1]
-			// -- Ranking View
-			//ranking.init(500);
-			globFunc.rankView.update();
-			//
-			// -- Game Mesh View
-			//gameMeshView.init(600);
-			//gameMeshView.update(playerInfo[0], player, player.info.FROM_YEAR, player.info.TO_YEAR, 'PTS');
-			//
-			// -- Shot Chart View
-			//shotChart.init(600);
-			//shotChart.update(playerInfo[0], player, player.info.FROM_YEAR, player.info.TO_YEAR);
+			if (!globFunc.infoView.hidden) { globFunc.infoView.update(); }
+			if (!globFunc.rankView.hidden) { globFunc.rankView.update(); }
+			if (!globFunc.gameView.hidden) { globFunc.gameView.update(); }
+			if (!globFunc.shotView.hidden) { globFunc.shotView.update(); }
 		});
 	} else {
-		globFunc.rankView.update();
+		if (!globFunc.rankView.hidden) { globFunc.rankView.update(); }
+		if (!globFunc.gameView.hidden) { globFunc.gameView.update(); }
+		if (!globFunc.shotView.hidden) { globFunc.shotView.update(); }
 	}
 }
 
@@ -243,9 +238,10 @@ function MainReload(reloadData)
  * resizing function
  */
 function myResize() {
-	globFunc.menuView.resize();
-	globFunc.infoView.resize();
-	globFunc.rankView.resize();
-    //gameMeshView.resize();
+	if (!globFunc.menuView.hidden) { globFunc.menuView.resize(); }
+	if (!globFunc.infoView.hidden) { globFunc.infoView.resize(); }
+	if (!globFunc.rankView.hidden) { globFunc.rankView.resize(); }
+	if (!globFunc.gameView.hidden) { globFunc.gameView.resize(); }
+	if (!globFunc.shotView.hidden) { globFunc.shotView.resize(); }
 }
 

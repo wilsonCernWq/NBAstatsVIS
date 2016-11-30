@@ -10,7 +10,7 @@ function RankView ()
 	    self.margin = {
 		    left:   0.02 * self.svgW,
 		    right:  0.02 * self.svgW,
-		    top:    0.10 * self.svgH,
+		    top:    0.20 * self.svgH,
 		    bottom: 0.05 * self.svgH
 	    };
     };
@@ -255,7 +255,7 @@ function RankView ()
                 .attr('y', 0)
                 .attr('width', function (d) { return barHHighLight; }) //this is height actually
                 .attr('height', function (d) {
-                    return xScale(d.rowset[d.rank][attrID]) - rScale(d.rowset[d.rank][attrID]);
+                    return Math.max(0,xScale(d.rowset[d.rank][attrID]) - rScale(d.rowset[d.rank][attrID]));
                 })
                 .on('mouseover', mouseover)
                 .on('mousemove', mousemove)
@@ -310,6 +310,6 @@ function RankView ()
 	self.show = function () {
 		self.hidden = false;
 		self.init(self.svgH);
-		self.update(self.player);
+		self.update();
 	};
 }

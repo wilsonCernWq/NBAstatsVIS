@@ -506,6 +506,6 @@ function InfoView ()
 	self.show = function () {
 	    self.hidden = false;
 	    self.init(self.svgH);
-		self.update(self.player);
+		self.update();
     };
 }
