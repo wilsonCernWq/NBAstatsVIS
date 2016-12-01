@@ -7,6 +7,7 @@ window.onresize = myResize;
 /**
  * global variables
  */
+var isMac = navigator.platform.toUpperCase().indexOf('MAC')>=0;
 var globFunc = {
     infoView: {},
     rankView: {},
