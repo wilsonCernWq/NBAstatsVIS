@@ -299,22 +299,23 @@ function InfoView ()
     	// compute rescaling ratio
 	    var ratio = self.svgW / 1520; // rescaling ratio
         // predefined data range (different range for different data)
+
         var dataSet = [
             // [attribute, min, max, value]
-            ["REB", 0.00, 8.60, '#784a92'],
-            ["AST", 0.00, 5.31, '#54af54'],
-            ["STL", 0.00, 1.06, '#6272a4'],
-            ["BLK", 0.00, 1.33, '#457570'],
-            ["TOV", 2.76, 0.00, '#804F6E'],
-            ["PTS", 0.00, 22.0, '#db7a69']
+            ["REB", 0.00, 8.60, '#a980e3'],
+            ["AST", 0.00, 5.31, '#1f78b4'],
+            ["STL", 0.00, 1.06, '#8ba66b'],
+            ["BLK", 0.00, 1.33, '#2fa07f'],
+            ["TOV", 0.00, 2.76, '#fbb41f'],
+            ["PTS", 0.00, 22.0, '#e34748']
         ];
 	    var dataComment = {
 		    "REB": ["Rebounds", " (scale from 0 to 8.6)", "The total number of rebounds, including both <br/> offensive and defensive rebounds, collected by a player"],
 		    "AST": ["Asistants"," (scale from 0 to 5.3)", "Passes that lead directly to a made basket --- by a player"],
 		    "STL": ["Steals"," (scale from 0 to 1.1)", "The number of steals by a player"],
 		    "BLK": ["Blocks"," (scale from 0 to 1.3)", "The number of shot attempts that are blocked by a player"],
-		    "TOV": ["Turnovers"," (scale from 2.8 to 0)", "The number of turnovers -- possessions that are lost to the opposing team -- by a player"],
-		    "PTS": ["Scores"," (scale from 0 to 22)", "The number of points made by a player"]
+		    "TOV": ["Turnovers"," (scale from 0 to 2.8)", "The number of turnovers -- possessions that are lost to the opposing team -- by a player"],
+		    "PTS": ["Scores"," (scale from 0 to 25)", "The number of points made by a player"]
 	    };
         // load data
         var data = player.career.RegularSeason.PerGame;
@@ -392,95 +393,81 @@ function InfoView ()
         // -- create bars representing data
 	    {
 		    // creat rects
-		    group.selectAll('g')
-			    .data(dataSet)
-			    .append('rect')
-			    .attr('x', 0)
-			    .attr('y', -barH / 2)
+		    group.selectAll('g').data(dataSet).append('rect')
+			    .attr('x', 0).attr('y', -barH / 2)
 			    .attr('height', barH)
 			    .attr('width', function (d) {
 				    return Math.max(0, Math.min(1, (d[4] - d[1]) / (d[2] - d[1]))) * barWMax + barWMin;
 			    })
-			    .style('fill', function (d) {
-				    return d[3];
-			    });
+			    .style('fill', function (d) { return d[3]; });
 		    // creat circles
-		    group.selectAll('g')
-			    .data(dataSet)
-			    .append('circle')
+		    group.selectAll('g').data(dataSet).append('circle')
 			    .attr('cx', function (d) {
 				    return Math.max(0, Math.min(1, (d[4] - d[1]) / (d[2] - d[1]))) * barWMax + barWMin;
 			    })
-			    .attr('cy', 0)
-			    .attr('r', barH / 2)
+			    .attr('cy', 0).attr('r', barH / 2)
 			    .style('fill', function (d) { return d[3]; });
 	    }
         // --- other component
 	    // central circle
-	    group.append('circle')
-		    .attr('cx', 0)
-		    .attr('cy', 0)
-		    .attr('r', 40 * ratio)
+	    group.append('circle').attr('cx', 0).attr('cy', 0).attr('r', 40 * ratio)
 		    .classed('info-radial-PIE-circle', true) // PIE circle color
 		    .on('mouseover', tipPIE.show)
 		    .on('mouseout', tipPIE.hide);
-	    {
-		    // text for attribute index
-		    group.append('g').selectAll('text').data(dataSet).enter()
-			    .append('text')
-			    .classed('info-radial-attribute-text', true)
-			    .style('font-size', attrTextFont)
-			    .attr('x', function (d, i) {
-				    var r = Math.max(0, Math.min(1, (d[4] - d[1]) / (d[2] - d[1]))) * barWMax + barWMin;
-				    var t = 2 * Math.PI * i / dataSet.length;
-				    return (r - attrTextROff) * Math.cos(t);
-			    })
-			    .attr('y', function (d, i) {
-				    var r = Math.max(0, Math.min(1, (d[4] - d[1]) / (d[2] - d[1]))) * barWMax + barWMin;
-				    var t = 2 * Math.PI * i / dataSet.length;
-				    return (r - attrTextROff) * Math.sin(t) + attrTextYOff;
-			    })
-			    .text(function (d) {
-				    var r = Math.max(0, Math.min(1, (d[4] - d[1]) / (d[2] - d[1])));
-				    r = Math.round(10 * r) / 10;
-				    return r.toFixed(1);
-			    })
-			    .on('mouseover', tipValue.show)
-			    .on('mouseout', tipValue.hide);
-		    // attribute label
-		    group.append('g').selectAll('text').data(dataSet).enter()
-			    .append('text')
-			    .classed('info-radial-attribute-tag', true)
-			    .style('font-size', attrTagFont)
-			    .attr('x', function (d, i) {
-				    var r = barWMax + barWMin,
-					    t = 2 * Math.PI * i / dataSet.length;
-				    return (r - attrTagROff) * Math.cos(t);
-			    })
-			    .attr('y', function (d, i) {
-				    var r = barWMax + barWMin,
-					    t = 2 * Math.PI * i / dataSet.length;
-				    return (r - attrTagROff) * Math.sin(t) + attrTagYOff;
-			    })
-			    .text(function (d, i) {
-				    return dataSet[i][0];
-			    })
-			    .on('mouseover', tipLabel.show)
-			    .on('mouseout', tipLabel.hide)
-			    .on('click', function (d) {
-			    	if (d3.select(this).classed('selected')) {
-					    group.selectAll('.selected').classed('selected', false);
-					    globData.currSelectedAttribute = [null,null];
-					    MainReload(false);
-				    } else {
-					    group.selectAll('.selected').classed('selected', false);
-					    d3.select(this).classed('selected', true);
-					    globData.currSelectedAttribute = [d[0], d.comment[0]];
-					    MainReload(false);
-				    }
-			    });
-	    }
-        // draw central PIE text
+	    // text for attribute index
+	    group.append('g').selectAll('text').data(dataSet).enter().append('text')
+		    .classed('info-radial-attribute-text', true)
+		    .style('font-size', attrTextFont)
+		    .attr('x', function (d, i) {
+			    var r = Math.max(0, Math.min(1, (d[4] - d[1]) / (d[2] - d[1]))) * barWMax + barWMin;
+			    var t = 2 * Math.PI * i / dataSet.length;
+			    return (r - attrTextROff) * Math.cos(t);
+		    })
+		    .attr('y', function (d, i) {
+			    var r = Math.max(0, Math.min(1, (d[4] - d[1]) / (d[2] - d[1]))) * barWMax + barWMin;
+			    var t = 2 * Math.PI * i / dataSet.length;
+			    return (r - attrTextROff) * Math.sin(t) + attrTextYOff;
+		    })
+		    .text(function (d) {
+			    var r = Math.max(0, Math.min(1, (d[4] - d[1]) / (d[2] - d[1])));
+			    r = Math.round(10 * r) / 10;
+			    return r.toFixed(1);
+		    })
+		    .on('mouseover', tipValue.show)
+		    .on('mouseout', tipValue.hide);
+	    // attribute label
+	    group.append('g').selectAll('text').data(dataSet).enter()
+		    .append('text')
+		    .classed('info-radial-attribute-tag', true)
+		    .style('font-size', attrTagFont)
+		    .attr('x', function (d, i) {
+			    var r = barWMax + barWMin,
+				    t = 2 * Math.PI * i / dataSet.length;
+			    return (r - attrTagROff) * Math.cos(t);
+		    })
+		    .attr('y', function (d, i) {
+			    var r = barWMax + barWMin,
+				    t = 2 * Math.PI * i / dataSet.length;
+			    return (r - attrTagROff) * Math.sin(t) + attrTagYOff;
+		    })
+		    .text(function (d, i) {
+			    return dataSet[i][0];
+		    })
+		    .on('mouseover', tipLabel.show)
+		    .on('mouseout', tipLabel.hide)
+		    .on('click', function (d) {
+			    if (d3.select(this).classed('selected')) {
+				    group.selectAll('.selected').classed('selected', false);
+				    globData.currSelectedAttribute = [null,null];
+				    MainReload(false);
+			    } else {
+				    group.selectAll('.selected').classed('selected', false);
+				    d3.select(this).classed('selected', true);
+				    globData.currSelectedAttribute = [d[0], d.comment[0]];
+				    MainReload(false);
+			    }
+		    });
+	    // draw central PIE text
 	    var pie = player.info.PIE ? 'PIE: ' + Math.round(player.info.PIE * 10000)/100 : 'PIE: N/A';
 	    group.append('text')
 		    .attr('pointer-events', 'none')

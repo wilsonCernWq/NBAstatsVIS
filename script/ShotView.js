@@ -45,6 +45,7 @@ function ShotView() {
         self.svg
             .attr('width',  self.svgW)
             .attr('height', self.svgH);
+        self.svg.append('text').attr('id','title-ShotView');
     };
 
     /**
@@ -56,14 +57,15 @@ function ShotView() {
 	    var player   = globData.currPlayerData;
 	    var yearFrom = globData.currSelectedYearRange[0] ? globData.currSelectedYearRange[0] : player.info.FROM_YEAR;
 	    var yearTo   = globData.currSelectedYearRange[1] ? globData.currSelectedYearRange[1] : Math.min(player.info.TO_YEAR,2015);
+	    var attrTitle = globData.currSelectedAttribute[1] ? globData.currSelectedAttribute[1] : 'Scores';
 	    // window ratio
 	    var ratio = self.svgW / 1520;
         // plot court
         var imgOX = 250 * ratio,
 	        imgOY = 47.5* ratio,
-            imgH = 471* ratio,
-	        imgW = 501* ratio,
-            imgX = self.svgW/2-imgW/2,
+            imgH = 470* ratio,
+	        imgW = 500* ratio,
+            imgX = self.svgW/2-imgW/2-5,
             imgY = self.margin.top;
         self.svg.select('image')
             .attr('x',imgX).attr('y',imgY)
@@ -89,15 +91,26 @@ function ShotView() {
 	    // console.log(rowpoint);
 	    console.log([imgW, imgH]);
 	    var hexRadius = 8 * ratio;
-        var maxSize = rowpoint.length/500;
+        var maxSize = rowpoint.length/400;
         var radius = d3.scaleSqrt().domain([0, maxSize]).range([0, hexRadius]);
         var hexbin = d3.hexbin().size([imgW, imgH]).radius(hexRadius);
-	    var FGPCTscale = d3.scaleLinear().domain([0.3,0.5,0.7])
+	    var FGPCTscale = d3.scaleQuantile().domain([0.3,0.4,0.5,0.6,0.7])
 		    .range([
-			    '#20a7c2',
-			    '#ffcf3f',
-			    '#FF4786'
+			    '#3288bd',
+			    '#99d594',
+			    '#e6f598',
+			    '#fee08b',
+			    '#fc8d59',
+			    '#d53e4f'
 		    ]);
+
+
+	    self.svg.select('#title-ShotView')
+		    .attr('x', self.svgW/2)
+		    .attr('y', 30)
+		    .attr('font-size', 20 * ratio)
+		    .text(attrTitle);
+
         self.grpPlot
 	        .attr('transform', 'translate(' + (imgX + imgOX) + ',' + (imgY+imgOY) + ')')
 	        .attr("clip-path", "url(#clip)");

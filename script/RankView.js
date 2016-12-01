@@ -54,6 +54,15 @@ function RankView ()
 	 */
     self.update = function ()
     {
+	    var attrLookup = {
+		    // [attribute, min, max, value]
+		    "REB": [0.00, 8.60, '#a980e3'],
+		    "AST": [0.00, 5.31, '#1f78b4'],
+		    "STL": [0.00, 1.06, '#8ba66b'],
+		    "BLK": [0.00, 1.33, '#2fa07f'],
+		    "TOV": [0.00, 2.76, '#fbb41f'],
+		    "PTS": [0.00, 25.0, '#e34748']
+	    };
 	    // default variables
 	    var player   = globData.currPlayerData;
 	    var playerid = +player.info.PERSON_ID;
@@ -237,7 +246,8 @@ function RankView ()
                 .attr('d', area)
                 .on('mouseover', mouseover)
                 .on('mousemove', mousemove)
-                .on('mouseout', mouseout);
+                .on('mouseout', mouseout)
+	            .style('fill', attrLookup[attribute][2]);
             // draw bar & circle to high-light player
             groups.filter(function (d) { return d.rank != -1; })
                 .append('circle')

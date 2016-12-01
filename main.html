@@ -10,7 +10,7 @@
 </head>
 <body>
 
-<div class="view-menu" id="divMenuView" style="display: none">
+<div class="view-menu scrollable" id="divMenuView" style="display: none">
     <span class="query-text">Team</span>
     <select title="queryTeam"
             id="queryTeam-MenuView"
@@ -44,9 +44,8 @@
         <option selected value="all">All</option>
     </select>
     <span class="query-text">Player Name</span>
-    <form title="queryForm" id="queryForm-MenuView" onkeypress="myQueryAutoHintSubmit()">
-        <input id="edit-queryForm-MenuView" title="edit" value=""/>
-        <input type="button" value="Search" onclick="myQueryAutoHintSubmit()"/>
+    <form title="queryForm" id="queryForm-MenuView">
+        <input id="edit-queryForm-MenuView" title="edit" value="" onkeyup="myQueryAutoHintSubmit()"/>
     </form>
     <div class="scrollable">
         <svg id="svgMenuView">

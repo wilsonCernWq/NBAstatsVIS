@@ -16,10 +16,10 @@ function GameView ()
 	 */
 	self.setMargin = function () {
 	    self.margin = { // define plot margin (it gives the minimal margin)
-		    left:   0.2 * self.svgW,
-		    right: 0.25 * self.svgW,
+		    left:   0.1 * self.svgW,
+		    right: 0.15 * self.svgW,
 		    top:    0.3 * self.svgH,
-		    bottom: 0.3 * self.svgH
+		    bottom: 0.4 * self.svgH
 	    };
     };
 
@@ -87,7 +87,7 @@ function GameView ()
         // it will produce a array for every day (period of 3-5 days)
         var gamesHistTotal = []; //< array of total dates
         var yearsList  = [];
-        var gamesList  = {}; var gamesListRes = 300;
+        var gamesList  = {}; var gamesListRes = 100;
         for (var y = yearFrom; y <= yearTo; ++y) {
             // initialize all variables
             var gOneYear, // array data in new format
@@ -167,22 +167,22 @@ function GameView ()
         // scales
 	    var attrLookup = {
 		    // [attribute, min, max, value]
-		    "REB": [0.00, 8.60, '#784a92'],
-		    "AST": [0.00, 5.31, '#54af54'],
-		    "STL": [0.00, 1.06, '#6272a4'],
-		    "BLK": [0.00, 1.33, '#457570'],
-		    "TOV": [2.76, 0.00, '#804F6E'],
-		    "PTS": [0.00, 22.0, '#db7a69']
+		    "REB": [0.00, 8.60, '#a980e3'],
+		    "AST": [0.00, 5.31, '#1f78b4'],
+		    "STL": [0.00, 1.06, '#8ba66b'],
+		    "BLK": [0.00, 1.33, '#2fa07f'],
+		    "TOV": [0.00, 2.76, '#fbb41f'],
+		    "PTS": [0.00, 25.0, '#e34748']
 	    };
         var xScale = d3.scaleLinear() // position scales (shifted scale for axis display)
             .domain([0, numOfCol]).range([0, numOfCol * boxSize]);
         var yScale = d3.scaleLinear() // position scales
             .domain([-0.5, numOfRow - 0.5]).range([0, numOfRow * boxSize]);
         var cScale = d3.scaleLinear() // color scale TODO NEED TO BE MODIFIED FOR OTHER ATTRIBUTES
-            .domain([attrLookup[attribute][0], attrLookup[attribute][1] * 2])
+            .domain([attrLookup[attribute][0], attrLookup[attribute][1]])
 	        .range([
 	        	'#E6E6E6',
-		        '#1b5cff'
+		        attrLookup[attribute][2]
 	        ]);
         // TOOLTIP
 	    var myTip = d3.tip()
@@ -266,11 +266,12 @@ function GameView ()
 	    //
 	    // --- right plot (bar chart)
 	    var lineRMax = 0;
+	    self.grpLineR.selectAll('*').remove();
 	    yearsList.forEach(function (d) {
 		    d.average = d3.mean(d.list, function (_) { return _[attrID]; });
 		    lineRMax = Math.max(lineRMax, d.average);
 	    });
-	    var LRscale = d3.scaleLinear().domain([0,lineRMax]).range([0,0.1 * self.svgW]);
+	    var LRscale = d3.scaleLinear().domain([0,lineRMax]).range([0,0.1 * self.svgW]).nice();
 	    // console.log(yearsList);
 	    d3SelectAll(self.grpLineR, 'rect', yearsList)
 		    .attr('x', padSize + self.svgW - self.margin.right)
@@ -278,26 +279,38 @@ function GameView ()
 		    .attr('width',  function (d) { return LRscale(d.average); })
 		    .attr('height', barSize)
 		    .style('fill', function (d) { return cScale(d.average); });
+	    d3SelectAll(self.grpLineR, 'text', yearsList)
+		    .attr('x', function (d) { return padSize + self.svgW - self.margin.right + LRscale(d.average) + 5; } )
+		    .attr('y', function (d) { return yoff + yScale(d.ypos - 0.5) + 12; })
+		    .text(function (d) { return d.average.toFixed(1); })
+		    .style('font-size',12);
+
+	    self.grpLineR.append('g')
+		    .attr('transform','translate(' + (padSize + self.svgW - self.margin.right) + ',' + (yoff + boxSize * numOfRow) + ')')
+		    .call(d3.axisBottom().scale(LRscale).ticks(5));
+
+
 	    //
 	    // --- bottom plot (bar chart)
-	    self.grpLineB.selectAll('*').remove();
-	    var gradient = self.grpLineB.append("defs")
-		    .append("linearGradient")
-		    .attr("id", "gradient-GameMesh")
-		    .attr("x1", "50%")
-		    .attr("y1", "0%")
-		    .attr("x2", "50%")
-		    .attr("y2", "100%")
-		    .attr("spreadMethod", "pad");
-	    gradient.append("stop")
-		    .attr("offset", "0%")
-		    .attr("stop-color", "#f2f2f2")
-		    .attr("stop-opacity", 1);
-	    gradient.append("stop")
-		    .attr("offset", "100%")
-		    .attr("stop-color", "#1b5cff")
-		    .attr("stop-opacity", 1);
+
+	    // var gradient = self.grpLineB.append("defs")
+		 //    .append("linearGradient")
+		 //    .attr("id", "gradient-GameMesh")
+		 //    .attr("x1", "50%")
+		 //    .attr("y1", "0%")
+		 //    .attr("x2", "50%")
+		 //    .attr("y2", "100%")
+		 //    .attr("spreadMethod", "pad");
+	    // gradient.append("stop")
+		 //    .attr("offset", "0%")
+		 //    .attr("stop-color", "#f2f2f2")
+		 //    .attr("stop-opacity", 1);
+	    // gradient.append("stop")
+		 //    .attr("offset", "100%")
+		 //    .attr("stop-color", "#1b5cff")
+		 //    .attr("stop-opacity", 1);
 	    // process data
+	    self.grpLineB.selectAll('*').remove();
 	    var lineBMax = 0;
 	    var gamesListArr = obj2array(gamesList);
 	    gamesListArr.forEach(function (d) {
@@ -308,7 +321,7 @@ function GameView ()
 	    gamesListArr = gamesListArr.sort(function (a,b) { return d3.ascending(+a[0], +b[0]); });
 	    // console.log(gamesListArr);
 	    // plot
-	    var LBscale = d3.scaleLinear().domain([0,lineBMax]).range([0,0.15 * self.svgH]);
+	    var LBscale = d3.scaleLinear().domain([0,lineBMax]).range([0,0.3 * self.svgH]).nice();
 	    var lineB = d3.area()
 		    .x(function(d) { return xoff + boxSize * 0.5 + xScale(+d[0]/gamesListRes); })
 		    .y0(yoff + numOfRow * boxSize)
@@ -317,7 +330,10 @@ function GameView ()
 		    .datum(gamesListArr)
 		    .attr("class", "game-area")
 		    .attr("d", lineB)
-		    .style('fill', "url(#gradient-GameMesh)");
+		    .style('fill', attrLookup[attribute][2]);
+	    self.grpLineB.append('g')
+		    .attr('transform', 'translate(' + (xoff + boxSize * (numOfCol-1)) + ',' + (yoff + numOfRow * boxSize) + ')')
+		    .call(d3.axisRight().scale(LBscale).ticks(3));
 	    // self.grpLineB.append("path").classed('highlight', true);
 	    // ---------------------------------------------
         // adjust div height
