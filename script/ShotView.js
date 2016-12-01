@@ -56,8 +56,10 @@ function ShotView() {
     {
     	// default arguments
 	    var player   = globData.currPlayerData;
-	    var yearFrom = globData.currSelectedYearRange[0] ? globData.currSelectedYearRange[0] : player.info.FROM_YEAR;
-	    var yearTo   = globData.currSelectedYearRange[1] ? globData.currSelectedYearRange[1] : Math.min(player.info.TO_YEAR,2015);
+	    var yearFrom = globData.currSelectedYearRange[0] ?
+		    globData.currSelectedYearRange[0] : player.info.FROM_YEAR;
+	    var yearTo   = globData.currSelectedYearRange[1] ?
+		    globData.currSelectedYearRange[1] : Math.min(player.info.TO_YEAR,2015);
 	    var attrTitle = 'Scores';
 	    // window ratio
 	    var ratio = self.svgW / 1520;
@@ -73,6 +75,7 @@ function ShotView() {
             .attr('width',imgW).attr('height',imgH)
             .attr('xlink:href', 'data/halfCourt.png')
             .style('opacity', 0.8);
+        // process dataset
         // to remember variables for resizing
         var SeasonType = 'RegularSeason';
         var rowpoint = [];
@@ -80,7 +83,7 @@ function ShotView() {
             if (player.season[SeasonType].hasOwnProperty(y)) {
                 if (player.season[SeasonType][y].hasOwnProperty('shotchart')) {
                     player.season[SeasonType][y].shotchart.Details.row.forEach(function (d) {
-                        if (+d[13] < imgH - imgOY) {
+                        if ((+d[13] * ratio) < imgH - imgOY) {
                             var point = [+d[12] * ratio, +d[13] * ratio]; // !!!! rescale data point ! ...
                             point.data = d;                               // d3.hexgon can be improved !!!!
                             rowpoint.push(point);
@@ -89,6 +92,13 @@ function ShotView() {
                 }
             }
         }
+        var histXData = d3.histogram()
+	        .value(function (d) { return d[0]; })
+	        .domain([-imgOX, imgW-imgOX])(rowpoint);
+	    var histYData = d3.histogram()
+		    .value(function (d) { return d[1]; })
+		    .domain([-imgOY, imgH-imgOY])(rowpoint);
+	    console.log(histXData, histYData);
 	    // console.log([imgW, imgH]);
 	    var hexRadius = 8 * ratio;
         var maxSize = rowpoint.length/400;

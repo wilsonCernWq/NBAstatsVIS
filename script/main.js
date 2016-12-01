@@ -333,6 +333,6 @@ function myResize() {
 	if (!globFunc.rankView.hidden) { globFunc.rankView.resize(); }
 	if (!globFunc.gameView.hidden) { globFunc.gameView.resize(); }
 	if (!globFunc.shotView.hidden) { globFunc.shotView.resize(); }
-	if (!globFunc.compareView.hidden) { globFunc.compareView.resize(); }
+	if (!globFunc.compareView.hidden && globData.compareMode) { globFunc.compareView.resize(); }
 }
 
