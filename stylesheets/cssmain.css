@@ -1,86 +1,126 @@
 /* global */
-form {
-    display: inline;
+html body {
+    max-width: 100%;
 }
-
-.scrollable {
-    margin-top: 10px;
-    margin-bottom: 10px;
-    height: 200px;
-    background: #f2f2f2;
-    overflow: scroll;
-}
-
-/***********************************************/
-/* general html styles */
-.view-menu {
-    /* border: solid 1px; */
-}
-
 .view-block {
     margin-top: 10px;
     margin-bottom: 10px;
-    /*margin-left: 100px;*/
-    /*margin-right: 100px;*/
-    /*background: #ffffff;*/
-    /*border: solid 1px;*/
+    border: 2px solid #d9d9d9;
+    border-radius: 5px;
 }
-
-/***********************************************/
+.highlight {
+    fill: #ffd028;
+    stroke: #252525;
+}
+/* ----------------------------------- */
 /* query */
-.query-text {  }
-
-.query-result-text {  }
-
 #divMenuView {
     position: relative;
-    /*display: inline-block;*/
+    height: 300px;
+    margin-top:    10px;
+    margin-bottom: 10px;
+    padding: 2px;
+    background: #393939;
+    overflow: scroll;
+    overflow-x: hidden;
+    border-radius: 4px;
+}
+#divMenuView span { /* filter name text */
+    margin-left:  5px;
+    margin-right: 5px;
+    color: #ffffff;
+    font-family: 'Titillium Web', sans-serif;
+}
+#divMenuView select { /* filter drop down style */
+    -webkit-appearance: button;
+    -webkit-border-radius: 2px;
+    -webkit-box-shadow: 0px 1px 3px rgba(0, 0, 0, 0.1);
+    -webkit-padding-end: 20px;
+    -webkit-padding-start: 2px;
+    -webkit-user-select: none;
+    margin: 5px;
+    border: 1px solid #999999;
+    color: #000000;
+    background-color: #999999;
+    font-size: inherit;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    white-space: nowrap;
+    font-family: 'Titillium Web', sans-serif;
+}
+#divMenuView #queryForm {
+    display: inline;
+}
+#divMenuView #queryForm input {
+    -webkit-appearance: button;
+    -webkit-border-radius: 2px;
+    -webkit-box-shadow: 0px 1px 3px rgba(0, 0, 0, 0.1);
+    -webkit-padding-end: 20px;
+    -webkit-padding-start: 2px;
+    -webkit-user-select: none;
+    margin: 5px;
+    border: 1px solid #999999;
+    color: #000000;
+    background-color: #999999;
+    font-size: inherit;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    white-space: nowrap;
+    font-family: 'Titillium Web', sans-serif;
+}
+#divMenuView text {
+    fill: #999999;
+    font-family: 'Titillium Web', sans-serif;
 }
 
 /***********************************************/
 /* info view */
-.info-text {  /* The display of player general info */
-    font-family: Verdana;
+#divInfoView button {
+    display: inline-block;
+    text-align: center;
+    position: relative;
+    height: 30px;
+    width: 120px;
+    margin-left: 20px;
+    margin-top: 20px;
+    margin-bottom: 10px;
+    font-family: 'Titillium Web', sans-serif;
+}
+.info-text { /* The display of player general info */
+    font-family: 'Titillium Web', sans-serif;
     text-anchor: start;
 }
-
 .info-title { /* The display of player name */
-    font-family: Fantasy;
+    font-family: 'Bungee', cursive;
     text-anchor: middle;
 }
-
 .info-radial-attribute-text {  /* Radial Plot index number */
-    font-family: Verdana;
+    font-family: 'Titillium Web', sans-serif;
     fill: #ffffff;
     text-anchor: middle;
 }
-
 .info-radial-backgound {  /* Radial Plot background bar display */
     fill: #ebebeb;
 }
-
 .info-radial-attribute-tag { /* Radial Plot attribute tag name */
-    font-family: Verdana;
+    font-family: 'Titillium Web', sans-serif;
     fill: #2e2e2e;
     text-anchor: middle;
 }
 .info-radial-attribute-tag.selected { /* Radial Plot attribute tag name */
-    font-weight:bold;
-    font-family: Verdana;
+    font-weight: bold;
+    font-family: 'Bungee', cursive;
     fill: #2e2e2e;
     text-anchor: middle;
 }
-
 .info-radial-PIE-circle {  /* Radial Plot PIE bg circie display */
     fill: #c3e5f2;
 }
-
 .info-radial-PIE {  /* Radial Plot PIE Text display */
-    font-family: Verdana;
+    font-family: 'Titillium Web', sans-serif;
     fill: #1c1c1c;
     text-anchor: middle;
 }
-
 /* Creates a small triangle extender for the tooltip */
 .info-d3-tip { /* the top level high light ==> rougly means strong */
     line-height: 1;
@@ -125,7 +165,6 @@ form {
 .rank-bar {
     fill: #E6E6E6;
 }
-
 .rank-tooltip { /* I think a fixed window is reasonable here for zooming */
     pointer-events: none;
     position: absolute;
@@ -133,52 +172,44 @@ form {
     box-shadow: rgba(0, 0, 0, 0.3) 0 2px 10px;
     fill: #1d3e81;
     opacity: 0.9;
-    font-family: sans-serif;
+    font-family: 'Titillium Web', sans-serif;
 }
-
 .rank-tooltip-rect-frame {
     fill: #818181;
     opacity: 0.3;
 }
-
 .rank-tooltip-text {
     color: #000000;
-    font: 10px sans-serif;
+    font-size: 8px;
 }
-
 .rank-area {
     /*fill: #4860f5;*/
     /*stroke: #4860f5;*/
     opacity: 0.8;
 }
-
 .rank-circle {
     fill: #f5e908;
     stroke: rgba(0, 0, 0, 0.94);
     opacity: 0.8;
 }
-
 .rank-highlight-bar {
     fill: #000000;
     stroke: none;
     opacity: 0.8;
 }
-
 .rank-year-text {
     text-anchor: middle;
-    font: 10px sans-serif;
+    font-family: 'Titillium Web', sans-serif;
     fill: #000000;
 }
-
 .rank-player-text {
     text-anchor: middle;
-    font: 10px sans-serif;
+    font-family: 'Titillium Web', sans-serif;
     fill: #000000;
 }
-
 #titleRankView-RankView {
+    font-family: 'Bungee', cursive;
     text-anchor: middle;
-    font-weight: bold;
 }
 
 /***********************************************/
@@ -199,8 +230,9 @@ form {
     fill-opacity: 0.5;
 }
 .d3-tip-gameMesh {
+    font-family: 'Titillium Web', sans-serif;
     line-height: 1;
-    font-weight: bold;
+    /*font-weight: bold;*/
     padding: 12px;
     background: rgba(0, 0, 0, 0.8);
     color: #fff;
@@ -223,7 +255,9 @@ form {
     top: 100%;
     left: 0;
 }
-
+.gameView-axisFont {
+    font-family: 'Titillium Web', sans-serif;
+}
 /***********************************************/
 /* shotchart */
 .hexagon {
@@ -231,8 +265,92 @@ form {
     stroke: #ffffff;
     stroke-width: 1px;
 }
-
 #title-ShotView {
     text-anchor: middle;
-    font-weight: bold;
+    font-family: 'Bungee', cursive;
+}
+
+/***********************************************/
+.compare-view-block {
+    margin-top: 50px;
+    margin-left: 50px;
+    margin-right: 10px;
+    background: #ffffff;
+    border: solid 1px;
+    float: left;
+    width: 400px;
+}
+
+/* tooltip for bar*/
+.compare-bar-left {
+    fill: #ff7113;
+}
+.compare-bar-right {
+    fill: #3886b4;
+}
+.compare-bar-tip {
+    position:absolute;
+    padding: 10px;
+    min-width: 400px;
+    opacity: 0.8;
+    /*border-style: groove;*/
+    /*padding: 12px;*/
+    color: #ff692d;
+    background-color: #292929;
+    border-radius: 10px;
+    pointer-events: none;
+    font-family: 'Titillium Web', sans-serif;
+}
+.compare-bar-tip strong {
+    font-family: 'Bungee', cursive;
+}
+.compare-bar-tip:after {
+    display: inline;
+    font-size: 10px;
+    width: 100%;
+    /*line-height: 1;*/
+    color: rgba(0, 0, 0, 0.8);
+    position: relative;
+    pointer-events: none;
+}
+/* Style northward tooltips differently */
+.compare-bar-tip.n:after {
+    margin: -1px 0 0 0;
+    top: 100%;
+    left: 0;
+}
+.compare-header {
+    text-anchor: end;
+    font-family: 'Titillium Web', sans-serif;
+}
+.compare-title {
+    text-anchor: middle;
+    font-family: 'Bungee', cursive;
+}
+/* tooltip style for header*/
+.compare-header-tooltip {
+    position: absolute;
+    width: 300px;
+    color: #ff692d;
+    background-color: #292929;
+    text-align: center;
+    border-radius: 6px;
+    padding: 5px 0;
+    margin-left: 8px;
+    /*z-index: 1;*/
+    top: -5px;
+    /*right: 110%;*/
+    pointer-events: none;
+    font-family: 'Titillium Web', sans-serif;
+}
+.compare-header-tooltip :after {
+    display: inline;
+    position: relative;
+    fill: none;
+    pointer-events: none;
+}
+.compare-midline {
+    stroke: #393939;
+    stroke-width: 2px;
+    stroke-dasharray: 5, 1;
 }

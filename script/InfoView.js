@@ -17,20 +17,34 @@ function InfoView ()
 	    self.div = d3.select('#divInfoView');
 	    self.div.selectAll('*').remove(); // prevent bug
 	    // creat button
+	    self.div.append('button').attr('onclick', 'myChangePlayer(this)').text('Change Player');
 	    self.div.append('button')
-		    .attr('id', 'buttonChangePlayer-InfoView')
-		    .attr('onclick', 'myChangePlayer()')
-		    .style('float', 'left')
-		    .text('Change Player');
+		    //.style('margin-left', 2+'px')
+		    .attr('onclick', 'myComparePlayer(this)').text('Compare');
 	    // creat SVG elements
-	    self.svg = self.div.append('svg');
-	    self.grpInfo = self.svg.append('g').attr('id','groupLeftPlot-InfoView');
-	    self.grpAxis = self.svg.append('g').attr('id','groupYearAxis-InfoView');
+	    self.svg     = self.div.append('svg').attr('id','svgInfoView');
+	    // -- left part
+	    self.grpCurr = self.svg.append('g').attr('id','groupCurrPlot-InfoView');
+	    self.grpCurrAxis = self.svg.append('g').attr('id','groupYearAxis-InfoView');
+	    // -- right part
+	    self.right = self.svg.append('g');
+	    self.grpComp = self.right.append('g').attr('id','groupCompPlot-InfoView');
+	    self.grpCompAxis = self.right .append('g').attr('id','groupCompYearAxis-InfoView');
+	    // -- radial plot
 	    self.grpRadial = self.svg.append('g').attr('id','radialPlot-InfoView');
-	    self.grpInfo.append('image');
-	    self.grpAxis.append('g').attr('id', 'axisGroup-InfoView');
-	    self.grpAxis.append('g').attr('id', 'barsGroup-InfoView');
-	    self.grpAxis.append('g').attr('id', 'brushGroup-InfoView');
+	    // * constructure correct structures
+	    // add image
+	    self.grpCurr.append('image');
+	    self.grpComp.append('image');
+	    // current view
+	    self.grpCurrAxis.append('g').classed('axisGroup-InfoView', true);
+	    self.grpCurrAxis.append('g').classed('barsGroup-InfoView', true);
+	    self.grpCurrAxis.append('g').classed('brushGroup-InfoView', true);
+	    // compare view
+	    self.grpCompAxis.append('g').classed('axisGroup-InfoView', true);
+	    self.grpCompAxis.append('g').classed('barsGroup-InfoView', true);
+	    self.grpCompAxis.append('g').classed('brushGroup-InfoView', true);
+
 	    self.hidden = false;
 	    // [1]
         // calculate svg default size & get the correct width of the window
@@ -45,16 +59,56 @@ function InfoView ()
             .attr('height', self.svgH);
     };
 
+	self.hideRadial = function () {
+		self.grpRadial.selectAll('*').remove();
+	};
+
+	self.hideAxis = function (AxisGrp) {
+		AxisGrp.select('.axisGroup-InfoView').selectAll('*').remove();
+		AxisGrp.select('.barsGroup-InfoView').selectAll('*').remove();
+		AxisGrp.select('.brushGroup-InfoView').selectAll('*').remove();
+	};
+
+	self.hideOneView = function (Grp) {
+		Grp.select('image').remove();
+		Grp.append('image');
+		Grp.selectAll('text').remove();
+	};
+
     /**
      * self is a function to draw/update view
      */
     self.update = function()
     {
+    	// hide right view
+	    self.hideOneView(self.grpComp);
+	    self.hideAxis(self.grpCompAxis);
+    	// draw new stuffs
         var player = globData.currPlayerData;
-        var hView = self.OneInfo(self.grpInfo, player);
-	    var hAxis = self.SeasonAxis(self.grpAxis, player);
+        var hView = self.OneInfo(self.grpCurr, player);
+	    var hAxis = self.SeasonAxis(self.grpCurrAxis, player);
         var hRad = self.RadialView(self.grpRadial, player); // console.log(hView, hAxis);
-        self.svg.attr('height', Math.max(hRad, Math.min(hView + hAxis, self.svgH)));
+	    self.svg.attr('height', Math.max(hRad, Math.min(hView + hAxis, self.svgH)));
+    };
+
+    self.compare = function () {
+	    // get data
+    	var player1 = globData.currPlayerData;
+	    var player2 = globData.comparePlayerData;
+	    // console.log(player1, player2);
+	    // shift right area
+	    self.right.attr('transform', 'translate(' + (self.svgW/2) + ',0)');
+	    // clean radial
+	    self.hideRadial();
+	    // draw new stuffs
+	    var hView1 = self.OneInfo(self.grpCurr, player1);
+	    var hAxis1 = self.SeasonAxis(self.grpCurrAxis, player1);
+	    var hView2 = self.OneInfo(self.grpComp, player2);
+	    var hAxis2 =  self.SeasonAxis(self.grpCompAxis, player2);
+	    // clean brush
+	    self.div.selectAll('.brushGroup-InfoView').html('');
+	    // adjust height
+	    self.svg.attr('height', Math.min(Math.max(hView1 + hAxis1, hView2 + hAxis2), self.svgH));
     };
 
     /**
@@ -67,7 +121,11 @@ function InfoView ()
 	    var style = window.getComputedStyle(div, null);     // shortcuts
 	    self.svgW  = parseInt(style.getPropertyValue("width"), 10);
 	    self.svg.attr('width',  self.svgW);
-        self.update();
+	    if (globData.compareMode) {
+	    	self.compare();
+	    } else {
+		    self.update();
+	    }
     };
 
     /**
@@ -97,7 +155,7 @@ function InfoView ()
         var ratio = self.svgW / 1520;  // a stupid way of getting rescaling ratio !!
 	    // [1]
         // parameters
-        var headSize   = 50 * ratio, // player name font size
+        var headSize   = 40 * ratio, // player name font size
             headHeight = 80 * ratio; // player name font height
         var textSize   = 16 * ratio,
             textHeight = 26 * ratio,
@@ -139,8 +197,10 @@ function InfoView ()
         if (player.info.WEIGHT)     { localPlayerData.push('Weight: ' + player.info.WEIGHT + ' lbs'); }
         if (player.info.BIRTHDATE)  { localPlayerData.push('Birthday: ' + player.info.BIRTHDATE.slice(0,10)); }
         if (player.info.SEASON_EXP) { localPlayerData.push('Experience: ' + player.info.SEASON_EXP + ' years'); }
-        if (player.info.SCHOOL)     { localPlayerData.push('Prior School: ' + player.info.SCHOOL); }
+	    if (player.info.SCHOOL)     { localPlayerData.push('Prior School: ' + player.info.SCHOOL); }
         localPlayerData.push('Seasons: ' + player.info.FROM_YEAR + ' - ' + player.info.TO_YEAR);
+	    if (player.info.JERSEY)     { localPlayerData.push('Jersey: ' + player.info.JERSEY); }
+	    if (player.info.ALL_STAR)   { localPlayerData.push('All Star Appearance: ' + player.info.ALL_STAR); }
 	    // [4]
         // draw texts
         group.selectAll('text').remove();
@@ -177,7 +237,7 @@ function InfoView ()
         var ratio = self.svgW / 1520; // rescaling ratio
         // parameters
         var margin = {left: 50, right: 50}; // margin for the  axis
-        var spanRatio = 0.525;   // the percentage that the axis will span
+        var spanRatio = 0.510;   // the percentage that the axis will span
         var totalOffsetY = 265 * ratio, // this equals to the icon image height + name font height
             totalPadding = 30 * ratio;  // this is the margin for axis and info view
         var axisSize = 20 * ratio,  // the height of axis
@@ -221,12 +281,12 @@ function InfoView ()
         // adjust group properties
         group
             .attr('transform', 'translate(0,' + plotOffY + ')') // shift group position
-            .select('#axisGroup-InfoView')
+            .select('.axisGroup-InfoView')
             .call(axis) // create axis (the axis will be created at level y = 0)
             .selectAll('text')
             .style('font-size', axisFont); // adjust axis font size based on window size
         // draw bars
-        d3SelectAll(group.select('#barsGroup-InfoView'), 'rect', PlayerTeamList)
+        d3SelectAll(group.select('.barsGroup-InfoView'), 'rect', PlayerTeamList)
             .attr('x', function (d) { return scale(d.yearFrom - 0.5) + barsPad; }) // shift things back
             .attr('y', -barsSize - barsOffY) // shift bar based on axis position
             .attr('width', function (d) { return scale(d.yearTo + 0.5) - scale(d.yearFrom - 0.5) - barsPad; })
@@ -236,10 +296,19 @@ function InfoView ()
             .style('fill', function (d) {
                 // console.log(d, d.team);
 	            var myTeamId = globData.globTeamList.lookup[d.team];
-                return globData.globTeamList.current[myTeamId].COLOR_1; // filling with team color 1
+	            try {
+	            	if (myTeamId) {
+			            return globData.globTeamList.current[myTeamId].COLOR_1; // filling with team color 1
+		            } else {
+	            		return 'steelblue';
+		            }
+	            } catch (e) {
+	            	console.log(myTeamId);
+	            	return 'steelblue';
+	            }
             });
         // draw team logo
-        d3SelectAll(group.select('#barsGroup-InfoView'), 'image', PlayerTeamList)
+        d3SelectAll(group.select('.barsGroup-InfoView'), 'image', PlayerTeamList)
             .attr('x', function (d) { // --> (somehow the logo is aligned at the center) applied a shift
                 return scale((d.yearFrom + d.yearTo)/2) - logoSize/2; // logo align center
             })
@@ -248,8 +317,12 @@ function InfoView ()
             .attr('height', logoSize)
             .attr("xlink:href", function (d) {
 	            var myTeamId = globData.globTeamList.lookup[d.team];
-                var myTeamAb = globData.globTeamList.current[myTeamId].TEAM_ABBREVIATION;
-                return 'data/teamLogo/' + myTeamAb + '_logo.svg'; // load data
+	            if (myTeamId) {
+		            var myTeamAb = globData.globTeamList.current[myTeamId].TEAM_ABBREVIATION;
+		            return 'data/teamLogo/' + myTeamAb + '_logo.svg'; // load data
+	            } else {
+		            return 'data/teamLogo/NBA_logo.svg'; // load data
+	            }
             });
         // draw brush
         // --> reference https://bl.ocks.org/mbostock/6232537
@@ -281,9 +354,12 @@ function InfoView ()
                 // call stuffs
 	            MainReload(false);
             });
-        group.select('#brushGroup-InfoView').attr('class', 'brush brushInfoView').call(brush);
-        group.select('#brushGroup-InfoView').select('.selection').style('display','none'); // hide selection
-        group.select('#brushGroup-InfoView').select('.handle').style('display','none');    // when resizing
+        group.select('.brushGroup-InfoView')
+	        .classed('brush', true)
+	        .classed('brushInfoView', true)
+	        .call(brush);
+        group.select('.brushGroup-InfoView').select('.selection').style('display','none'); // hide selection
+        group.select('.brushGroup-InfoView').select('.handle').style('display','none');    // when resizing
 	    // return area height
 	    return plotHeight;
     };
@@ -299,36 +375,30 @@ function InfoView ()
     	// compute rescaling ratio
 	    var ratio = self.svgW / 1520; // rescaling ratio
         // predefined data range (different range for different data)
-
         var dataSet = [
             // [attribute, min, max, value]
-            ["REB", 0.00, 8.60, '#a980e3'],
-            ["AST", 0.00, 5.31, '#1f78b4'],
-            ["STL", 0.00, 1.06, '#8ba66b'],
-            ["BLK", 0.00, 1.33, '#2fa07f'],
-            ["TOV", 0.00, 2.76, '#fbb41f'],
-            ["PTS", 0.00, 22.0, '#e34748']
+            ["REB"],
+            ["AST"],
+            ["STL"],
+            ["BLK"],
+            ["TOV"],
+            ["PTS"]
         ];
-	    var dataComment = {
-		    "REB": ["Rebounds", " (scale from 0 to 8.6)", "The total number of rebounds, including both <br/> offensive and defensive rebounds, collected by a player"],
-		    "AST": ["Asistants"," (scale from 0 to 5.3)", "Passes that lead directly to a made basket --- by a player"],
-		    "STL": ["Steals"," (scale from 0 to 1.1)", "The number of steals by a player"],
-		    "BLK": ["Blocks"," (scale from 0 to 1.3)", "The number of shot attempts that are blocked by a player"],
-		    "TOV": ["Turnovers"," (scale from 0 to 2.8)", "The number of turnovers -- possessions that are lost to the opposing team -- by a player"],
-		    "PTS": ["Scores"," (scale from 0 to 25)", "The number of points made by a player"]
-	    };
         // load data
         var data = player.career.RegularSeason.PerGame;
         var head = player.career.header;
         for (var k = 0; k < dataSet.length; ++k) {
             var attrID = head.indexOf(dataSet[k][0]);
+	        dataSet[k].push(globData.dataComment[dataSet[k][0]][3]);
+	        dataSet[k].push(globData.dataComment[dataSet[k][0]][4]);
+	        dataSet[k].push(globData.dataComment[dataSet[k][0]][5]);
             dataSet[k].push(data[attrID]);
-            dataSet[k].comment = dataComment[dataSet[k][0]];
+            dataSet[k].comment = globData.dataComment[dataSet[k][0]].slice(0,3);
         }
         // [1]
         // define plotting parameters
 	    var groupXOff = 1150 * ratio,
-		    groupYOff = 220 * ratio;
+		    groupYOff = 180 * ratio;
         var barH = 40 * ratio,
             barWMax = 90 * ratio,
             barWMin = 50 * ratio;
@@ -340,7 +410,7 @@ function InfoView ()
             attrTagROff = -40 * ratio;
         var attrPIEFont =  14 * ratio,
             attrPIEYOff =   5 * ratio;
-        var plotHeight = 350 * ratio;
+        var plotHeight  = 350 * ratio;
         // [2]
         // define tooltip
 	    // self.tooltips.selectAll('*').remove();

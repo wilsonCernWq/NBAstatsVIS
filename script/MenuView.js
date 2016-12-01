@@ -18,57 +18,68 @@ function MenuView () {
      */
     self.init = function (maxHeight)
     {
-    	// [0] assign class field
-	    self.hidden = true;
+	    // [0] assignments
+	    self.hidden = true; // hide divide by default
 	    // --- elements
 	    self.div = d3.select('#divMenuView');
 	    self.svg = d3.select('#svgMenuView');
-	    self.subdiv = self.div.select(".scroll");
 	    self.grpRect = self.svg.select('#groupMenuViewRect');
 	    self.grpText = self.svg.select('#groupMenuViewText');
 	    // --- dropdown items
-	    self.queryTeam = self.div.select('#queryTeam-MenuView');
-	    self.queryPosition = self.div.select('#queryPosition-MenuView');
-	    self.queryYearFrom = self.div.select('#queryYearFrom-MenuView');
-	    self.queryYearTo = self.div.select('#queryYearTo-MenuView');
-	    self.queryAllStar = self.div.select('#queryAllStar-MenuView');
-	    self.queryHint = self.div.select('#queryForm-MenuView');
-	    // [1] calculate current division size
+	    self.queryTeam     = self.div.select('#queryTeam');
+	    self.queryPosition = self.div.select('#queryPosition');
+	    self.queryYearFrom = self.div.select('#queryYearFrom');
+	    self.queryYearTo   = self.div.select('#queryYearTo');
+	    self.queryAllStar  = self.div.select('#queryAllStar');
+	    self.queryHint     = self.div.select('#queryForm');
+	    // [1] calculate current style
 	    self.div.style('display', null);
         var div = document.getElementById('divMenuView');
-        var sty = window.getComputedStyle(div, null); // console.log(style);
-	    // self.div.style('display', 'none'); // -_- ... why ... I cant understand why I dont need this line ...
+        var sty = window.getComputedStyle(div, null);
+	    // self.div.style('display', 'none');
+	    // -_- ... why ... I cant understand why I dont need this line ...
+	    // [2] set element attributes
         // --- load class fields
-        self.svgW = parseInt(sty.getPropertyValue("width"), 10) - 20;
+        self.svgW = parseInt(sty.getPropertyValue("width"), 10);
         self.svgH = maxHeight;
-	    self.margin = { // define plot margin (it gives the minimal margin)
-		    left:  0.02 * self.svgW,
-		    right: 0.02 * self.svgW,
-		    top:    0.1 * self.svgH,
-		    bottom: 0.1 * self.svgH
-	    };
+	    self.setMargin();
 	    // [2] setup element attributes
-	    // -- svg --
 	    self.svg // the main svg which spans the whole div
             .attr("width",  self.svgW)
             .attr("height", self.svgH);
-	    // -- drop downs --
-	    // ----- team -----
-	    var arrayTeamList = obj2array(globData.globTeamList.current); // change it to array & sort it alphabetically
-	    arrayTeamList = arrayTeamList.sort(function (a,b) { return d3.ascending(a[1].TEAM_CITY, b[1].TEAM_CITY); });
+	    // -- drop downs -- // Team Filter
+	    // change it to array & sort it alphabetically
+	    var arrayTeamList = obj2array(globData.globTeamList.current);
+	    arrayTeamList = arrayTeamList.sort(function (a,b) {
+		    return d3.ascending(a[1].TEAM_CITY, b[1].TEAM_CITY);
+	    });
+	    // creat options
 	    d3SelectAll(self.queryTeam, 'option', arrayTeamList, true)
 		    .attr('value', function (d) { return d[0]; })
 		    .text(function (d) { return d[1].TEAM_CITY + ' ' + d[1].TEAM_NAME; });
-	    self.queryTeam.append('option').attr('value', 'all').attr('selected','selected').text('All');
-	    // ----- year -----
+	    self.queryTeam // add default option (All) in front
+		    .insert('option',':first-child')
+		    .attr('value', 'all')
+		    .attr('selected','selected')
+		    .text('All');
+	    // -- drop downs -- // Year Filters
 	    var arrayYearList = [];
-	    for (var y = 2016; y > 1949; --y) { arrayYearList.push(y); }
+	    for (var y = 2016; y > 1949; --y) { arrayYearList.push(y); } // reverse order
 	    d3SelectAll(self.queryYearFrom, 'option', arrayYearList, true)
-		    .attr('value', function (d) { return d; }).text(function (d) { return d.toString(); });
+		    .attr('value', function (d) { return d; })
+		    .text(function (d) { return d.toString(); });
 	    d3SelectAll(self.queryYearTo, 'option', arrayYearList, true)
-		    .attr('value', function (d) { return d; }).text(function (d) { return d; });
-	    self.queryYearFrom.append('option').attr('value', 'all').attr('selected','selected').text('All');
-	    self.queryYearTo.append('option').attr('value', 'all').attr('selected','selected').text('All');
+		    .attr('value', function (d) { return d; })
+		    .text(function (d) { return d; });
+	    // add default option (All) in front
+	    self.queryYearFrom.insert('option',':first-child')
+		    .attr('value', 'all')
+		    .attr('selected','selected')
+		    .text('All');
+	    self.queryYearTo.insert('option',':first-child')
+		    .attr('value', 'all')
+		    .attr('selected','selected')
+		    .text('All');
 	    // BACKUP
 	    // ----------------------------------------------
 	    // scripts for searching different position values
@@ -89,16 +100,19 @@ function MenuView () {
      */
     self.update = function ()
     {
-        var barW = 200, //< weight
-	        barH = 25,  //< height
-	        barP = 1;   //< padding
-        var displayNumber = Math.floor(self.svgW/barW);
-	    var barXOff = self.svgW/2 - displayNumber * barW / 2,
-	        barYOff = 5;
-        var fontsize = 16,
-	        fontYOff = 18,
-	        fontXOff = 5;
-        // -------------------------------
+	    // -------------------------------
+    	// [0] get rescaling ratio
+	    var ratio = self.svgW / 1520;
+	    // [1] assign parameter values
+	    var displayNumber = 10;
+	    var barW = self.svgW/displayNumber, //< weight
+	        barH = 14 * ratio;              //< height
+	    var barXOff = (self.svgW - displayNumber * barW) / 2,
+	        barYOff = 6 * ratio;
+        var fontsize = 12 * ratio,
+	        fontYOff = 10 * ratio,
+	        fontXOff = 5 * ratio;
+	    // -------------------------------
         // [0] filter player list
         // filter player
         var filteredPlayerList = globData.globPlayerList.rowSet.filter(function (d) {
@@ -121,75 +135,100 @@ function MenuView () {
 	        }
             return true;
         }).sort(function (a, b) { return d3.ascending(a[1], b[1]); });
-        // only display first few elements
-	    // filteredPlayerList = filteredPlayerList.slice(0,displayNumber);
-	    // if (!debugMuteAll) {
-	    // 	console.log('filtered player list', filteredPlayerList);
-	    // }
-	    // -------------------------------
 	    // [1] plot players
+	    // ---- rects
         d3SelectAll(self.grpRect, 'rect', filteredPlayerList)
-            .attr('x', function(d,i) { return barXOff + (i % displayNumber) * (barW + barP); })
-            .attr('y', function(d,i) { return barYOff + Math.floor(i / displayNumber) * (barH + barP); })
+            .attr('x', function(d,i) {
+            	return barXOff + (i%displayNumber) * barW;
+            })
+            .attr('y', function(d,i) {
+            	return barYOff + Math.floor(i/displayNumber) * barH;
+            })
             .attr('width',  barW)
             .attr('height', barH)
-            .style('fill', '#ffcf3f')
-	        .style('opacity', 0)
-	        .on('mouseover', function () { d3.select(this).style('opacity', 1); })
-	        .on('mouseout',  function () { d3.select(this).style('opacity', 0); })
+	        .style('opacity', 0.0)
+	        .on('mouseover', function () {
+		        d3.select(this)
+			        .style('opacity', 1.0)
+			        .classed('highlight', true);
+	        })
+	        .on('mouseout',  function () {
+	        	d3.select(this)
+			        .style('opacity', 0.0)
+			        .classed('highlight', false);
+	        })
             .on('click', function (d) {
-                globData.currPlayerName = d[4];
-	            if (!debugMuteAll) { console.log('changed player to', globData.currPlayerName); }
-                MainReload();
+            	if (!globData.compareMode) {
+		            globData.currPlayerName = d[4];
+		            if (!debugMuteAll) { console.log('changed player to', globData.currPlayerName); }
+		            MainReload();
+            	} else {
+		            globData.comparePlayerName = d[4];
+		            MainReload(false);
+	            }
             });
+        // ---- texts
         d3SelectAll(self.grpText, 'text', filteredPlayerList)
-	        .attr('x', function(d,i) { return fontXOff + barXOff + (i % displayNumber) * (barW + barP); })
-	        .attr('y', function(d,i) { return fontYOff + barYOff + Math.floor(i / displayNumber) * (barH + barP); })
 	        .attr('pointer-events', 'none')
+	        .attr('x', function(d,i) {
+	        	return fontXOff + barXOff + (i%displayNumber) * barW;
+	        })
+	        .attr('y', function(d,i) {
+	        	return fontYOff + barYOff + Math.floor(i/displayNumber) * barH;
+	        })
+	        //.attr('pointer-events', 'none')
 	        .style('font-size', fontsize)
-	        .classed('query-result-text', true)
             .text(function (d) { return d[1]; });
-        // adjust height
-        self.svg.attr('height', barYOff + Math.ceil(filteredPlayerList.length/displayNumber) * (barH + barP));
+        // [2] adjust height
+        self.svg
+	        .attr('height', barYOff + Math.ceil(filteredPlayerList.length/displayNumber) * barH);
     };
 
 	/**
 	 * resize call
 	 */
 	self.resize = function () {
-	    // calculate new division size
 		self.div.style('display', null);
 	    var div = document.getElementById('divMenuView');
-	    var sty = window.getComputedStyle(div, null); // console.log(style);
-	    self.svgW = parseInt(sty.getPropertyValue("width"), 10) * 0.95;
-	    // update margin
-	    self.margin = { // define plot margin (it gives the minimal margin)
-		    left:  0.02 * self.svgW,
-		    right: 0.02 * self.svgW,
-		    top:    0.1 * self.svgH,
-		    bottom: 0.1 * self.svgH
-	    };
+	    var sty = window.getComputedStyle(div, null);
+	    self.svgW = parseInt(sty.getPropertyValue("width"), 10);
 	    self.svg.attr('width', self.svgW);
-	    if (self.hidden) { self.hide() }
-	    else { self.update(); }
+		self.setMargin();
+	    if (self.hidden) {
+	    	self.hide()
+	    } else {
+	    	self.update();
+	    }
 	};
 
 	/**
 	 * hide menu
 	 */
 	self.hide = function () {
-    	self.div.style('display', 'none');
-    	self.hidden = true;
+		self.hidden = true;
 		self.grpRect.selectAll('rect').remove();
 		self.grpText.selectAll('text').remove();
+		self.div.style('display', 'none');
 	};
 
 	/**
 	 * dislay menu
 	 */
 	self.show = function () {
-		self.div.style('display', null);
 		self.hidden = false;
+		self.div.style('display', null);
 		self.update();
-	}
+	};
+
+	/**
+	 * Resize margin definition
+	 */
+	self.setMargin = function () {
+		self.margin = { // define plot margin (it gives the minimal margin)
+			left:  0.02 * self.svgW,
+			right: 0.02 * self.svgW,
+			top:    0.1 * self.svgH,
+			bottom: 0.1 * self.svgH
+		};
+	};
 }

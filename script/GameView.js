@@ -18,8 +18,8 @@ function GameView ()
 	    self.margin = { // define plot margin (it gives the minimal margin)
 		    left:   0.1 * self.svgW,
 		    right: 0.15 * self.svgW,
-		    top:    0.3 * self.svgH,
-		    bottom: 0.4 * self.svgH
+		    top:    Math.min(0.3 * self.svgH, 60),
+		    bottom: Math.min(0.4 * self.svgH, 80)
 	    };
     };
 
@@ -165,24 +165,15 @@ function GameView ()
         var divHeight = numOfRow * boxSize + self.margin.top + self.margin.bottom;
 	    // DEFINE OBJECTS
         // scales
-	    var attrLookup = {
-		    // [attribute, min, max, value]
-		    "REB": [0.00, 8.60, '#a980e3'],
-		    "AST": [0.00, 5.31, '#1f78b4'],
-		    "STL": [0.00, 1.06, '#8ba66b'],
-		    "BLK": [0.00, 1.33, '#2fa07f'],
-		    "TOV": [0.00, 2.76, '#fbb41f'],
-		    "PTS": [0.00, 25.0, '#e34748']
-	    };
         var xScale = d3.scaleLinear() // position scales (shifted scale for axis display)
             .domain([0, numOfCol]).range([0, numOfCol * boxSize]);
         var yScale = d3.scaleLinear() // position scales
             .domain([-0.5, numOfRow - 0.5]).range([0, numOfRow * boxSize]);
-        var cScale = d3.scaleLinear() // color scale TODO NEED TO BE MODIFIED FOR OTHER ATTRIBUTES
-            .domain([attrLookup[attribute][0], attrLookup[attribute][1]])
+        var cScale = d3.scaleLinear() // color scale  NEED TO BE MODIFIED FOR OTHER ATTRIBUTES
+            .domain([globData.dataComment[attribute][3], globData.dataComment[attribute][4]])
 	        .range([
 	        	'#E6E6E6',
-		        attrLookup[attribute][2]
+		        globData.dataComment[attribute][5]
 	        ]);
         // TOOLTIP
 	    var myTip = d3.tip()
@@ -259,7 +250,6 @@ function GameView ()
 		    fontXOff = 30 * ratio,
 		    fontYOff =  0 * ratio;
 	    self.grpXAxis.selectAll('text').attr('transform', 'rotate(-45) translate(' + fontXOff + ',' + fontYOff + ')');
-	    self.svg.selectAll('text').attr('font-size', fontSize);
 	    // -----------------------------------------------------------------------------
 	    // draw profiles
 	    // console.log('attrID', attrID);
@@ -271,7 +261,7 @@ function GameView ()
 		    d.average = d3.mean(d.list, function (_) { return _[attrID]; });
 		    lineRMax = Math.max(lineRMax, d.average);
 	    });
-	    var LRscale = d3.scaleLinear().domain([0,lineRMax]).range([0,0.1 * self.svgW]).nice();
+	    var LRscale = d3.scaleLinear().domain([0,lineRMax]).range([0,self.margin.right * 0.8]).nice();
 	    // console.log(yearsList);
 	    d3SelectAll(self.grpLineR, 'rect', yearsList)
 		    .attr('x', padSize + self.svgW - self.margin.right)
@@ -280,16 +270,13 @@ function GameView ()
 		    .attr('height', barSize)
 		    .style('fill', function (d) { return cScale(d.average); });
 	    d3SelectAll(self.grpLineR, 'text', yearsList)
-		    .attr('x', function (d) { return padSize + self.svgW - self.margin.right + LRscale(d.average) + 5; } )
-		    .attr('y', function (d) { return yoff + yScale(d.ypos - 0.5) + 12; })
+		    .attr('x', function (d) { return padSize + self.svgW - self.margin.right + LRscale(d.average) + 5 * ratio; } )
+		    .attr('y', function (d) { return yoff + yScale(d.ypos - 0.5) + 14 * ratio; })
 		    .text(function (d) { return d.average.toFixed(1); })
-		    .style('font-size',12);
-
+		    .style('font-size',12 * ratio);
 	    self.grpLineR.append('g')
 		    .attr('transform','translate(' + (padSize + self.svgW - self.margin.right) + ',' + (yoff + boxSize * numOfRow) + ')')
 		    .call(d3.axisBottom().scale(LRscale).ticks(5));
-
-
 	    //
 	    // --- bottom plot (bar chart)
 
@@ -321,7 +308,7 @@ function GameView ()
 	    gamesListArr = gamesListArr.sort(function (a,b) { return d3.ascending(+a[0], +b[0]); });
 	    // console.log(gamesListArr);
 	    // plot
-	    var LBscale = d3.scaleLinear().domain([0,lineBMax]).range([0,0.3 * self.svgH]).nice();
+	    var LBscale = d3.scaleLinear().domain([0,lineBMax]).range([0,self.margin.bottom * 0.8]).nice();
 	    var lineB = d3.area()
 		    .x(function(d) { return xoff + boxSize * 0.5 + xScale(+d[0]/gamesListRes); })
 		    .y0(yoff + numOfRow * boxSize)
@@ -330,13 +317,14 @@ function GameView ()
 		    .datum(gamesListArr)
 		    .attr("class", "game-area")
 		    .attr("d", lineB)
-		    .style('fill', attrLookup[attribute][2]);
+		    .style('fill', globData.dataComment[attribute][5]);
 	    self.grpLineB.append('g')
 		    .attr('transform', 'translate(' + (xoff + boxSize * (numOfCol-1)) + ',' + (yoff + numOfRow * boxSize) + ')')
 		    .call(d3.axisRight().scale(LBscale).ticks(3));
 	    // self.grpLineB.append("path").classed('highlight', true);
 	    // ---------------------------------------------
         // adjust div height
+	    self.svg.selectAll('text').attr('font-size', fontSize).classed('gameView-axisFont', true);
 	    self.svg.attr('height', divHeight);
     };
 
@@ -364,6 +352,7 @@ function GameView ()
 		self.hidden = true;
 		self.div.selectAll('*').remove();
 		d3.selectAll('.d3-tip-gameMesh').remove();
+		self.div.style('display','none');
 	};
 
 	/**
@@ -371,6 +360,7 @@ function GameView ()
 	 */
 	self.show = function () {
 		self.hidden = false;
+		self.div.style('display',null);
 		self.init(self.svgH);
 		self.update();
 	};

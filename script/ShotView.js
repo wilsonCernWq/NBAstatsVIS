@@ -27,8 +27,9 @@ function ShotView() {
     {
         // creat SVG elements
 	    self.hidden = false;
-        d3.select('#shotChart').selectAll('*').remove(); // clean up everything
-        self.svg = d3.select('#shotChart').append('svg');
+	    self.div = d3.select('#shotChart');
+        self.div.selectAll('*').remove(); // clean up everything
+        self.svg = self.div.append('svg');
         self.svg.append('image');
         self.grpPlot = self.svg.append('g').attr('id','shotPlot');
 
@@ -57,7 +58,7 @@ function ShotView() {
 	    var player   = globData.currPlayerData;
 	    var yearFrom = globData.currSelectedYearRange[0] ? globData.currSelectedYearRange[0] : player.info.FROM_YEAR;
 	    var yearTo   = globData.currSelectedYearRange[1] ? globData.currSelectedYearRange[1] : Math.min(player.info.TO_YEAR,2015);
-	    var attrTitle = globData.currSelectedAttribute[1] ? globData.currSelectedAttribute[1] : 'Scores';
+	    var attrTitle = 'Scores';
 	    // window ratio
 	    var ratio = self.svgW / 1520;
         // plot court
@@ -88,8 +89,7 @@ function ShotView() {
                 }
             }
         }
-	    // console.log(rowpoint);
-	    console.log([imgW, imgH]);
+	    // console.log([imgW, imgH]);
 	    var hexRadius = 8 * ratio;
         var maxSize = rowpoint.length/400;
         var radius = d3.scaleSqrt().domain([0, maxSize]).range([0, hexRadius]);
@@ -103,18 +103,14 @@ function ShotView() {
 			    '#fc8d59',
 			    '#d53e4f'
 		    ]);
-
-
 	    self.svg.select('#title-ShotView')
 		    .attr('x', self.svgW/2)
 		    .attr('y', 30)
 		    .attr('font-size', 20 * ratio)
 		    .text(attrTitle);
-
         self.grpPlot
 	        .attr('transform', 'translate(' + (imgX + imgOX) + ',' + (imgY+imgOY) + ')')
 	        .attr("clip-path", "url(#clip)");
-        // console.log(hexbin(rowpoint));
 	    self.grpPlot.selectAll(".hexagon").remove();
         self.grpPlot.selectAll(".hexagon").data(hexbin(rowpoint))
 		    .enter().append("path")
@@ -125,6 +121,7 @@ function ShotView() {
             	var totalFGPCT = d3.mean(d, function (dd) { return +dd.data[15] });
             	return FGPCTscale(totalFGPCT);
             });
+        self.svg.attr('height', 700 * ratio);
     };
 
 	/**
@@ -148,6 +145,7 @@ function ShotView() {
 	self.hide  = function () {
 		self.hidden = true;
 		self.div.selectAll('*').remove();
+		self.div.style('display','none');
 	};
 
 	/**
@@ -155,6 +153,7 @@ function ShotView() {
 	 */
 	self.show = function () {
 		self.hidden = false;
+		self.div.style('display',null);
 		self.init(self.svgH);
 		self.update();
 	};

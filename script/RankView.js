@@ -6,12 +6,15 @@ function RankView ()
 {
     var self = this;
 
-    self.setMargin = function () {
+	/**
+	 * update margin
+	 */
+	self.setMargin = function () {
 	    self.margin = {
 		    left:   0.02 * self.svgW,
 		    right:  0.02 * self.svgW,
-		    top:    0.20 * self.svgH,
-		    bottom: 0.05 * self.svgH
+		    top:    0.15 * self.svgH,
+		    bottom: 0.1 * self.svgH
 	    };
     };
 
@@ -27,7 +30,7 @@ function RankView ()
 	    // [1]
         // setup SVG
         self.svg = self.div.append("svg").attr('id','svgRankView');
-	    self.grpAxis = self.svg.append('g').attr('id','groupRankAxis-RankView');
+	    self.grpCurrAxis = self.svg.append('g').attr('id','groupRankAxis-RankView');
 	    self.grpBars = self.svg.append('g').attr('id','groupRankBars-RankView');
 	    self.grpLink = self.svg.append('g').attr('id','groupRankLink-RankView');
 	    self.tooltip = self.div.append('div').attr('id', 'tooltip-RankView');
@@ -54,15 +57,6 @@ function RankView ()
 	 */
     self.update = function ()
     {
-	    var attrLookup = {
-		    // [attribute, min, max, value]
-		    "REB": [0.00, 8.60, '#a980e3'],
-		    "AST": [0.00, 5.31, '#1f78b4'],
-		    "STL": [0.00, 1.06, '#8ba66b'],
-		    "BLK": [0.00, 1.33, '#2fa07f'],
-		    "TOV": [0.00, 2.76, '#fbb41f'],
-		    "PTS": [0.00, 25.0, '#e34748']
-	    };
 	    // default variables
 	    var player   = globData.currPlayerData;
 	    var playerid = +player.info.PERSON_ID;
@@ -81,9 +75,9 @@ function RankView ()
 	    // plot title
 	    self.svg.select('#titleRankView-RankView')
 		    .attr('x', self.svgW/2)
-		    .attr('y', 30)
+		    .attr('y', 30 * ratio)
 		    .attr('font-size', 20 * ratio)
-		    .text(attrTitle);
+		    .text(attrTitle + ' Ranking');
 	    //----------------------------------------------------------
 	    // [1]
         // load multiple files
@@ -134,7 +128,7 @@ function RankView ()
                 barW = Math.min(50, windowW / files.length - barMargin), // bar width
                 barH = windowH / maxPlayer;                              // bar height
             // text parameter
-            var textMargin = 8 * ratio,
+            var textMargin = 12 * ratio,
 	            textFont   = 10 * ratio;
 	        var barHHighLight = 2 * ratio;
 	        // calculate bar offset
@@ -147,10 +141,10 @@ function RankView ()
             // tooltip functions & overall style
 	        // THOSE ARE ABSOLUTE VALUES (tooltip doesn't need to be rescaled)
 	        var zoomlen = 3, // number of entries will be displayed
-		        zoomH = 140, // tooltip box height
+		        zoomH = 185, // tooltip box height
 		        zoomW = 300, // tooltip box width
 		        zoomP = 6,   // tooltip padding
-		        zoomMarginTop = -60, // tooltip top shift
+		        zoomMarginTop = -80, // tooltip top shift
 		        // -----------------
 		        zoomFontSizeMax = 14,
 		        zoomFontSizeStp = 1.5,
@@ -247,7 +241,7 @@ function RankView ()
                 .on('mouseover', mouseover)
                 .on('mousemove', mousemove)
                 .on('mouseout', mouseout)
-	            .style('fill', attrLookup[attribute][2]);
+	            .style('fill', globData.dataComment[attribute][5]);
             // draw bar & circle to high-light player
             groups.filter(function (d) { return d.rank != -1; })
                 .append('circle')
@@ -272,7 +266,7 @@ function RankView ()
                 .on('mouseout', mouseout);
 	        // [4]
             // plot year axis
-            var texts = d3SelectAll(self.grpAxis, 'g', filesMetaInfo, true)
+            var texts = d3SelectAll(self.grpCurrAxis, 'g', filesMetaInfo, true)
                 .attr('transform', function (d, i) {
 	                var left = lOff + (barW + barMargin) * (i + 0.5) - barW / 2;
                     var top  = tOff;
@@ -284,14 +278,17 @@ function RankView ()
                 .attr('y', -textMargin)
                 .style('font-size', textFont)
 	            .classed('rank-year-text', true)
+	            .style('font-size', 10 * ratio)
 	            .text(function (d) { return d.year; });
             texts.append('text')
                 .attr('x', barW/2) // center the bar
                 .attr('y', function (d) { return barH * d.rowset.length + textFont * 0.6 + textMargin; })
                 .style('font-size', textFont)
 	            .classed('rank-player-text', true)
+	            .style('font-size', 10 * ratio)
 	            .text(function (d) { return d.rowset.length; });
         });
+        //self.svg.attr('height', 600 * ratio);
     };
 
 	self.resize = function ()
@@ -312,6 +309,7 @@ function RankView ()
 	self.hide  = function () {
 		self.hidden = true;
 		self.div.selectAll('*').remove();
+		self.div.style('display','none');
 	};
 
 	/**
@@ -319,6 +317,7 @@ function RankView ()
 	 */
 	self.show = function () {
 		self.hidden = false;
+		self.div.style('display',null);
 		self.init(self.svgH);
 		self.update();
 	};

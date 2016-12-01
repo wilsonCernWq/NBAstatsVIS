@@ -12,11 +12,15 @@ var globFunc = {
     rankView: {},
     gameView: {},
     shotView: {},
-    menuView: {}
+    menuView: {},
+    compareView: {}
 };
 var globData = {
     globTeamList: {},
     globPlayerList: {},
+	compareMode: false,
+	comparePlayerName: {},
+	comparePlayerData: {},
 	currSelectedYearRange: [null,null],
 	currSelectedAttribute: [null,null],
 	currPlayerData: {},
@@ -26,9 +30,51 @@ var globData = {
 		Team: null,
 		Hint: null,
 		Position: null,
-		AllStar:  null,
+		AllStar:  'yes',
 		YearFrom: null,
 		YearTo:   2015
+	},
+	dataComment: {
+		"REB": [
+			"Rebounds",
+			" (scale from 0 to 8.6) ",
+			"The total number of rebounds, including both<br/>offensive and defensive rebounds",
+			0.00, 8.60,
+			'#a980e3'
+		],
+		"AST": [
+			"Asistants",
+			" (scale from 0 to 5.3) ",
+			"Passes that lead directly to a made basket by a player or a team",
+			0.00, 5.31,
+			'#1f78b4'
+		],
+		"STL": [
+			"Steals",
+			" (scale from 0 to 1.1) ",
+			"The number of steals by a player",
+			0.00, 1.06,
+			'#8ba66b'
+		],
+		"BLK": [
+			"Blocks",
+			" (scale from 0 to 1.3) ",
+			"The number of shot attempts that are blocked by a player",
+			0.00, 1.33,
+			'#2fa07f'
+		],
+		"TOV": [
+			"Turnovers",
+			" (scale from 0 to 2.8) ",
+			"The number of turnovers -- possessions that are lost to the opposing team -- by a player or a team",
+			0.00, 2.76,
+			'#fbb41f'
+		],
+		"PTS": [
+			"Scores"," (scale from 0 to 25) ",
+			"The number of points made by a player",
+			0.00, 22.0, '#e34748'
+		]
 	}
 };
 var debugMuteAll = false;
@@ -74,26 +120,59 @@ function myQueryAllStar(select) {
 	globFunc.menuView.update();
 }
 
-function myQueryAutoHintSubmit() {
-	var value = document.getElementById('edit-queryForm-MenuView').value;
+function myQueryAutoHintSubmit(src) {
+	var value = src.value;
 	value = value == 'all' ? null : value;
-	// print out debug information
 	if (!debugMuteAll) { console.log('set query hint as', value); }
 	globData.currPlayerFilter.Hint = value;
 	globFunc.menuView.update();
 	return false;
 }
 
+function myClearForm(src) { src.value=""; }
+
 /**
  * Function to change player
  * Linked to click button
  */
-function myChangePlayer() {
+function myChangePlayer(src) {
 	// if (!debugMuteAll) { console.log('asked for changing player!'); }
 	if (globFunc.menuView.hidden) {
 		globFunc.menuView.show();
 	} else {
 		globFunc.menuView.hide();
+	}
+	if (src.innerHTML == 'Change Player') {
+		src.innerHTML = 'Close Selection';
+	} else {
+		src.innerHTML = 'Change Player';
+	}
+}
+
+function myComparePlayer(src) {
+	// if (!debugMuteAll) { console.log('asked for changing player!'); }
+	if (!globData.compareMode) {
+		globData.compareMode = true;
+		globFunc.gameView.hide();
+		globFunc.rankView.hide();
+		globFunc.shotView.hide();
+		src.innerHTML = 'Single Player';
+		// select player
+		if (globFunc.menuView.hidden) {
+			globFunc.menuView.show();
+		}
+	} else {
+		globData.compareMode = false;
+		globFunc.infoView.update();
+		globFunc.compareView.hide();
+		globFunc.gameView.show();
+		globFunc.rankView.show();
+		globFunc.shotView.show();
+		src.innerHTML = 'Compare';
+		// close selection
+		if (!globFunc.menuView.hidden) {
+			globFunc.menuView.hide();
+		}
 	}
 }
 
@@ -137,6 +216,7 @@ function myOnload ()
     globFunc.rankView = new RankView();
     globFunc.gameView = new GameView();
     globFunc.shotView = new ShotView();
+    globFunc.compareView = new CompareView();
 
     // -------------------------------------------------------
     // load team list
@@ -179,9 +259,10 @@ function myOnload ()
 	        globFunc.menuView.hide();
 	        // initialize objects
 	        globFunc.infoView.init(600);
-	        globFunc.rankView.init(300);
+	        globFunc.rankView.init(500);
 	        globFunc.gameView.init(300);
-	        globFunc.shotView.init(600);
+	        globFunc.shotView.init(700);
+	        globFunc.compareView.init();
             // DEBUG HERE
 	        // if (!debugMuteAll) {}
             // --------------------
@@ -231,6 +312,15 @@ function MainReload(reloadData)
 		if (!globFunc.rankView.hidden) { globFunc.rankView.update(); }
 		if (!globFunc.gameView.hidden) { globFunc.gameView.update(); }
 		if (!globFunc.shotView.hidden) { globFunc.shotView.update(); }
+		// comparsion
+		if (globData.compareMode) {
+			d3.json('data/playerList/' + globData.comparePlayerName + '.json', function (errorCompPlayer, playerComp) {
+				if (errorCompPlayer) throw errorCompPlayer;
+				globData.comparePlayerData = playerComp;
+				globFunc.infoView.compare();
+				globFunc.compareView.update();
+			});
+		}
 	}
 }
 
@@ -243,5 +333,6 @@ function myResize() {
 	if (!globFunc.rankView.hidden) { globFunc.rankView.resize(); }
 	if (!globFunc.gameView.hidden) { globFunc.gameView.resize(); }
 	if (!globFunc.shotView.hidden) { globFunc.shotView.resize(); }
+	if (!globFunc.compareView.hidden) { globFunc.compareView.resize(); }
 }
 

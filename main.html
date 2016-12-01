@@ -1,58 +1,47 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-
     <meta charset="UTF-8">
     <title>NBAstatsVIS</title>
-
     <link rel="stylesheet" href="stylesheets/cssmain.css">
-
+    <link href="https://fonts.googleapis.com/css?family=Titillium+Web" rel="stylesheet">
+    <link href="https://fonts.googleapis.com/css?family=Bungee" rel="stylesheet">
 </head>
 <body>
 
-<div class="view-menu scrollable" id="divMenuView" style="display: none">
-    <span class="query-text">Team</span>
-    <select title="queryTeam"
-            id="queryTeam-MenuView"
-            onchange="myQueryTeam(this)">
-    </select>
-    <span class="query-text">Position</span>
-    <select title="queryPosition"
-            id="queryPosition-MenuView"
-            onchange="myQueryPosition(this)">
+<div id="divMenuView" style="display: none">
+    <span>Team</span>
+    <select id="queryTeam" onchange="myQueryTeam(this)"></select>
+    <span>Position</span>
+    <select id="queryPosition" onchange="myQueryPosition(this)">
         <option value="Guard">Guard</option>
         <option value="Center">Center</option>
         <option value="Forward">Forward</option>
         <option selected value="all">All</option>
     </select>
-    <span class="query-text">Year From</span>
-    <select title="queryYearFrom"
-            id="queryYearFrom-MenuView"
-            onchange="myQueryYearFrom(this)">
+    <span>Year From</span>
+    <select id="queryYearFrom" onchange="myQueryYearFrom(this)">
     </select>
-    <span class="query-text">Year To</span>
-    <select title="queryYearTo"
-            id="queryYearTo-MenuView"
-            onchange="myQueryYearTo(this)">
+    <span>Year To</span>
+    <select id="queryYearTo" onchange="myQueryYearTo(this)">
     </select>
-    <span class="query-text">All Star</span>
-    <select title="queryAllStar"
-            id="queryAllStar-MenuView"
-            onchange="myQueryAllStar(this)">
-        <option value="yes">Yes</option>
+    <span>All Star</span>
+    <select id="queryAllStar" onchange="myQueryAllStar(this)">
+        <option value="all">All</option>
+        <option selected value="yes">Yes</option>
         <option value="no">No</option>
-        <option selected value="all">All</option>
     </select>
-    <span class="query-text">Player Name</span>
-    <form title="queryForm" id="queryForm-MenuView">
-        <input id="edit-queryForm-MenuView" title="edit" value="" onkeyup="myQueryAutoHintSubmit()"/>
+    <form id="queryForm">
+        <input value="Hint Player Name"
+               onclick="myClearForm(this)"
+               onkeyup="myQueryAutoHintSubmit(this)"
+        />
     </form>
-    <div class="scrollable">
-        <svg id="svgMenuView">
-            <g id="groupMenuViewRect"></g>
-            <g id="groupMenuViewText"></g>
-        </svg>
-    </div>
+    <svg id="svgMenuView">
+        <g id="groupMenuViewRect"></g>
+        <g id="groupMenuViewText"></g>
+    </svg>
+
 </div>
 <div class="view-block" id="divInfoView">
     <!--<button id="buttonChangePlayer-InfoView"-->
@@ -78,11 +67,11 @@
         <!--<g id="groupRankLink-RankView"></g>-->
     <!--</svg>-->
 </div>
-
 <div class="view-block" id="divGameView"></div>
 <div class="view-block" id="shotChart"></div>
-
 <div class="tooltip" id="tooltiplist"></div>
+
+<div id="CompareView"></div>
 
 <script src="external/d3/d3.v4.js"></script>
 <script src="external/d3-tip/index.js"></script>
@@ -94,10 +83,10 @@
 <script src="script/main.js"></script>
 <script src="script/MenuView.js"></script>
 <script src="script/InfoView.js"></script>
-
 <script src="script/RankView.js"></script>
 <script src="script/GameView.js"></script>
 <script src="script/ShotView.js"></script>
+<script src="script/CompareView.js"></script>
 
 </body>
 </html>
