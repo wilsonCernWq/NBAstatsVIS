@@ -92,7 +92,7 @@ function myQueryPosition(select) {
 	var value = select.options[select.selectedIndex].value;
 	value = value == 'all' ? null : value;
 	if (!debugMuteAll) { console.log('set query for Position!', value); }
-	globData.currPlayerFilter.Position = +value;
+	globData.currPlayerFilter.Position = value;
 	globFunc.menuView.update();
 }
 
