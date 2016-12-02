@@ -54,7 +54,8 @@ function CompareView()
 		self.height = 700;
 		// setup class fields
 		self.div = d3.select('#CompareView');
-		self.svg = d3.select('#CompareView').select('svg')
+		self.div.selectAll('*').remove();
+		self.svg = d3.select('#CompareView').append('svg')
 			.attr('width', self.width)
 			.attr('height', self.height);
 	};
@@ -140,6 +141,7 @@ function CompareView()
 		self.div.selectAll('div').remove();
 		var tooltip = self.div.append('div')
 			.attr('class','compare-bar-tip')
+			.style('display','none')
 			.attr('opacity',0);
 
 		// Drawing bar chart
@@ -198,6 +200,7 @@ function CompareView()
 				d3.select(this).attr('opacity',1);
 				if (i < header.length){
 					tooltip.transition()
+						.style('display',null)
 						.duration(200)
 						.style('opacity',1);
 					tooltip.html("<strong>" + info[0] + "</strong>" +
@@ -208,6 +211,7 @@ function CompareView()
 						.style("top", d3.event.pageY + "px");}
 				else{
 					tooltip.transition()
+						.style('display',null)
 						.duration(200)
 						.style('opacity',1);
 					tooltip.html("<strong>" + info[2] + '</strong>' +
@@ -221,7 +225,8 @@ function CompareView()
 				d3.select(this).attr('opacity',0.6);
 				tooltip.transition()
 					.duration(500)
-					.style('opacity',0);
+					.style('opacity',0)
+					.style('display','none');
 			});
 		// append title
 		svg.append('path').attr('d','M'+(l+W/2)+','+(t-barP)+'L'+(l+W/2)+','+(t+(barH+barP)*header.length))
@@ -238,6 +243,7 @@ function CompareView()
 		var h = svg.append('g').selectAll('text').data(header).enter();
 		var div = d3.select("#CompareView").append('div')
 			.attr('class','compare-header-tooltip')
+			.style('display','none')
 			.attr('opacity',0);
 		h.append('text')
 			.attr('x', l-5 * ratio)
@@ -248,7 +254,7 @@ function CompareView()
 			.classed('compare-header',true)
 			.on('mouseover', function(d,i){
 				d3.select(this).attr('font-weight','bold');
-				div.transition().duration(100).style('opacity',0.9);
+				div.transition().style('display',null).duration(100).style('opacity',0.9);
 				div.html(header_text[i])
 					.style("left", l + 'px' )
 					.style("top",  d3.event.pageY + 'px' );
@@ -257,7 +263,8 @@ function CompareView()
 				d3.select(this).attr('font-weight','regular');
 				div.transition()
 					.duration(200)
-					.style('opacity',0);
+					.style('opacity',0)
+					.style('display','none');
 			});
 	};
 
