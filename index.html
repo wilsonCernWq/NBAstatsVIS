@@ -1,51 +1,91 @@
 <!DOCTYPE html>
-<html lang="en-us">
+<html lang="en">
 <head>
     <meta charset="UTF-8">
-    <title>NBAstatsVIS by wilsonCernWq</title>
-    <meta name="viewport" content="width=device-width, initial-scale=1">
-    <link rel="stylesheet" type="text/css" href="stylesheets/normalize.css" media="screen">
-    <link href='https://fonts.googleapis.com/css?family=Open+Sans:400,700' rel='stylesheet' type='text/css'>
-    <link rel="stylesheet" type="text/css" href="stylesheets/stylesheet.css" media="screen">
-    <link rel="stylesheet" type="text/css" href="stylesheets/github-light.css" media="screen">
+    <title>NBAstatsVIS</title>
+    <link rel="stylesheet" href="stylesheets/cssmain.css">
+    <link href="https://fonts.googleapis.com/css?family=Titillium+Web" rel="stylesheet">
+    <link href="https://fonts.googleapis.com/css?family=Bungee" rel="stylesheet">
 </head>
 <body>
-<section class="page-header">
-    <h1 class="project-name">NBAstatsVIS</h1>
-    <h2 class="project-tagline">visualization course project </h2>
-    <a href="https://github.com/wilsonCernWq/NBAstatsVIS" class="btn">View on GitHub</a>
-    <a href="https://github.com/wilsonCernWq/NBAstatsVIS/zipball/master" class="btn">Download .zip</a>
-    <a href="https://github.com/wilsonCernWq/NBAstatsVIS/tarball/master" class="btn">Download .tar.gz</a>
-</section>
 
-<section class="main-content">
-    <h1>
-        <a id="nbastatsvis" class="anchor" href="#nbastatsvis" aria-hidden="true"><span aria-hidden="true" class="octicon octicon-link"></span></a>
-        NBAstatsVIS
-    </h1>
+<div id='linkBack'><a href="https://wilsoncernwq.github.io/NBAstatsVIS/infoPage.html">About the Project</a></div>
+<div id="divMenuView" style="display: none">
+    <span>Team</span>
+    <select id="queryTeam" onchange="myQueryTeam(this)"></select>
+    <span>Position</span>
+    <select id="queryPosition" onchange="myQueryPosition(this)">
+        <option value="Guard">Guard</option>
+        <option value="Center">Center</option>
+        <option value="Forward">Forward</option>
+        <option selected value="all">All</option>
+    </select>
+    <span>Year From</span>
+    <select id="queryYearFrom" onchange="myQueryYearFrom(this)">
+    </select>
+    <span>Year To</span>
+    <select id="queryYearTo" onchange="myQueryYearTo(this)">
+    </select>
+    <span>All Star</span>
+    <select id="queryAllStar" onchange="myQueryAllStar(this)">
+        <option value="all">All</option>
+        <option selected value="yes">Yes</option>
+        <option value="no">No</option>
+    </select>
+    <form id="queryForm">
+        <input value="Hint Player Name"
+               onclick="myClearForm(this)"
+               onkeyup="myQueryAutoHintSubmit(this)"
+        />
+    </form>
+    <svg id="svgMenuView">
+        <g id="groupMenuViewRect"></g>
+        <g id="groupMenuViewText"></g>
+    </svg>
+</div>
+<div class="view-block" id="divInfoView">
+    <!--<button id="buttonChangePlayer-InfoView"-->
+            <!--onclick="myChangePlayer()"-->
+            <!--style="float: left">-->
+        <!--Change Player-->
+    <!--</button>-->
+    <!--<svg id="svgInfoView">-->
+        <!--<g id="groupLeftPlot-InfoView"><image></image></g>-->
+        <!--<g id="groupYearAxis-InfoView">-->
+            <!--<g id="axisGroup-InfoView"></g>-->
+            <!--<g id="barsGroup-InfoView"></g>-->
+            <!--<g id="brushGroup-InfoView"></g>-->
+        <!--</g>-->
+        <!--<g id="radialPlot-InfoView"></g>-->
+        <!--<g id="tooltip-InfoView"></g>-->
+    <!--</svg>-->
+</div>
+<div class="view-block" id="divRankView">
+    <!--<svg id="svgRankView">-->
+        <!--<g id="groupRankAxis-RankView"></g>-->
+        <!--<g id="groupRankBars-RankView"></g>-->
+        <!--<g id="groupRankLink-RankView"></g>-->
+    <!--</svg>-->
+</div>
+<div class="view-block" id="divGameView"></div>
+<div class="view-block" id="shotChart"></div>
+<div class="tooltip" id="tooltiplist"></div>
+<div id="CompareView"></div>
 
-    <p>2016 Utah Visualization Course Final Project </p>
+<script src="external/d3/d3.v4.js"></script>
+<script src="external/d3-tip/index.js"></script>
+<script src="external/d3-legend/d3-legend.js"></script>
+<script src="external/d3-queue/d3-queue.v3.min.js"></script>
+<script src="external/d3-hexbin/d3.hexbin.min.js"></script>
 
-    <p>Visualizing basketball player abilities properly based on statistics is always a hot for sport analysts and basketball fans. There are various basketball data analyzing tools on the internet nowadays, but not many of them can provide user-friendly up-to-date visualizations for general purposes. As basketball enthusiasts, we want to provide such an easy-to-use player profiler for non-experts to explore data and create visualizations based on their own demands.</p>
-
-    <h1>
-        <a id="proposal" href="documents/Proposal.pdf">Proposal</a>
-    </h1>
-
-    <h1>
-        <a id="feedback" href="documents/FeedBack.pdf">Peer Evaluation Feedback</a>
-    </h1>
-
-    <h1>
-        <a id="ProcessBook" href="documents/ProcessBook.pdf">Process Book</a>
-    </h1>
-
-    <footer class="site-footer">
-        <span class="site-footer-owner"><a href="https://github.com/wilsonCernWq/NBAstatsVIS">NBAstatsVIS</a> is maintained by <a href="https://github.com/wilsonCernWq">wilsonCernWq</a>.</span>
-        <span class="site-footer-credits">This page was generated by <a href="https://pages.github.com">GitHub Pages</a> using the <a href="https://github.com/jasonlong/cayman-theme">Cayman theme</a> by <a href="https://twitter.com/jasonlong">Jason Long</a>.</span>
-    </footer>
-
-</section>
+<script src="script/helper.js"></script>
+<script src="script/main.js"></script>
+<script src="script/MenuView.js"></script>
+<script src="script/InfoView.js"></script>
+<script src="script/RankView.js"></script>
+<script src="script/GameView.js"></script>
+<script src="script/ShotView.js"></script>
+<script src="script/CompareView.js"></script>
 
 </body>
 </html>
