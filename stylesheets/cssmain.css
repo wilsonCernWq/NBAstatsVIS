@@ -207,6 +207,15 @@ html body {
     font-family: 'Titillium Web', sans-serif;
     fill: #000000;
 }
+.rank-radial-OD {
+    text-anchor: middle;
+    font-family: 'Bungee', cursive;
+}
+path.rank-radial-OD {
+    stroke: #999999;
+    stroke-width: 2px;
+    stroke-dasharray: 3 3;
+}
 #titleRankView-RankView {
     font-family: 'Bungee', cursive;
     text-anchor: middle;
@@ -243,6 +252,15 @@ html body {
     border-radius: 2px;
     text-align: center;
 }
+.d3-tip-gameMesh strong {
+    color: #ed6a43;
+}
+.d3-tip-gameMesh ul {
+    text-align: start;
+    color: #d9d9d9;
+    line-height: 100%;
+}
+
 .d3-tip-gameMesh:after {
     box-sizing: border-box;
     display: inline;
@@ -273,6 +291,8 @@ html body {
     stroke: #ffffff;
     opacity: 0.9;
     stroke-width: 1px;
+    /*box-shadow: 10px 10px 5px grey;*/
+    /*-webkit-box-shadow: -5px -5px 5px #888;*/
 }
 .legend-ShotView {
     text-anchor: middle;
@@ -311,7 +331,10 @@ html body {
     top: 100%;
     left: 0;
 }
-
+#shotBarRValue{
+    font-family: 'Titillium Web', sans-serif;
+    text-anchor: end;
+}
 /***********************************************/
 .compare-view-block {
     margin-top: 50px;
@@ -379,9 +402,7 @@ html body {
     border-radius: 6px;
     padding: 5px 0;
     margin-left: 8px;
-    /*z-index: 1;*/
     top: -5px;
-    /*right: 110%;*/
     pointer-events: none;
     font-family: 'Titillium Web', sans-serif;
 }

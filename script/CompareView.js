@@ -5,6 +5,9 @@
 function CompareView()
 {
 	var self = this;
+
+	self.hidden = false;
+
 	var header_text = [
 		'Game Played',
 		'Game Started',
@@ -33,7 +36,7 @@ function CompareView()
 	 * Initialization
 	 */
 	self.init = function () {
-		self.hidden = false;
+		// self.hidden = true;
 		var div = document.getElementById('CompareView');  // shortcuts
 		var style = window.getComputedStyle(div, null);   // shortcuts
 		//save margin
@@ -48,7 +51,7 @@ function CompareView()
 		self.height = 700;
 		// setup class fields
 		self.div = d3.select('#CompareView');
-		self.svg = d3.select('#CompareView').append('svg')
+		self.svg = d3.select('#CompareView').select('svg')
 			.attr('width', self.width)
 			.attr('height', self.height);
 	};
@@ -131,13 +134,14 @@ function CompareView()
 		var barP = 4  * ratio;
 
 		// Define tooltip for rect
-		var tooltip = d3.select("#CompareView").selectAll('div').data([0]).enter().append('div')
+		self.div.selectAll('div').remove();
+		var tooltip = self.div.append('div')
 			.attr('class','compare-bar-tip')
 			.attr('opacity',0);
 
 		// Drawing bar chart
 		var perGame = perGame1.concat(perGame2);
-		console.log(perGame);
+		// console.log(perGame);
 		// empty svg
 		// <div id="CompareView">
 		// 	   <svg width="1883" height="700"></svg>
@@ -272,7 +276,7 @@ function CompareView()
 	 */
 	self.hide = function(){
 		self.hidden = true;
-		self.div.selectAll('*').remove();
+		self.svg.selectAll('*').remove();
 		self.div.style('display','none');
 	};
 
@@ -281,6 +285,7 @@ function CompareView()
 	 */
 	self.show = function(){
 		self.hidden = false;
+		self.div.style('display',null);
 		self.init();
 		self.update();
 	};

@@ -377,11 +377,11 @@ function InfoView ()
         // predefined data range (different range for different data)
         var dataSet = [
             // [attribute, min, max, value]
-            ["REB"],
-            ["AST"],
+	        ["TOV"],
+	        ["REB"],
+	        ["BLK"],
             ["STL"],
-            ["BLK"],
-            ["TOV"],
+	        ["AST"],
             ["PTS"]
         ];
         // load data
@@ -397,7 +397,7 @@ function InfoView ()
         }
         // [1]
         // define plotting parameters
-	    var groupXOff = 1150 * ratio,
+	    var groupXOff = 1050 * ratio,
 		    groupYOff = 180 * ratio;
         var barH = 40 * ratio,
             barWMax = 90 * ratio,
@@ -450,6 +450,7 @@ function InfoView ()
         // creat groups
         group.selectAll('g').data(dataSet).enter().append('g')
             .attr('transform', function (d,i) { return 'rotate(' + (360 * i / dataSet.length) + ')'; });
+
         // -- create background bars
 	    {
 		    group.selectAll('g').data(dataSet).append('rect')
@@ -501,6 +502,8 @@ function InfoView ()
 		    .text(function (d) {
 			    var r = Math.max(0, Math.min(1, (d[4] - d[1]) / (d[2] - d[1])));
 			    r = Math.round(10 * r) / 10;
+			    //console.log(d);
+			    d.index = r;
 			    return r.toFixed(1);
 		    })
 		    .on('mouseover', tipValue.show)
@@ -546,6 +549,40 @@ function InfoView ()
 		    .style('font-size',attrPIEFont)
 		    .classed('info-radial-PIE',true)
 		    .text(pie);
+	    // plot texts (Offence and Defence)
+	    var ODXoff =  280 * ratio,
+		    ODYoff = -150 * ratio,
+		    ODText = 20 * ratio,
+		    ODShift = 8 * ratio;
+	    group.append('text')
+		    .attr('x', ODXoff)
+		    .attr('y', ODYoff+ODShift)
+		    .classed('rank-radial-OD', true)
+		    .text('Offensive');
+	    group.append('text')
+		    .attr('x', ODXoff)
+		    .attr('y', -ODYoff+ODShift)
+		    .classed('rank-radial-OD', true)
+		    .text('Defensive');
+	    group.append('path')
+		    .classed('rank-radial-OD', true)
+		    .attr('d','M' + ODXoff + ',' + (ODYoff+ODText) + 'L' + ODXoff + ',' + (-ODYoff-ODText));
+	    // console.log(dataSet);
+	    var ODindex = (dataSet[0].index + dataSet[1].index + dataSet[2].index - dataSet[3].index - dataSet[4].index - dataSet[5].index) / 3;
+	    var ODbarW = 20 * ratio, ODbarH = 4 * ratio;
+	    // var ODscale = d3.scaleLinear().domain([-1,1]).range(['#FF2223', '#2C1F97'])
+	    group.append('rect')
+		    .attr('x', ODXoff - ODbarW/2)
+		    .attr('y', -ODindex * ODYoff - ODbarH/2)
+		    .attr('width', ODbarW)
+		    .attr('height', ODbarH)
+		    .style('fill', 'black')
+		    .style('border-radius', '1px');
+	    group.append('circle')
+		    .attr('cx', ODXoff)
+		    .attr('cy', 0)
+		    .attr('r', ODbarW/8)
+		    .style('fill', 'black');
         return plotHeight/2 + groupYOff;
     };
 

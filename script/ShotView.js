@@ -32,6 +32,8 @@ function ShotView() {
         self.svg = self.div.append('svg');
         self.svg.append('image');
 	    self.grpPlot = self.svg.append('g').attr('id','shotPlot');
+	    // right bar plot
+	    self.grpRight = self.svg.append('g').attr('id','shotRight');
 	    // left bar plot
 	    self.grpFGAL = self.svg.append('g').attr('id','shotFGAL'); // left bar // FG Attempted
 	    self.grpFGML = self.svg.append('g').attr('id','shotFGML'); // left bar // FG Made
@@ -126,7 +128,7 @@ function ShotView() {
         var maxSize = rowpoint.length/400;
         var radius = d3.scaleSqrt().domain([0, maxSize]).range([0, hexRadius]);
         var hexbin = d3.hexbin().size([imgW, imgH]).radius(hexRadius);
-	    var FGPCTscale = d3.scaleQuantile().domain([0.3,0.4,0.5,0.6,0.7,0.8])
+	    var FGPCTscale = d3.scaleQuantile().domain([0.35,0.40,0.45,0.5,0.55,0.60,0.65])
 		    .range([
 			    '#3288bd',
 			    '#99d594',
@@ -140,11 +142,20 @@ function ShotView() {
 		    .attr('y', 40 * ratio)
 		    .attr('font-size', 20 * ratio)
 		    .text(attrTitle);
+	    // draw hexgon
+	    self.svg.selectAll('defs').remove();
+	    self.svg.append('defs').append("clipPath").attr("id", "clip")
+		    .append("rect").attr("class", "mesh")
+		    .attr('x', -imgOX)
+		    .attr('y', -imgOY)
+		    .attr("width", imgW)
+		    .attr("height", imgH);
         self.grpPlot
 	        .attr('transform', 'translate(' + (imgX + imgOX) + ',' + (imgY+imgOY) + ')')
-	        .attr("clip-path", "url(#clip)");
-	    self.grpPlot.selectAll(".hexagon").remove();
-        self.grpPlot.selectAll(".hexagon").data(hexbin(rowpoint))
+	        .selectAll(".hexagon").remove();
+        self.grpPlot
+	        .attr("clip-path", "url(#clip)")
+	        .selectAll(".hexagon").data(hexbin(rowpoint))
 		    .enter().append("path")
             .attr("class", "hexagon")
             .attr("d", function(d) { return hexbin.hexagon(radius(Math.min(d.length, maxSize))); })
@@ -181,11 +192,11 @@ function ShotView() {
 			    });
 		    d3SelectAll(groupBarLegend, 'text', FGPCTscale.domain())
 			    .attr('x', function (d, i) {
-				    return self.svgW / 2 + (i - 2.5) * legendW;
+				    return self.svgW / 2 + (i - 3) * legendW;
 			    })
 			    .attr('y', imgY + imgH + 45 * ratio)
 			    .text(function (d) {
-				    return (d * 100) + '%';
+				    return (d * 100).toFixed(0) + '%';
 			    })
 			    .classed('legend-ShotView', true)
 			    .style('font-size', 12 * ratio);
@@ -217,7 +228,6 @@ function ShotView() {
 			    .style('font-size', 12 * ratio);
 		    // hexgon
 		    var hexRange = [maxSize / 6, 2 * maxSize / 6, 3 * maxSize / 6, 4 * maxSize / 6, 5 * maxSize / 6, 6 * maxSize / 6];
-		    groupHexLegend.attr("clip-path", "url(#clip)");
 		    groupHexLegend.selectAll(".hexagon").remove();
 		    groupHexLegend.selectAll(".hexagon")
 			    .data(hexRange)
@@ -250,8 +260,8 @@ function ShotView() {
 	    // left FGA
 	    d3SelectAll(self.grpFGAL, 'rect', histYData)
 		    .attr('x', self.svgW/2+imgW/2)
-		    .attr('y', function (d) { return d.x0 + imgY + imgOY + fgaPad/2; })
-		    .attr('width', function (d) { return d.length / maxY * barYheight * ratio; })
+		    .attr('y', function (d) { return d.x0 + imgY + imgOY + fgaPad/2 - (d.x1-d.x0)/2; })
+		    .attr('width', function (d) { return d.length / maxY * barYheight; })
 		    .attr('height', function (d) { return d.x1 - d.x0 - fgaPad; })
 		    .style('fill', '#66c2a5')
 		    .on('mouseover', function (d) {
@@ -260,7 +270,7 @@ function ShotView() {
 			    if (!FGPCT) { FGPCT = 0; }
 			    highlightText
 				    .style('display', null)
-				    .attr('x', self.svgW/2+imgW/2 + d.length / maxY * barYheight * ratio + 5 * ratio)
+				    .attr('x', self.svgW/2+imgW/2 + d.length / maxY * barYheight + 5 * ratio)
 				    .attr('y', d.x0 + imgY + imgOY + 8 * ratio)
 				    .text('FGA = ' + d.length + ' (FG% = ' + (FGPCT * 100).toFixed(1) + '%)')
 				    .style('font-size', 10 * ratio).style('text-anchor', 'start');
@@ -272,21 +282,21 @@ function ShotView() {
 	    // left FGM
 	    d3SelectAll(self.grpFGML, 'rect', histYData)
 		    .attr('x', self.svgW/2+imgW/2)
-		    .attr('y', function (d) { return d.x0 + imgY + imgOY + fgmPad/2; })
+		    .attr('y', function (d) { return d.x0 + imgY + imgOY + fgmPad/2 - (d.x1-d.x0)/2; })
 		    .attr('width', function (d) {
 		    	var FGM = d3.sum(d, function (dd) { return +dd.data[15]; });
 		    	if (!FGM) { FGM = 0; }
-		    	return FGM / maxY * barYheight * ratio;
+		    	return FGM / maxY * barYheight;
 		    })
 		    .attr('height', function (d) { return Math.max(0, d.x1 - d.x0 - fgmPad); })
 		    .style('fill', '#fc8d62')
 		    .attr('pointer-events', 'none');
 	    // top FGA
 	    d3SelectAll(self.grpFGAT, 'rect', histXData)
-		    .attr('x', function (d) { return imgX + imgOX + d.x0 + fgaPad/2; })
-		    .attr('y', function (d) { return imgY - d.length / maxX * barXheight * ratio; })
+		    .attr('x', function (d) { return imgX + imgOX + d.x0 + fgaPad/2 - (d.x1-d.x0)/2; })
+		    .attr('y', function (d) { return imgY - d.length / maxX * barXheight; })
 		    .attr('width', function (d) { return d.x1 - d.x0 - fgaPad; })
-		    .attr('height', function (d) { return d.length / maxX * barXheight * ratio; })
+		    .attr('height', function (d) { return d.length / maxX * barXheight; })
 		    .style('fill', '#66c2a5')
 		    .on('mouseover', function (d) {
 			    d3.select(this).classed('highlight', true);
@@ -295,7 +305,7 @@ function ShotView() {
 			    highlightText
 				    .style('display', null)
 				    .attr('x', imgX + imgOX + d.x0)
-				    .attr('y', imgY - d.length / maxX * barXheight * ratio - 8 * ratio)
+				    .attr('y', imgY - d.length / maxX * barXheight - 8 * ratio)
 				    .text('FGA = ' + d.length + ' (FG% = ' + (FGPCT * 100).toFixed(1) + '%)')
 				    .style('font-size', 10 * ratio)
 				    .style('text-anchor', 'middle');
@@ -306,21 +316,85 @@ function ShotView() {
 		    });
 	    // top FGM
 	    d3SelectAll(self.grpFGMT, 'rect', histXData)
-		    .attr('x', function (d) { return imgX + imgOX + d.x0 + fgmPad/2; })
+		    .attr('x', function (d) { return imgX + imgOX + d.x0 + fgmPad/2 - (d.x1-d.x0)/2; })
 		    .attr('y', function (d) {
 			    var FGM = d3.sum(d, function (dd) { return +dd.data[15]; });
 			    if (!FGM) { FGM = 0; }
-			    return imgY - FGM / maxX * barXheight * ratio;
+			    return imgY - FGM / maxX * barXheight;
 		    })
 		    .attr('width', function (d) { return Math.max(0, d.x1 - d.x0 - fgmPad); })
 		    .attr('height', function (d) {
 			    var FGM = d3.sum(d, function (dd) { return +dd.data[15]; });
 			    if (!FGM) { FGM = 0; }
-			    return FGM / maxX * barXheight * ratio;
+			    return FGM / maxX * barXheight;
 		    })
 		    .style('fill', '#fc8d62')
 		    .attr('pointer-events', 'none');
-        // adjust svg size
+	    // circular chart
+	    // -- get hist data alone radius
+	    var histRData = d3.histogram()
+		    .value(function (d) { return d.data[11]; })
+		    .domain([0, 29]) // 29 ft maximum for a half court
+		    .thresholds(40)(rowpoint);
+	    var maxR = d3.max(histRData, function (d) { return d.length; });
+	    var barRheight = 200 * ratio;
+	    var barRxoff = self.svgW/2-imgW/2-30*ratio,
+		    barRyoff = imgY + imgOY;
+	    var barRxscale = d3.scaleLinear().domain([0,29]).range([0,29*imgH/43.03]).nice(),
+		    barRyscale = d3.scaleLinear().domain([maxR,0]).range([0,barRheight]).nice();
+	    // put everything else here
+	    self.grpRight.selectAll('g').remove();
+	    var barRelse = self.grpRight.append('g');
+	    barRelse.append('text').attr('id','shotBarRValue')
+		    .style('display','none')
+		    .style('font-size', 11 * ratio);
+	    barRelse.append('circle').attr('id','shotBarRCircle')
+		    .style('display','none')
+		    .style('opacity',0.8)
+		    .attr('transform', 'translate(' + (imgX + imgOX-barRxoff) + ',' + (imgY+imgOY-barRyoff) + ')')
+		    .attr("clip-path", "url(#clip)");
+	    barRelse
+		    .append('text')
+		    .attr('x',-imgH+135*ratio).attr('y',5*ratio)
+		    .attr('transform','rotate(-90)')
+		    .style('font-family',"'Titillium Web', sans-serif")
+		    .style('font-size', 12 * ratio)
+		    .text('ft');
+	    // draw bars
+	    self.grpRight.attr('transform','translate(' + barRxoff + ',' + barRyoff + ') scale(1,1)');
+	    d3SelectAll(self.grpRight,'rect',histRData)
+		    .attr('x', function (d) { return -barRyscale(maxR-d.length); })
+		    .attr('y', function (d) { return barRxscale(d.x0) + fgaPad/2; })
+		    .attr('width', function (d) { return barRyscale(maxR-d.length); })
+		    .attr('height', function (d) { return barRxscale(d.x1 - d.x0) - fgaPad; })
+		    .style('fill', '#66c2a5')
+		    .on('mouseover', function (d) {
+		    	// console.log((d.x0+d.x1)/2);
+		    	barRelse.select('#shotBarRCircle')
+				    .style('display',null)
+				    .attr('cx',0)
+				    .attr('cy',0)
+				    .attr('r',barRxscale((d.x0+d.x1)/2))
+				    .style('stroke','grey')
+				    .style('stroke-width',5)
+				    .style('fill','none');
+		    	var FGPCT = d3.mean(d, function (dd) { return +dd.data[15]; }) * 100;
+			    barRelse.select('#shotBarRValue')
+				    .style('display',null)
+				    .attr('x', -barRyscale(maxR-d.length) - 8 * ratio)
+				    .attr('y', barRxscale(d.x0) + fgaPad/2 + 8 * ratio)
+				    .text(d.length + ' Field Goal Attempted @ ' + d.x0 + '-' + d.x1 + ' ft (Made ' + FGPCT.toFixed(0) + '%)');
+		    })
+		    .on('mouseout', function (d) {
+			    barRelse.select('#shotBarRValue').style('display','none');
+		    	barRelse.select('#shotBarRCircle').style('display','none');
+		    });
+	    // -- axes
+	    self.grpRight.append('g').call(d3.axisRight(barRxscale));
+	    self.grpRight.append('g')
+		    .attr('transform','translate('+(-barRheight)+',0)')
+		    .call(d3.axisTop(barRyscale).ticks(5));
+	    // adjust svg size
         self.svg.attr('height', 900 * ratio);
     };
 

@@ -19,6 +19,7 @@ var globFunc = {
 var globData = {
     globTeamList: {},
     globPlayerList: {},
+	singleSelectMode: false,
 	compareMode: false,
 	comparePlayerName: {},
 	comparePlayerData: {},
@@ -138,42 +139,49 @@ function myClearForm(src) { src.value=""; }
  */
 function myChangePlayer(src) {
 	// if (!debugMuteAll) { console.log('asked for changing player!'); }
-	if (globFunc.menuView.hidden) {
-		globFunc.menuView.show();
-		globFunc.menuView.resize();
-	} else {
-		globFunc.menuView.hide();
-	}
-	if (src.innerHTML == 'Change Player') {
-		src.innerHTML = 'Close Selection';
-	} else {
-		src.innerHTML = 'Change Player';
+	if (!globData.compareMode) {
+		if (globFunc.menuView.hidden) {
+			globFunc.menuView.show();
+			globFunc.menuView.resize();
+		} else {
+			globFunc.menuView.hide();
+		}
+		//
+		if (src.innerHTML == 'Change Player') {
+			globData.singleSelectMode = true;
+			src.innerHTML = 'Close Selection';
+		} else {
+			globData.singleSelectMode = false;
+			src.innerHTML = 'Change Player';
+		}
 	}
 }
 
 function myComparePlayer(src) {
 	// if (!debugMuteAll) { console.log('asked for changing player!'); }
-	if (!globData.compareMode) {
-		globData.compareMode = true;
-		globFunc.gameView.hide();
-		globFunc.rankView.hide();
-		globFunc.shotView.hide();
-		src.innerHTML = 'Single Player';
-		// select player
-		if (globFunc.menuView.hidden) {
-			globFunc.menuView.show();
-		}
-	} else {
-		globData.compareMode = false;
-		globFunc.infoView.update();
-		globFunc.compareView.hide();
-		globFunc.gameView.show();
-		globFunc.rankView.show();
-		globFunc.shotView.show();
-		src.innerHTML = 'Compare';
-		// close selection
-		if (!globFunc.menuView.hidden) {
-			globFunc.menuView.hide();
+	if (!globData.singleSelectMode) {
+		if (!globData.compareMode) {
+			globData.compareMode = true;
+			globFunc.gameView.hide();
+			globFunc.rankView.hide();
+			globFunc.shotView.hide();
+			src.innerHTML = 'Single Player';
+			// select player
+			if (globFunc.menuView.hidden) {
+				globFunc.menuView.show();
+			}
+		} else {
+			globData.compareMode = false;
+			globFunc.compareView.hide();
+			globFunc.infoView.update();
+			globFunc.gameView.show();
+			globFunc.rankView.show();
+			globFunc.shotView.show();
+			src.innerHTML = 'Compare';
+			// close selection
+			if (!globFunc.menuView.hidden) {
+				globFunc.menuView.hide();
+			}
 		}
 	}
 }
@@ -265,6 +273,7 @@ function myOnload ()
 	        globFunc.gameView.init(300);
 	        globFunc.shotView.init(700);
 	        globFunc.compareView.init();
+	        globFunc.compareView.hide();
             // DEBUG HERE
 	        // if (!debugMuteAll) {}
             // --------------------
@@ -320,7 +329,8 @@ function MainReload(reloadData)
 				if (errorCompPlayer) throw errorCompPlayer;
 				globData.comparePlayerData = playerComp;
 				globFunc.infoView.compare();
-				globFunc.compareView.update();
+				globFunc.compareView.show();
+				// globFunc.compareView.update();
 			});
 		}
 	}

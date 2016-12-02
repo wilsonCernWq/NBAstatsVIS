@@ -192,11 +192,18 @@ function GameView ()
 		    .attr('class', 'd3-tip-gameMesh')
 		    .offset([-10, 0])
 		    .html(function(d) {
-			    return "" +
-				    "<span>Average " + attrTitle + ":</span> " +
-				    "<span>" + (d.sumOfValues/d.gameList.length).toFixed(2) + "</span><br/><br/>" +
-				    "<span>No. of games:</span> " +
-				    "<span>" + d.gameList.length + "</span><br/>";
+		    	var averageAttr = (d.sumOfValues/d.gameList.length).toFixed(2);
+		    	var htmlList = "<ul>";
+		    	// console.log(d);
+		    	d.gameList.forEach(function (dd) {
+				    htmlList += "<li>" +
+					    dd[2] + " "  +
+					    dd[4] + " V.S. " + dd[6] + " " +
+					    "<b style='color: #ffa247'>" + attrTitle.toLocaleLowerCase() + " " + dd[attrID] + "</b>" +
+					    "</li>";
+			    });
+			    htmlList += "</ul>";
+			    return "<strong>Average " + attrTitle + ": " + averageAttr + " (" + d.gameList.length + " games)</strong><br/>" + htmlList;
 		    });
 	    self.grpGrid.call(myTip);
 
@@ -236,9 +243,11 @@ function GameView ()
 	        	return rSeason ? 'game-rSeacon' : 'game-pSeacon';
 	        })
 	        .style('fill', function (d) {
-                return d.gameList.length == 0 ? cScale(d.sumOfValues) : cScale(d.sumOfValues / d.gameList.length);
+                return d.gameList.length == 0 ?
+	                '#f3f3f3' /* cScale(d.sumOfValues) */ :
+	                cScale(d.sumOfValues / d.gameList.length);
             });
-        console.log(numOfRow,numOfCol)
+        // console.log(numOfRow,numOfCol)
         // draw axis
         // 1) Y axis
         var yearAxis = d3.axisLeft()
@@ -332,8 +341,8 @@ function GameView ()
 		    .attr("d", lineB)
 		    .style('fill', globData.dataComment[attribute][5]);
 	    self.grpLineB.append('g')
-		    .attr('transform', 'translate(' + (xoff + boxSize * (numOfCol-1.5)) + ',' + (yoff + numOfRow * boxSize) + ')')
-		    .call(d3.axisRight().scale(LBscale).ticks(3));
+		    .attr('transform', 'translate(' + xoff + ',' + (yoff + numOfRow * boxSize) + ')')
+		    .call(d3.axisLeft().scale(LBscale).ticks(3));
 	    // self.grpLineB.append("path").classed('highlight', true);
 	    // LEGEND
 	    var lmin = globData.dataComment[attribute][3],
@@ -351,7 +360,6 @@ function GameView ()
 		    .attr('y', self.margin.top - 65 * ratio)
 		    .text(function (d) { return d.toFixed(0); })
 		    .style('text-anchor', 'middle');
-
 
 	    // ---------------------------------------------
         // adjust div height
