@@ -168,6 +168,7 @@ function MenuView () {
 		            .classed('always', true);
             	if (!globData.compareMode) {
 		            globData.currPlayerName = d[4];
+		            globData.currSelectedYearRange = [null,null];
 		            if (!debugMuteAll) { console.log('changed player to', globData.currPlayerName); }
 		            MainReload();
             	} else {
