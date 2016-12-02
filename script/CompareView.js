@@ -251,6 +251,7 @@ function CompareView()
 			.text(function(d){
 				return d.replace('_PCT', '%');
 			})
+			.style('font-size',isMac?14:16)
 			.classed('compare-header',true)
 			.on('mouseover', function(d,i){
 				d3.select(this).attr('font-weight','bold');

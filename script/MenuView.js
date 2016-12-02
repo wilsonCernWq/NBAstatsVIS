@@ -100,9 +100,16 @@ function MenuView () {
      */
     self.update = function ()
     {
+		var ratio = self.svgW / 1520;
+		// update font size on mac
+		if (isMac) {
+			self.div.selectAll('span').style('font-size', (18 * ratio) + 'px');
+			self.div.selectAll('select').style('font-size', (18 * ratio) + 'px');
+			self.div.selectAll('input').style('font-size', (18 * ratio) + 'px');
+		}
 	    // -------------------------------
     	// [0] get rescaling ratio
-	    var ratio = self.svgW / 1520;
+
 	    // [1] assign parameter values
 	    var displayNumber = 10;
 	    var barW = self.svgW/displayNumber, //< weight

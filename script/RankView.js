@@ -75,8 +75,8 @@ function RankView ()
 	    // plot title
 	    self.svg.select('#titleRankView-RankView')
 		    .attr('x', self.svgW/2)
-		    .attr('y', 30 * ratio)
-		    .attr('font-size', 20 * ratio)
+		    .attr('y', (isMac?50:30) * ratio)
+		    .attr('font-size', (isMac?30:20) * ratio)
 		    .text(attrTitle + ' Ranking');
 	    //----------------------------------------------------------
 	    // [1]
@@ -129,7 +129,7 @@ function RankView ()
                 barH = windowH / maxPlayer;                              // bar height
             // text parameter
             var textMargin = 12 * ratio,
-	            textFont   = 10 * ratio;
+	            textFont   = (isMac?16:10) * ratio;
 	        var barHHighLight = 2 * ratio;
 	        // calculate bar offset
 	        var lOff = self.margin.left + windowW/2 - (barW+barMargin)*files.length/2;
@@ -171,7 +171,7 @@ function RankView ()
                 // shift tooltip immediately
 	            var lCoor, tCoor = d3.event.pageY - 2 * zoomP;
 	            var textAnchor;
-	            if (Xindex < 4) {
+	            if (Xindex < (isMac ? 6 : 4)) {
 		            lCoor = (Xindex + 1) * (barW + barMargin) + div.offsetLeft + lOff - zoomP;
 		            textAnchor = 'left';
 	            } else {
@@ -279,14 +279,12 @@ function RankView ()
                 .attr('y', -textMargin)
                 .style('font-size', textFont)
 	            .classed('rank-year-text', true)
-	            .style('font-size', 10 * ratio)
 	            .text(function (d) { return d.year; });
             texts.append('text')
                 .attr('x', barW/2) // center the bar
                 .attr('y', function (d) { return barH * d.rowset.length + textFont * 0.6 + textMargin; })
                 .style('font-size', textFont)
 	            .classed('rank-player-text', true)
-	            .style('font-size', 10 * ratio)
 	            .text(function (d) { return d.rowset.length; });
         });
         //self.svg.attr('height', 600 * ratio);

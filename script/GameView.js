@@ -193,7 +193,11 @@ function GameView ()
 		    .offset([-10, 0])
 		    .html(function(d) {
 		    	var averageAttr = (d.sumOfValues/d.gameList.length).toFixed(2);
-		    	var htmlList = "<ul>";
+		    	var htmlList =
+					"<strong " + (isMac ? "style='font-size: 16px'" : "") + ">" +
+					"Average "+attrTitle+": "+averageAttr + " ("+d.gameList.length+" games)" +
+					"</strong><br/>";
+				htmlList += isMac ? "<ul style='font-size: 12px'>" : "<ul>";
 		    	// console.log(d);
 		    	d.gameList.forEach(function (dd) {
 				    htmlList += "<li>" +
@@ -203,7 +207,7 @@ function GameView ()
 					    "</li>";
 			    });
 			    htmlList += "</ul>";
-			    return "<strong>Average " + attrTitle + ": " + averageAttr + " (" + d.gameList.length + " games)</strong><br/>" + htmlList;
+			    return htmlList;
 		    });
 	    self.grpGrid.call(myTip);
 
@@ -351,13 +355,13 @@ function GameView ()
 		    ldata = [lmax,0.2*lmin+0.8*lmax,0.4*lmin+0.6*lmax,0.6*lmin+0.4*lmax,0.8*lmin+0.2*lmax,lmin];
 	    d3SelectAll(self.grpLegend,'rect',ldata)
 		    .attr('x', function (d,i) { return self.svgW - self.margin.right + i * lwidth * ratio; })
-		    .attr('y', self.margin.top - 100 * ratio)
+		    .attr('y', self.margin.top - (isMac?150:100) * ratio)
 		    .attr('width', lwidth)
 		    .attr('height', 20)
 		    .style('fill', function (d) { return cScale(d); });
 	    d3SelectAll(self.grpLegend,'text',ldata)
 		    .attr('x', function (d,i) { return self.svgW - self.margin.right + (i+0.5) * lwidth * ratio; })
-		    .attr('y', self.margin.top - 65 * ratio)
+		    .attr('y', self.margin.top - (isMac?100:65) * ratio)
 		    .text(function (d) { return d.toFixed(0); })
 		    .style('text-anchor', 'middle');
 

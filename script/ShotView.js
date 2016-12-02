@@ -14,7 +14,7 @@ function ShotView() {
 		self.margin = {
 			left:   0.1 * self.svgW,
 			right:  0.1 * self.svgW,
-			top:    0.1 * self.svgH,
+			top:    isMac ? 0.15 * self.svgH : 0.1 * self.svgH,
 			bottom: 0.1 * self.svgH
 		};
 	};
@@ -338,7 +338,7 @@ function ShotView() {
 		    .thresholds(40)(rowpoint);
 	    var maxR = d3.max(histRData, function (d) { return d.length; });
 	    var barRheight = 200 * ratio;
-	    var barRxoff = self.svgW/2-imgW/2-30*ratio,
+	    var barRxoff = self.svgW/2-imgW/2-(isMac?40:30)*ratio,
 		    barRyoff = imgY + imgOY;
 	    var barRxscale = d3.scaleLinear().domain([0,29]).range([0,29*imgH/43.03]).nice(),
 		    barRyscale = d3.scaleLinear().domain([maxR,0]).range([0,barRheight]).nice();
@@ -394,7 +394,10 @@ function ShotView() {
 	    self.grpRight.append('g')
 		    .attr('transform','translate('+(-barRheight)+',0)')
 		    .call(d3.axisTop(barRyscale).ticks(5));
-	    // adjust svg size
+		if (isMac) {
+			self.grpRight.selectAll('text').style('font-size', 8);
+		}
+		// adjust svg size
         self.svg.attr('height', 900 * ratio);
     };
 
