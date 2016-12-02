@@ -149,7 +149,7 @@ function RankView ()
 		        zoomFontSizeMax = 14,
 		        zoomFontSizeStp = 1.5,
 		        zoomFontSizeMin = 9;
-	        if (isMac) { zoomH = 220; } // hack for mac machines
+	        if (isMac) { zoomH = 220; }
             var mouseover = function () {
                 self.tooltip
 	                .style('display', 'inline')

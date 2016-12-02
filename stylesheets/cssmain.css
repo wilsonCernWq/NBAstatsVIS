@@ -229,6 +229,10 @@ html body {
     stroke: rgba(0, 0, 0, 0.94);
     fill-opacity: 0.5;
 }
+#title-MeshView{
+    font-family: 'Bungee', cursive;
+    text-anchor: middle;
+}
 .d3-tip-gameMesh {
     font-family: 'Titillium Web', sans-serif;
     line-height: 1;
@@ -260,14 +264,52 @@ html body {
 }
 /***********************************************/
 /* shotchart */
+.hexagon.highlight {
+    stroke: #252525;
+    stroke-width: 2px;
+}
 .hexagon {
     fill: #4584b4;
     stroke: #ffffff;
+    opacity: 0.9;
     stroke-width: 1px;
+}
+.legend-ShotView {
+    text-anchor: middle;
+    font-family: 'Titillium Web', sans-serif;
+}
+.barHighlight-ShotView {
+    font-family: 'Titillium Web', sans-serif;
 }
 #title-ShotView {
     text-anchor: middle;
     font-family: 'Bungee', cursive;
+}
+.tip-ShotView  {
+    font-weight: bold;
+    line-height: 120%;
+    padding: 12px;
+    background: rgba(0, 0, 0, 0.8);
+    color: #fff;
+    border-radius: 2px;
+    text-align: center;
+    font-family: 'Titillium Web', sans-serif;
+}
+.tip-ShotView:after {
+    box-sizing: border-box;
+    display: inline;
+    font-size: 10px;
+    width: 100%;
+    line-height: 1;
+    color: rgba(0, 0, 0, 0.8);
+    content: "\25BC";
+    position: absolute;
+    text-align: center;
+}
+.tip-ShotView.n:after {
+    margin: -1px 0 0 0;
+    top: 100%;
+    left: 0;
 }
 
 /***********************************************/

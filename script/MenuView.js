@@ -153,11 +153,19 @@ function MenuView () {
 			        .classed('highlight', true);
 	        })
 	        .on('mouseout',  function () {
-	        	d3.select(this)
-			        .style('opacity', 0.0)
-			        .classed('highlight', false);
+	        	if (!d3.select(this).classed('always')) {
+			        d3.select(this)
+				        .style('opacity', 0.0)
+				        .classed('highlight', false);
+		        }
 	        })
             .on('click', function (d) {
+            	self.grpRect.selectAll('.highlight').style('opacity', 0.0).classed('highlight', false);
+            	self.grpRect.selectAll('.always').classed('always', false);
+	            d3.select(this)
+		            .style('opacity', 1.0)
+		            .classed('highlight', true)
+		            .classed('always', true);
             	if (!globData.compareMode) {
 		            globData.currPlayerName = d[4];
 		            if (!debugMuteAll) { console.log('changed player to', globData.currPlayerName); }

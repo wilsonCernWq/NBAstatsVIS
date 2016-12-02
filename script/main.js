@@ -140,6 +140,7 @@ function myChangePlayer(src) {
 	// if (!debugMuteAll) { console.log('asked for changing player!'); }
 	if (globFunc.menuView.hidden) {
 		globFunc.menuView.show();
+		globFunc.menuView.resize();
 	} else {
 		globFunc.menuView.hide();
 	}

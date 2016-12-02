@@ -155,7 +155,7 @@ function InfoView ()
         var ratio = self.svgW / 1520;  // a stupid way of getting rescaling ratio !!
 	    // [1]
         // parameters
-        var headSize   = 40 * ratio, // player name font size
+        var headSize   = 30 * ratio, // player name font size
             headHeight = 80 * ratio; // player name font height
         var textSize   = 16 * ratio,
             textHeight = 26 * ratio,
@@ -340,8 +340,8 @@ function InfoView ()
 	                // ** call year selection function
 	                // here I simply print things out, in the future, functions should be linked to here
 	                if (value[0] < value[1]) {
-		                globData.currSelectedYearRange[0] = value[0] + 1;
-		                globData.currSelectedYearRange[1] = value[1];
+		                globData.currSelectedYearRange[0] = Math.min(2015, value[0] + 1);
+		                globData.currSelectedYearRange[1] = Math.min(2015, value[1]);
 	                } else {
 		                globData.currSelectedYearRange = [null, null];
 	                }

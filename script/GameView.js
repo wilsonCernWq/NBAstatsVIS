@@ -18,7 +18,7 @@ function GameView ()
 	    self.margin = { // define plot margin (it gives the minimal margin)
 		    left:   0.1 * self.svgW,
 		    right: 0.15 * self.svgW,
-		    top:    Math.min(0.3 * self.svgH, 60),
+		    top:    Math.min(0.4 * self.svgH, 120),
 		    bottom: Math.min(0.4 * self.svgH, 80)
 	    };
     };
@@ -39,6 +39,8 @@ function GameView ()
         self.grpXAxis = self.svg.append('g').attr('id','groupMeshXAxis-MeshView');
 	    self.grpLineR = self.svg.append('g').attr('id','groupLineR-MeshView');
 	    self.grpLineB = self.svg.append('g').attr('id','groupLineB-MeshView');
+	    self.grpLegend = self.svg.append('g').attr('id','groupLegend-MeshView');
+	    self.svg.append('text').attr('id', 'title-MeshView');
 	    // [1]
         // calculate svg default size & get the correct width of the window
         var div = document.getElementById('divGameView');  // shortcuts
@@ -65,6 +67,7 @@ function GameView ()
      */
     self.update = function ()
     {
+	    //self.setMargin();console.log(self.margin)
     	// get information
 	    var player   = globData.currPlayerData;
 	    var playerid = +player.info.PERSON_ID;
@@ -79,6 +82,14 @@ function GameView ()
         var rSeason = player.season.RegularSeason;
         var pSeason = player.season.PostSeason;
         var attrID  = player.season.headerGame.indexOf(attribute);
+        // Title
+	    //----------------------------------------------------------
+	    // plot title
+	    self.svg.select('#title-MeshView')
+		    .attr('x', self.svgW/2)
+		    .attr('y', 40 * ratio)
+		    .attr('font-size', 20 * ratio)
+		    .text(attrTitle + ' Details');
         // console.log(attrID);
         // counters
         var j = 0; //< index of years
@@ -115,6 +126,7 @@ function GameView ()
 	                // register some info
 	                gRowData[gid].type = 'RegularSeason'; //console.log(date2value(gRowData[gid][2]))
 	                gRowData[gid].time = Math.round(date2value(gRowData[gid][2]) / self.step * gamesListRes);
+	                if (gRowData[gid].time < 0) { gRowData[gid].time = 0; } // hide data that different starting time
 	                // throw hist
                     i = self.histValue2Id(gRowData[gid][2]);
                     gOneYear[i].sumOfValues += gRowData[gid][attrID];
@@ -226,6 +238,7 @@ function GameView ()
 	        .style('fill', function (d) {
                 return d.gameList.length == 0 ? cScale(d.sumOfValues) : cScale(d.sumOfValues / d.gameList.length);
             });
+        console.log(numOfRow,numOfCol)
         // draw axis
         // 1) Y axis
         var yearAxis = d3.axisLeft()
@@ -319,12 +332,33 @@ function GameView ()
 		    .attr("d", lineB)
 		    .style('fill', globData.dataComment[attribute][5]);
 	    self.grpLineB.append('g')
-		    .attr('transform', 'translate(' + (xoff + boxSize * (numOfCol-1)) + ',' + (yoff + numOfRow * boxSize) + ')')
+		    .attr('transform', 'translate(' + (xoff + boxSize * (numOfCol-1.5)) + ',' + (yoff + numOfRow * boxSize) + ')')
 		    .call(d3.axisRight().scale(LBscale).ticks(3));
 	    // self.grpLineB.append("path").classed('highlight', true);
+	    // LEGEND
+	    var lmin = globData.dataComment[attribute][3],
+		    lmax = globData.dataComment[attribute][4];
+	    var lwidth = 30,
+		    ldata = [lmax,0.2*lmin+0.8*lmax,0.4*lmin+0.6*lmax,0.6*lmin+0.4*lmax,0.8*lmin+0.2*lmax,lmin];
+	    d3SelectAll(self.grpLegend,'rect',ldata)
+		    .attr('x', function (d,i) { return self.svgW - self.margin.right + i * lwidth * ratio; })
+		    .attr('y', self.margin.top - 100 * ratio)
+		    .attr('width', lwidth)
+		    .attr('height', 20)
+		    .style('fill', function (d) { return cScale(d); });
+	    d3SelectAll(self.grpLegend,'text',ldata)
+		    .attr('x', function (d,i) { return self.svgW - self.margin.right + (i+0.5) * lwidth * ratio; })
+		    .attr('y', self.margin.top - 65 * ratio)
+		    .text(function (d) { return d.toFixed(0); })
+		    .style('text-anchor', 'middle');
+
+
 	    // ---------------------------------------------
         // adjust div height
-	    self.svg.selectAll('text').attr('font-size', fontSize).classed('gameView-axisFont', true);
+	    self.svg
+		    .selectAll('g')
+		    .selectAll('text')
+		    .attr('font-size', fontSize).classed('gameView-axisFont', true);
 	    self.svg.attr('height', divHeight);
     };
 
