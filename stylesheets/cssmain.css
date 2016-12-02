@@ -12,6 +12,12 @@ html body {
     fill: #ffd028;
     stroke: #252525;
 }
+#linkBack {
+    text-align:center;
+    width: 50%;
+    margin: auto;
+    font-family: 'Bungee', cursive;
+}
 /* ----------------------------------- */
 /* query */
 #divMenuView {

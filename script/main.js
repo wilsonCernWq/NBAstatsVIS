@@ -265,6 +265,7 @@ function myOnload ()
 	        globFunc.gameView.init(300);
 	        globFunc.shotView.init(700);
 	        globFunc.compareView.init();
+	        globFunc.compareView.hide();
             // DEBUG HERE
 	        // if (!debugMuteAll) {}
             // --------------------

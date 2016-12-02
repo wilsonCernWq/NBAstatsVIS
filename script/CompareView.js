@@ -1,7 +1,10 @@
 /**
  * Created by hanmengjiao on 11/24/16.
  */
-
+/**
+ *
+ * @constructor
+ */
 function CompareView()
 {
 	var self = this;
