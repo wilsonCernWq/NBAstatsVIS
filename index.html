@@ -9,31 +9,31 @@
 </head>
 <body>
 
-<div id='linkBack'><a href="https://wilsoncernwq.github.io/NBAstatsVIS/infoPage.html">About the Project</a></div>
+<div id='aboutus'><a href="https://wilsoncernwq.github.io/NBAstatsVIS/infoPage.html">About the Project</a></div>
 <div id="divMenuView" style="display: none">
     <span>Team</span>
-    <select id="queryTeam" onchange="myQueryTeam(this)"></select>
+    <select class="dropdown" id="queryTeam" onchange="myQueryTeam(this)"></select>
     <span>Position</span>
-    <select id="queryPosition" onchange="myQueryPosition(this)">
+    <select class="dropdown" id="queryPosition" onchange="myQueryPosition(this)">
         <option value="Guard">Guard</option>
         <option value="Center">Center</option>
         <option value="Forward">Forward</option>
         <option selected value="all">All</option>
     </select>
     <span>Year From</span>
-    <select id="queryYearFrom" onchange="myQueryYearFrom(this)">
+    <select class="dropdown" id="queryYearFrom" onchange="myQueryYearFrom(this)">
     </select>
     <span>Year To</span>
-    <select id="queryYearTo" onchange="myQueryYearTo(this)">
+    <select class="dropdown" id="queryYearTo" onchange="myQueryYearTo(this)">
     </select>
     <span>All Star</span>
-    <select id="queryAllStar" onchange="myQueryAllStar(this)">
+    <select class="dropdown" id="queryAllStar" onchange="myQueryAllStar(this)">
         <option value="all">All</option>
         <option selected value="yes">Yes</option>
         <option value="no">No</option>
     </select>
     <form id="queryForm">
-        <input value="Hint Player Name"
+        <input class="dropdown" value="Hint Player Name"
                onclick="myClearForm(this)"
                onkeyup="myQueryAutoHintSubmit(this)"
         />
@@ -43,30 +43,8 @@
         <g id="groupMenuViewText"></g>
     </svg>
 </div>
-<div class="view-block" id="divInfoView">
-    <!--<button id="buttonChangePlayer-InfoView"-->
-            <!--onclick="myChangePlayer()"-->
-            <!--style="float: left">-->
-        <!--Change Player-->
-    <!--</button>-->
-    <!--<svg id="svgInfoView">-->
-        <!--<g id="groupLeftPlot-InfoView"><image></image></g>-->
-        <!--<g id="groupYearAxis-InfoView">-->
-            <!--<g id="axisGroup-InfoView"></g>-->
-            <!--<g id="barsGroup-InfoView"></g>-->
-            <!--<g id="brushGroup-InfoView"></g>-->
-        <!--</g>-->
-        <!--<g id="radialPlot-InfoView"></g>-->
-        <!--<g id="tooltip-InfoView"></g>-->
-    <!--</svg>-->
-</div>
-<div class="view-block" id="divRankView">
-    <!--<svg id="svgRankView">-->
-        <!--<g id="groupRankAxis-RankView"></g>-->
-        <!--<g id="groupRankBars-RankView"></g>-->
-        <!--<g id="groupRankLink-RankView"></g>-->
-    <!--</svg>-->
-</div>
+<div class="view-block" id="divInfoView"></div>
+<div class="view-block" id="divRankView"></div>
 <div class="view-block" id="divGameView"></div>
 <div class="view-block" id="shotChart"></div>
 <div class="tooltip" id="tooltiplist"></div>

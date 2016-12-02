@@ -1,4 +1,4 @@
-/* global */
+/***** global *****/
 html body {
     max-width: 100%;
 }
@@ -8,18 +8,16 @@ html body {
     border: 2px solid #d9d9d9;
     border-radius: 5px;
 }
-.highlight {
-    fill: #ffd028;
-    stroke: #252525;
-}
-#linkBack {
+
+/***** link to about us *****/
+#aboutus {
     text-align:center;
     width: 50%;
     margin: auto;
     font-family: 'Bungee', cursive;
 }
-/* ----------------------------------- */
-/* query */
+
+/***** query *****/
 #divMenuView {
     position: relative;
     height: 300px;
@@ -31,51 +29,46 @@ html body {
     overflow-x: hidden;
     border-radius: 4px;
 }
+#divMenuView .dropdown { /* filter drop down style */
+    -webkit-appearance: button;
+    -webkit-border-radius: 2px;
+    -webkit-box-shadow: 0px 1px 3px rgba(0, 0, 0, 0.1);
+    -webkit-padding-end: 20px;
+    -webkit-padding-start: 2px;
+    -webkit-user-select: none;
+    margin: 5px;
+    border: 1px solid #999999;
+    background-color: #999999;
+    color: #000000;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    white-space: nowrap;
+    font-family: 'Titillium Web', sans-serif;
+}
 #divMenuView span { /* filter name text */
     margin-left:  5px;
     margin-right: 5px;
     color: #ffffff;
     font-family: 'Titillium Web', sans-serif;
 }
-#divMenuView select { /* filter drop down style */
-    -webkit-appearance: button;
-    -webkit-border-radius: 2px;
-    -webkit-box-shadow: 0px 1px 3px rgba(0, 0, 0, 0.1);
-    -webkit-padding-end: 20px;
-    -webkit-padding-start: 2px;
-    -webkit-user-select: none;
-    margin: 5px;
-    border: 1px solid #999999;
-    color: #000000;
-    background-color: #999999;
-    font-size: 20px;
-    overflow: hidden;
-    text-overflow: ellipsis;
-    white-space: nowrap;
-    font-family: 'Titillium Web', sans-serif;
-}
 #divMenuView #queryForm {
     display: inline;
 }
-#divMenuView #queryForm input {
-    -webkit-appearance: button;
-    -webkit-border-radius: 2px;
-    -webkit-box-shadow: 0px 1px 3px rgba(0, 0, 0, 0.1);
-    -webkit-padding-end: 20px;
-    -webkit-padding-start: 2px;
-    -webkit-user-select: none;
-    margin: 5px;
-    border: 1px solid #999999;
-    color: #000000;
-    background-color: #999999;
-    font-size: 20px;
-    overflow: hidden;
-    text-overflow: ellipsis;
-    white-space: nowrap;
-    font-family: 'Titillium Web', sans-serif;
+#divMenuView rect {
+    fill-opacity: 0;
+}
+#divMenuView rect.highlight {
+    fill: #ffca31;
+    stroke: #252525;
+    /*opacity: 1;*/
+    fill-opacity: 1;
 }
 #divMenuView text {
-    fill: #999999;
+    fill: #b8b8b8;
+    font-family: 'Titillium Web', sans-serif;
+}
+#divMenuView text.highlight {
+    fill: #292929;
     font-family: 'Titillium Web', sans-serif;
 }
 
