@@ -8,6 +8,13 @@ html body {
     border: 2px solid #d9d9d9;
     border-radius: 5px;
 }
+.view-box {
+    width: 50%;
+    margin-top: 10px;
+    margin-bottom: 10px;
+    border: 2px solid #d9d9d9;
+    border-radius: 5px;
+}
 
 /***** link to about us *****/
 #aboutus {
@@ -15,6 +22,7 @@ html body {
     width: 50%;
     margin: auto;
     font-family: 'Bungee', cursive;
+    font-size: 10px;
 }
 
 /***** query *****/

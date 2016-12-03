@@ -7,87 +7,126 @@ function InfoView () {
     var self = this;
 
     /**
-     * Initialization
+     * Initialization (CAN BE CALL MULTIPLE TIMES)
      */
-    self.init = function(height)
+    self.init = function()
     {
-    	// [0]
-	    // great HTML structure
+	    // * Initialize Class Fields
+	    // --- other fields
+	    self.hidden = false;
+	    // --- HTML selections
+	    d3.select('#divInfoView').selectAll('*').remove(); // delete everything for preventing bugs
 	    self.div = d3.select('#divInfoView');
-	    self.div.selectAll('*').remove(); // prevent bug
-	    // creat button
+	    // (two button)
 	    self.div.append('button').attr('onclick', 'myChangePlayer(this)').text('Change Player');
-	    self.div.append('button')
-		    //.style('margin-left', 2+'px')
-		    .attr('onclick', 'myComparePlayer(this)').text('Compare');
-	    // creat SVG elements
+	    self.div.append('button').attr('onclick', 'myComparePlayer(this)').text('Compare');
+	    // (SVG elements)
 	    self.svg     = self.div.append('svg').attr('id','svgInfoView');
-	    // -- left part
-	    self.grpCurr = self.svg.append('g').attr('id','groupCurrPlot-InfoView');
-	    self.grpCurrAxis = self.svg.append('g').attr('id','groupYearAxis-InfoView');
-	    // -- right part
+	    //  -- left part
+	    self.left = self.right = self.svg.append('g');
+	    self.grpCurr = self.left.append('g').attr('id','groupCurrPlot-InfoView');
+	    self.grpCurrAxis = self.left.append('g').attr('id','groupYearAxis-InfoView');
+	    //  -- right part
 	    self.right = self.svg.append('g');
 	    self.grpComp = self.right.append('g').attr('id','groupCompPlot-InfoView');
 	    self.grpCompAxis = self.right .append('g').attr('id','groupCompYearAxis-InfoView');
-	    // -- radial plot
+	    //  -- radial plot
 	    self.grpRadial = self.svg.append('g').attr('id','radialPlot-InfoView');
-	    // * constructure correct structures
-	    // add image
+
+	    // * Constructure Correct Structures
+	    // --- add image
 	    self.grpCurr.append('image');
 	    self.grpComp.append('image');
-	    // current view
+	    // --- current view
 	    self.grpCurrAxis.append('g').classed('axisGroup-InfoView', true);
 	    self.grpCurrAxis.append('g').classed('barsGroup-InfoView', true);
 	    self.grpCurrAxis.append('g').classed('brushGroup-InfoView', true);
-	    // compare view
+	    // --- compare view
 	    self.grpCompAxis.append('g').classed('axisGroup-InfoView', true);
 	    self.grpCompAxis.append('g').classed('barsGroup-InfoView', true);
 	    self.grpCompAxis.append('g').classed('brushGroup-InfoView', true);
 
-	    self.hidden = false;
-	    // [1]
-        // calculate svg default size & get the correct width of the window
-        var div   = document.getElementById('divInfoView'); // shortcuts
-        var style = window.getComputedStyle(div, null);     // shortcuts
-	    // [2]
-        // save width and height
-        self.svgW  = parseInt(style.getPropertyValue("width"), 10);
-        self.svgH = height;
-        self.svg
-	        .attr('width',  self.svgW)
-            .attr('height', self.svgH);
+	    // * Setup Element Attributes
+	    // --- setup rescaling coefficient
+	    var w = window.innerWidth;
+	    var h = window.innerHeight;
+	    self.ratio = Math.min(w/1500, h/800); // how to calculate this defines the rescaling behaviors
+        // --- save width and height
+	    // console.log('window size', w, h);
+	    self.svgW = self.ratio * 1000;
+	    self.svgH = self.ratio * 400;
+        self.svg.attr('width',  self.svgW).attr('height', self.svgH);
+
     };
 
-	self.hideRadial = function () {
-		self.grpRadial.selectAll('*').remove();
-	};
+	/**
+	 * Hide the Radial Plot
+	 */
+	self.hideRadial = function () { self.grpRadial.selectAll('*').remove(); };
 
+	/**
+	 * Hide the Axis Group
+	 * @param AxisGrp
+	 */
 	self.hideAxis = function (AxisGrp) {
+
 		AxisGrp.select('.axisGroup-InfoView').selectAll('*').remove();
 		AxisGrp.select('.barsGroup-InfoView').selectAll('*').remove();
 		AxisGrp.select('.brushGroup-InfoView').selectAll('*').remove();
+
 	};
 
+	/**
+	 * Hide the Player Bio View
+	 * @param Grp
+	 */
 	self.hideOneView = function (Grp) {
+
 		Grp.select('image').remove();
 		Grp.append('image');
 		Grp.selectAll('text').remove();
+
+	};
+
+	/**
+	 * Hide all view entirely
+	 */
+	self.hide  = function () {
+
+		self.hidden = true;
+		self.div.selectAll('*').remove();
+
+	};
+
+	/**
+	 * show this view
+	 */
+	self.show = function () {
+
+		self.hidden = false;
+		self.init();
+		self.update();
+
 	};
 
     /**
      * self is a function to draw/update view
      */
-    self.update = function()
-    {
-    	// hide right view
+    self.update = function()  {
+
+    	// --- hide right view
 	    self.hideOneView(self.grpComp);
 	    self.hideAxis(self.grpCompAxis);
-    	// draw new stuffs
+    	// --- draw new stuffs
         var player = globData.currPlayerData;
-        var hView = self.OneInfo(self.grpCurr, player);
-	    var hAxis = self.SeasonAxis(self.grpCurrAxis, player);
-        var hRad = self.RadialView(self.grpRadial, player); // console.log(hView, hAxis);
-	    self.svg.attr('height', Math.max(hRad, Math.min(hView + hAxis, self.svgH)));
+        var hView  = self.OneInfo(self.grpCurr, player);
+	    var hAxis  = self.SeasonAxis(self.grpCurrAxis, player);
+        var hRad   = self.RadialView(self.grpRadial, player);
+        // --- setup svg size
+        // self.svg
+		 //    .attr('width',  self.svgW)
+		 //    .attr('height', Math.max(hRad, Math.min(hView + hAxis, self.svgH)));
+
     };
 
     self.compare = function () {
@@ -113,18 +152,26 @@ function InfoView () {
     /**
      * Function to resize
      */
-    self.resize = function ()
-    {
-        // adjust svg width only
-	    var div   = document.getElementById('divInfoView'); // shortcuts
-	    var style = window.getComputedStyle(div, null);     // shortcuts
-	    self.svgW  = parseInt(style.getPropertyValue("width"), 10);
-	    self.svg.attr('width',  self.svgW);
+    self.resize = function () {
+
+	    // * Setup Element Attributes
+	    // --- setup rescaling coefficient
+	    var w = window.innerWidth;
+	    var h = window.innerHeight;
+	    self.ratio = Math.min(w/1500, h/800); // how to calculate this defines the rescaling behaviors
+	    // --- save width and height
+	    // console.log('window size', w, h);
+	    self.svgW = self.ratio * 1000;
+	    self.svgH = self.ratio * 400;
+	    self.svg.attr('width',  self.svgW).attr('height', self.svgH);
+
+	    // * Update View
 	    if (globData.compareMode) {
 	    	self.compare();
 	    } else {
 		    self.update();
 	    }
+
     };
 
     /**
@@ -148,23 +195,25 @@ function InfoView () {
      */
     self.OneInfo = function (group, player)
     {
-    	// [0]
-        // get some shortcut names
-    	var id = player.info.PERSON_ID;
-        var ratio = self.svgW / 1520;  // a stupid way of getting rescaling ratio !!
-	    // [1]
-        // parameters
-        var headSize   = 30 * ratio, // player name font size
-            headHeight = 80 * ratio; // player name font height
-        var textSize   = 16 * ratio,
-            textHeight = 26 * ratio,
+    	// * Short Cut names
+	    var id = player.info.PERSON_ID;
+        var ratio = self.ratio;
+
+	    // * Define Style Parameters
+	    // --- name parameters
+        var nameSize   = 20 * ratio, // player name font size
+            nameHeight = 50 * ratio; // player name font height
+	    // --- text parameters
+        var textSize   = 12 * ratio,
+            textHeight = 16 * ratio,
 	        textYOffset  = 10 * ratio,  // space abvoe the main text
-            textXOffset  = 450 * ratio; // space between divide left border and main text left border
-        var imageWidth   = 230 * ratio, // profile picture width
-            imageHeight  = 185 * ratio, // profile picture height
+            textXOffset  = 200 * ratio; // space between divide left border and main text left border
+	    // --- image parameters
+        var imageWidth   = 184 * ratio, // profile picture width
+            imageHeight  = 110 * ratio, // profile picture height
 	        imageXOffset = (textXOffset - imageWidth)/2,
             imageYOffset = 20 * ratio;  // space between profile picture and divide border
-	    var groupHeight  = 255 * ratio;
+	    var groupHeight  = 150 * ratio;
 	    // [2]
         // attach an image under the svg
         var img = group.select('image')
@@ -211,8 +260,8 @@ function InfoView () {
 	        .text(function (d) { return d; });
         group.append('text') // attach header (player name)
             .attr('x', textXOffset/2)
-            .attr('y', imageHeight + headHeight)
-            .style('font-size', headSize)
+            .attr('y', imageHeight + nameHeight)
+            .style('font-size', nameSize)
 	        .classed('info-title', true)
 	        .text(player.info.FIRST_NAME + ' ' + player.info.LAST_NAME);
         return groupHeight;
@@ -233,13 +282,13 @@ function InfoView () {
         var numOfYears = eYear - sYear + 1;
         //
         // rescaling ratio
-        var ratio = self.svgW / 1520; // rescaling ratio
+	    var ratio = self.ratio; // rescaling ratio
         // parameters
         var margin = {left: 50, right: 50}; // margin for the  axis
-        var spanRatio = 0.510;   // the percentage that the axis will span
-        var totalOffsetY = 265 * ratio, // this equals to the icon image height + name font height
+        var spanRatio = 0.510;       // the percentage that the axis will span
+        var totalOffsetY = 150 * ratio, // this equals to the icon image height + name font height
             totalPadding = 30 * ratio;  // this is the margin for axis and info view
-        var axisSize = 20 * ratio,  // the height of axis
+        var axisSize = 10 * ratio,  // the height of axis
             axisFont = 10 * ratio;  // font size of axis ticks
         var barsOffY   = 5 * ratio,   // padding between bar and axis
             barsSize   = 10 * ratio,  // rect size
@@ -247,7 +296,7 @@ function InfoView () {
             barsStroke = 2 * ratio;   // bar stroke
         var logoOffY  = 18 * ratio, // padding between team logo and bars
             logoSize  = 45 * ratio; // size of logo image
-        var brushPad  = 10 * ratio; // padding for brush
+        var brushPad  = 5 * ratio; // padding for brush
         // -- calculate total plotting area
         var plotOffY = totalOffsetY + totalPadding + logoOffY + logoSize;
         var plotWidth = self.svgW * spanRatio - margin.left - margin.right; // the width that will be plotted
@@ -372,7 +421,7 @@ function InfoView () {
     self.RadialView = function(group, player)
     {
     	// compute rescaling ratio
-	    var ratio = self.svgW / 1520; // rescaling ratio
+	    var ratio = self.ratio;  // rescaling ratio
         // predefined data range (different range for different data)
         var dataSet = [
             // [attribute, min, max, value]
@@ -396,7 +445,7 @@ function InfoView () {
         }
         // [1]
         // define plotting parameters
-	    var groupXOff = 1050 * ratio,
+	    var groupXOff = 550 * ratio,
 		    groupYOff = 180 * ratio;
         var barH = 40 * ratio,
             barWMax = 90 * ratio,
@@ -585,20 +634,4 @@ function InfoView () {
         return plotHeight/2 + groupYOff;
     };
 
-	/**
-	 * Hide this view entirely
-	 */
-	self.hide  = function () {
-	    self.hidden = true;
-    	self.div.selectAll('*').remove();
-    };
-
-	/**
-	 * show this view
-	 */
-	self.show = function () {
-	    self.hidden = false;
-	    self.init(self.svgH);
-		self.update();
-    };
 }
