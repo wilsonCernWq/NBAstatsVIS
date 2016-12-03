@@ -81,21 +81,27 @@ function MenuView () {
 		    .text('All');
 	    // (Year Filters) --- setup properties
 	    var arrayYearList = [];
-	    for (var y = 2016; y > 1949; --y) { arrayYearList.push(y); } // reverse order
+	    for (var y = 2015; y > 1949; --y) { arrayYearList.push(y); } // reverse order
 	    d3SelectAll(self.queryYearFrom, 'option', arrayYearList, true)
 		    .attr('value', function (d) { return d; })
 		    .text(function (d) { return d.toString(); });
 	    d3SelectAll(self.queryYearTo, 'option', arrayYearList, true)
 		    .attr('value', function (d) { return d; })
-		    .text(function (d) { return d; });
-	    // (Year Filters) --- add default option (All) in front
+		    .text(function (d) { return d.toString(); });
+	    // (Year Filters) --- add default option in front
+	    self.queryYearFrom.selectAll('option')
+		    .attr('selected', function () {
+			    return (+globData.currPlayerFilter.YearFrom == this.value) ? 'selected' : null;
+		    });
+	    self.queryYearTo.selectAll('option')
+		    .attr('selected', function () {
+		    	return (+globData.currPlayerFilter.YearTo == this.value) ? 'selected' : null;
+		    });
 	    self.queryYearFrom.insert('option',':first-child')
 		    .attr('value', 'all')
-		    .attr('selected','selected')
 		    .text('All');
 	    self.queryYearTo.insert('option',':first-child')
 		    .attr('value', 'all')
-		    .attr('selected','selected')
 		    .text('All');
 
 	    // * Backup
@@ -169,7 +175,7 @@ function MenuView () {
 	    // * Plot Player Results
 	    // ---- plot background bars
 	    // (under grpRect)
-        d3SelectAll(self.grpRect, 'rect', nameList)
+        d3SelectAll(self.grpRect, 'rect', nameList, true)
             .attr('x', function(d,i) { return barXOff + (i % colNum) * barW; })
             .attr('y', function(d,i) { return barYOff + Math.floor(i/colNum) * barH; })
             .attr('width',  barW).attr('height', barH)
@@ -184,8 +190,8 @@ function MenuView () {
 		        }
 	        })
             .on('click', function (d) {
-            	self.grpRect.selectAll('.highlight').classed('highlight', false);
-            	self.grpRect.selectAll('.always').classed('always', false);
+            	self.svg.selectAll('.highlight').classed('highlight', false);
+            	self.svg.selectAll('.always').classed('always', false);
             	self.svg.select('#result-' + d[4] + '-MenuView')
 		            .classed('highlight', true).classed('always', true);
 	            d3.select(this)
@@ -203,7 +209,7 @@ function MenuView () {
             });
         // ---- plot player names
 	    // (under grpText)
-        d3SelectAll(self.grpText, 'text', nameList)
+        d3SelectAll(self.grpText, 'text', nameList, true)
 	        .attr('pointer-events', 'none')
 	        .attr('x', function(d,i) { return nameXOff + barXOff + (i%colNum) * barW; })
 	        .attr('y', function(d,i) { return nameYOff + barYOff + Math.floor(i/colNum) * barH; })

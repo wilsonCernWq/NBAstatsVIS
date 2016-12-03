@@ -33,7 +33,7 @@ var globData = {
 		Hint: null,
 		Position: null,
 		AllStar:  'yes',
-		YearFrom: null,
+		YearFrom: 2006,
 		YearTo:   2015
 	},
 	dataComment: {
@@ -79,7 +79,7 @@ var globData = {
 		]
 	}
 };
-var debugMuteAll = false;
+var debugMuteAll = true;
 
 // UI callbacks
 function myQueryTeam(select) {
@@ -131,7 +131,7 @@ function myQueryAutoHintSubmit(src) {
 	return false;
 }
 
-function myClearForm(src) { src.value=""; }
+function myClearForm(src) { src.value=""; return false; }
 
 /**
  * Function to change player
