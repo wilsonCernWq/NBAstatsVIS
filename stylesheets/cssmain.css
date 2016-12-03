@@ -347,18 +347,29 @@ path.rank-radial-OD {
 
 /* tooltip for bar*/
 .compare-bar-left {
-    fill: #ff7113;
+    fill: #ff4242;
 }
 .compare-bar-right {
-    fill: #3886b4;
+    fill: #2732b4;
 }
-.compare-bar-tip {
+.compare-header {
+    text-anchor: end;
+    font-family: 'Titillium Web', sans-serif;
+}
+.compare-title {
+    text-anchor: middle;
+    font-family: 'Bungee', cursive;
+}
+.compare-midline {
+    stroke: #393939;
+    stroke-width: 2px;
+    stroke-dasharray: 5, 1;
+}
+.compare-bar-tip { /* tooltip style for bar */
     position:absolute;
     padding: 10px;
     min-width: 400px;
     opacity: 0.8;
-    /*border-style: groove;*/
-    /*padding: 12px;*/
     color: #ff692d;
     background-color: #292929;
     border-radius: 10px;
@@ -377,22 +388,12 @@ path.rank-radial-OD {
     position: relative;
     pointer-events: none;
 }
-/* Style northward tooltips differently */
 .compare-bar-tip.n:after {
     margin: -1px 0 0 0;
     top: 100%;
     left: 0;
 }
-.compare-header {
-    text-anchor: end;
-    font-family: 'Titillium Web', sans-serif;
-}
-.compare-title {
-    text-anchor: middle;
-    font-family: 'Bungee', cursive;
-}
-/* tooltip style for header*/
-.compare-header-tooltip {
+.compare-header-tip { /* tooltip style for header*/
     position: absolute;
     width: 300px;
     color: #ff692d;
@@ -405,14 +406,9 @@ path.rank-radial-OD {
     pointer-events: none;
     font-family: 'Titillium Web', sans-serif;
 }
-.compare-header-tooltip :after {
+.compare-header-tip:after {
     display: inline;
     position: relative;
     fill: none;
     pointer-events: none;
-}
-.compare-midline {
-    stroke: #393939;
-    stroke-width: 2px;
-    stroke-dasharray: 5, 1;
 }

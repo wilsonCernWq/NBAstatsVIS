@@ -1,10 +1,9 @@
 /**
  * Class to display general information of a player
  * @constructor
- * HTML LOCATION:
  */
-function InfoView ()
-{
+function InfoView () {
+
     var self = this;
 
     /**

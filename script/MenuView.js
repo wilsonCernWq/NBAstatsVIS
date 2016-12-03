@@ -26,10 +26,9 @@ function MenuView () {
 	};
 
     /**
-     * init: Initialize menu data ONLY CALL ONCE !
-     * @param maxHeight
+     * init: Initialize menu data ! ONLY CALL ONCE !
      */
-    self.init = function (maxHeight) {
+    self.init = function () {
 
 	    // * Initialize Class Fields
 	    // --- other fields
@@ -64,6 +63,7 @@ function MenuView () {
 	    self.svg // the main svg which spans the whole div
             .attr("width",  self.svgW)
             .attr("height", self.svgH);
+	    self.div.style('height', self.svgH + 100 * self.ratio + 'px');
 
 	    // * Drop Downs
 	    //  (Team Filter) -- change it to array
@@ -235,6 +235,7 @@ function MenuView () {
 		self.svg // the main svg which spans the whole div
 			.attr("width",  self.svgW)
 			.attr("height", self.svgH);
+		self.div.style('height', self.svgH + 100 * self.ratio + 'px');
 
 		// * Update Window
 	    if (self.hidden) {

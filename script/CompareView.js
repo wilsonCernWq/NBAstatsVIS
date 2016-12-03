@@ -11,7 +11,7 @@ function CompareView()
 
 	self.hidden = false;
 
-	var header_text = [
+	var headerText = [
 		'Game Played',
 		'Game Started',
 		'Min',
@@ -36,136 +36,151 @@ function CompareView()
 	];
 
 	/**
-	 * Initialization
+	 * setMargin: Setup Margin Values
+	 */
+	self.setMargin = function () {
+		self.margin = {
+			left:   430 * self.ratio,
+			right:  400 * self.ratio,
+			top:    200 * self.ratio,
+			bottom: 40  * self.ratio
+		};
+	};
+
+	/**
+	 * Initialization (CAN BE CALLED FOR MULTIPLE TIMES)
 	 */
 	self.init = function () {
-		// self.hidden = true;
-		var div = document.getElementById('CompareView');  // shortcuts
-		var style = window.getComputedStyle(div, null);   // shortcuts
-		//save margin
-		self.margin = {
-			left:   130,
-			right:  100,
-			top:    200,
-			bottom: 40
-		};
-		// save width and height
-		self.width = parseInt(style.getPropertyValue("width"), 10);
-		self.height = 700;
-		// setup class fields
+
+		// * Initialize Class Fields
+		// --- selections
+		d3.select('#CompareView').selectAll('*').remove(); // clean up
 		self.div = d3.select('#CompareView');
-		self.div.selectAll('*').remove();
-		self.svg = d3.select('#CompareView').append('svg')
-			.attr('width', self.width)
-			.attr('height', self.height);
+		self.svg = d3.select('#CompareView').append('svg');
+
+		// * Compute Style
+		// --- calculate current style
+		var div = document.getElementById('CompareView'); // shortcuts
+		var sty = window.getComputedStyle(div, null);     // shortcuts
+		var width = parseInt(sty.getPropertyValue("width"), 10);
+
+		// * Setup Element Attributes
+		// --- setup rescaling coefficient
+		self.ratio = width / 1500; // how to calculate this defines the rescaling behaviors
+		// --- get window width
+		self.svgW = self.ratio * 1500;
+		self.svgH = self.ratio * 700;
+		self.setMargin();
+		// --- setup svg fields
+		self.svg
+			.attr('width',  self.svgW)
+			.attr('height', self.svgH);
+
 	};
 
 	/**
 	 * Update/Draw View Function
-	 * @param player1
-	 * @param player2
 	 */
 	self.update = function () {
+
+		// * Pre-Process Data
 		var player1 = globData.currPlayerData,
 			player2 = globData.comparePlayerData;
-		// player name
-		var player1_name = player1.info.FIRST_NAME + ' ' + player1.info.LAST_NAME;
-		var player2_name = player2.info.FIRST_NAME + ' ' + player2.info.LAST_NAME;
-		// career season
-		var season1 = player1.info.FROM_YEAR + ' - ' + player1.info.TO_YEAR;
-		var season2 = player2.info.FROM_YEAR + ' - ' + player2.info.TO_YEAR;
-		// construct data
-		var info = [player1_name,season1,player2_name,season2];
-		// header
-		var header = player1.career.header;
-		var i, temp, G;
-		//
-		// --- Obtain player1 Data
-		{
-			var PostSeason1 = player1.career.PostSeason;
-			var RegularSeason1 = player1.career.RegularSeason;
-			// get GS and GP
-			G = [PostSeason1.GP + RegularSeason1.GP, PostSeason1.GS + RegularSeason1.GS];
-			// get perGame data from PostSeason and RegularSeason
+		var header  = player1.career.header;
+		// --- player name
+		var player1_name = player1.info.FIRST_NAME + ' ' + player1.info.LAST_NAME,
+			player2_name = player2.info.FIRST_NAME + ' ' + player2.info.LAST_NAME;
+		// --- career season
+		var season1 = player1.info.FROM_YEAR + ' - ' + player1.info.TO_YEAR,
+			season2 = player2.info.FROM_YEAR + ' - ' + player2.info.TO_YEAR;
+		// --- attributes
+		var processPlayer = function (playerData) {
+			var i, temp, G; // temp variables
+			var pSeason = playerData.career.PostSeason;
+			var rSeason = playerData.career.RegularSeason;
+			// --- get GS and GP
+			G = [pSeason.GP + rSeason.GP, pSeason.GS + rSeason.GS];
+			// --- get perGame data from PostSeason and RegularSeason
 			var perGame1 = [];
 			for (i = 0; i < header.length; i++) {
-				temp = PostSeason1.PerGame[i] + RegularSeason1.PerGame[i];
+				temp = 0;
+				temp += pSeason.PerGame[i] ? pSeason.PerGame[i] * pSeason.GP : 0;
+				temp += rSeason.PerGame[i] ? rSeason.PerGame[i] * rSeason.GP : 0;
+				temp /= G[0];
 				perGame1.push(temp);
 			}
 			// Combine perGame Data for player1
-			perGame1 = G.concat(perGame1);
-		}
-		//
-		// --- Obtain player2 Data
-		{
-			var PostSeason2 = player2.career.PostSeason;
-			var RegularSeason2 = player2.career.RegularSeason;
-			// get GS and GP
-			G = [PostSeason2.GP + RegularSeason2.GP, PostSeason2.GS + RegularSeason2.GS];
-			// get perGame data from PostSeason and RegularSeason
-			var perGame2 = [];
-			for (i = 0; i < header.length; i++) {
-				temp = PostSeason2.PerGame[i] + RegularSeason2.PerGame[i];
-				perGame2.push(temp);
-			}
-			// Combine perGame Data for player2
-			perGame2 = G.concat(perGame2);
-		}
-		// Get header
+			return G.concat(perGame1);
+		};
+		// --- player 1 Data
+		var perGame1 = processPlayer(player1),
+			perGame2 = processPlayer(player2);
+		// --- update header
 		header = ['GP', 'GS'].concat(header);
-		// Drawing perGame View
+		// --- construct data
+		var info = [player1_name,season1,player2_name,season2];
+		// --- debug
+		if (!debugMuteAll) {
+			console.log('comparing', player1, player2);
+		}
+		// --- drawing per-game view
 		self.perGameView(self.svg,header,perGame1,perGame2,info);
 	};
 
 	/**
-	 *
+	 * perGameView: Drawing Per-Game View
 	 * @param svg
 	 * @param header
 	 * @param perGame1
 	 * @param perGame2
 	 * @param info
 	 */
-	self.perGameView = function(svg,header,perGame1,perGame2,info)
-	{
-		var ratio = self.width / 1520; // my stupid way of getting ratio
-		// --- Drawing Per Game View
-		var l = self.margin.left * ratio, // left
-			r = self.margin.right * ratio, // left
-			t = self.margin.top * ratio;  // top
-		var W = self.width - l - r;
-		// define some bar stuffs
-		var barH = 18 * ratio;
-		var barP = 4  * ratio;
+	self.perGameView = function(svg,header,perGame1,perGame2,info) {
 
-		// Define tooltip for rect
-		self.div.selectAll('div').remove();
-		var tooltip = self.div.append('div')
+		// * Get Rescaling Ratio
+		var ratio = self.ratio; // my stupid way of getting ratio
+
+		// --- Drawing Per Game View
+		var l = self.margin.left,  // left
+			r = self.margin.right, // left
+			t = self.margin.top;   // top
+		var W = self.svgW - l - r;
+		// --- define bar styling parameters
+		var barH = 18 * ratio,
+			barP = 4  * ratio,
+			barOpacity = 0.5;
+		// --- define title style
+		var titleYoff = t/2 + 30 * ratio,
+			titleFontSize = 30 * ratio;
+		// --- define attribute header style
+		var headerXoff = l-5 * ratio,
+			headerFontSize = (isMac ? 14 : 16) * ratio;
+		// --- tip parameter
+		var tipOpacity = 0.9;
+
+		// * Define Tooltips for rect
+		var rectTip = self.div.append('div')
 			.attr('class','compare-bar-tip')
 			.style('display','none')
 			.attr('opacity',0);
+		var headerTip = self.div.append('div')
+			.attr('class','compare-header-tip')
+			.style('display','none')
+			.attr('opacity',0);
 
-		// Drawing bar chart
+		// * Drawing Bar Chart
+		// --- prepare data
 		var perGame = perGame1.concat(perGame2);
-		// console.log(perGame);
-		// empty svg
-		// <div id="CompareView">
-		// 	   <svg width="1883" height="700"></svg>
-		//     <div class="bar-tip" opacity="0"></div>
-		// </div>
+		// --- draw svg
 		svg.selectAll('*').remove();
-		var bar = svg.selectAll('g').data([0]).enter().append('g').selectAll('rect').data(perGame);
-		var barEnter = bar.enter(); // create all bars here
-		bar.exit().remove();        //
-		bar = bar.merge(barEnter);  //
-		barEnter
-			.append('rect')
+		d3SelectAll(svg.append('g'), 'rect', perGame)
 			.attr('x', function(d,i) {
 				var len =  header.length;
 				if (i < len) { // left part
 					return l;
-				} else { // -- // right part
+				} else {       // right
 					var p = W * (perGame1[i-len]/(perGame2[i-len] + perGame1[i-len]));
-					return l + p;  //* ratio;
+					return l + p;
 				}
 			})
 			.attr('y',function (d,i) {
@@ -177,129 +192,120 @@ function CompareView()
 			})
 			.attr('height', barH)
 			.attr('width', function(d,i){
+				var w, p;
 				if(i<header.length){
-					var p = perGame1[i]/(perGame1[i] + perGame2[i]);
-					var w = p * W;
-					return w;
-				}else{
+					p = perGame1[i] / (perGame1[i] + perGame2[i]);
+					w = p * W;
+				} else {
 					var m = i - header.length;
-					var p = perGame2[m]/(perGame1[m] + perGame2[m]);
-					var w = p * W;
-					return w;
+					p = perGame2[m] / (perGame1[m] + perGame2[m]);
+					w = p * W;
 				}
+				return w;
 			})
-			.attr('class', function(d,i){
-				if (i < header.length) {
-					return 'compare-bar-left';
-				} else{
-					return "compare-bar-right";
-				}
-			})
-			.attr('opacity',0.5)
+			.attr('class', function(d,i){ return (i < header.length) ?  'compare-bar-left' : "compare-bar-right"; })
+			.attr('opacity',barOpacity)
 			.on('mouseover', function(d,i){
 				d3.select(this).attr('opacity',1);
-				if (i < header.length){
-					tooltip.transition()
-						.style('display',null)
-						.duration(200)
-						.style('opacity',1);
-					tooltip.html("<strong>" + info[0] + "</strong>" +
-						'<br/><span>' + 'Season:  ' + info[1] + '</span>' +
-						'<br/><span>' + 'Performance:  ' + header_text[i] + '</span>' +
-						'<br/><span>' + 'Value:  ' + d + '</span>')
-						.style("left", d3.event.pageX + "px")
-						.style("top", d3.event.pageY + "px");}
-				else{
-					tooltip.transition()
-						.style('display',null)
-						.duration(200)
-						.style('opacity',1);
-					tooltip.html("<strong>" + info[2] + '</strong>' +
-						'<br/><span>Season:  ' + info[3] + '</span><br/>' +
-						'<span>Performance:  ' + header_text[i - header.length] + '</span>' +
-						'<br/><span>Value:  ' + d + '</span>')
-						.style("left", d3.event.pageX + "px")
-						.style("top", d3.event.pageY + "px");}
+				var innerHtml =
+					"<strong>" + (i<header.length?info[0]:info[2]) + "</strong>" +
+					'<br/><span>Season:  ' + (i<header.length?info[1]:info[3]) + '</span>' +
+					'<br/><span>Performance:  ' + (i<header.length?headerText[i]:headerText[i-header.length]) + '</span>' +
+					'<br/><span>Value:  ' + d.toFixed(1) + '</span>';
+				// --- show tip with texts
+				rectTip.transition()
+					.style('display',null)
+					.duration(200)
+					.style('opacity',tipOpacity);
+				rectTip
+					.html(innerHtml)
+					.style("left", d3.event.pageX + "px")
+					.style("top",  d3.event.pageY + "px");
 			})
 			.on('mouseout',function(d){
-				d3.select(this).attr('opacity',0.6);
-				tooltip.transition()
-					.duration(500)
-					.style('opacity',0)
-					.style('display','none');
+				d3.select(this).attr('opacity',barOpacity);
+				rectTip.transition().duration(500).style('opacity',0).style('display','none');
 			});
-		// append title
-		svg.append('path').attr('d','M'+(l+W/2)+','+(t-barP)+'L'+(l+W/2)+','+(t+(barH+barP)*header.length))
+		// --- draw a vertical line in the middle
+		svg.append('path')
+			.attr('d','M'+(l+W/2)+','+(t-barP)+'L'+(l+W/2)+','+(t+(barH+barP)*header.length))
 			.classed('compare-midline', true);
-		svg
-			.append('g')
-			.append('text')
-			.attr('x', self.width / 2)
-			.attr('y', t/2 + 30 * ratio)
-			.style("font-size", (30 * ratio) + "px")
-			.text('Comparison View of Average Per Game Performance in whole career')
-			.classed('compare-title', true);
-		// Define d for the header tooltip
-		var h = svg.append('g').selectAll('text').data(header).enter();
-		var div = d3.select("#CompareView").append('div')
-			.attr('class','compare-header-tooltip')
-			.style('display','none')
-			.attr('opacity',0);
-		h.append('text')
-			.attr('x', l-5 * ratio)
-			.attr('y',function(d,i){ return t + barH * (i+1) + barP * i; })
-			.text(function(d){
-				return d.replace('_PCT', '%');
-			})
-			.style('font-size',isMac?14:16)
-			.classed('compare-header',true)
+		// --- plot the overall title for this view
+		svg.append('g').append('text')
+			.attr('x', self.svgW / 2).attr('y', titleYoff)
+			.style("font-size", titleFontSize + "px")
+			.classed('compare-title', true)
+			.text('Comparison View of Average Per Game Performance in whole career');
+		// --- plot attribute titles
+		svg.append('g').selectAll('text').data(header)
+			.enter().append('text')
+			.attr('x', headerXoff)
+			.attr('y', function (d,i) { return t + barH * (i+1) + barP * i; })
+			.style('font-size', headerFontSize)
+			.classed('compare-header', true)
+			.text(function(d){ return d.replace('_PCT', '%'); })
 			.on('mouseover', function(d,i){
 				d3.select(this).attr('font-weight','bold');
-				div.transition().style('display',null).duration(100).style('opacity',0.9);
-				div.html(header_text[i])
-					.style("left", l + 'px' )
-					.style("top",  d3.event.pageY + 'px' );
+				headerTip.transition().duration(100).style('display',null).style('opacity',tipOpacity);
+				headerTip.html(headerText[i])
+					.style("left", l+'px' ).style("top",  d3.event.pageY + 'px' );
 			})
 			.on('mouseout',function(d){
 				d3.select(this).attr('font-weight','regular');
-				div.transition()
-					.duration(200)
-					.style('opacity',0)
-					.style('display','none');
+				headerTip.transition().duration(200).style('opacity',0).style('display','none');
 			});
+
 	};
 
 	/**
 	 * Resize function
 	 */
-	self.resize = function ()
-	{
-		// adjust svg width only
-		var div   = document.getElementById('CompareView'); // shortcuts
-		var style = window.getComputedStyle(div, null);     // shortcuts
-		self.width  = parseInt(style.getPropertyValue("width"), 10);
-		self.svg.attr('width',  self.width);
+	self.resize = function () {
+
+		// * Compute Style
+		// --- calculate current style
+		var div = document.getElementById('CompareView'); // shortcuts
+		var sty = window.getComputedStyle(div, null);     // shortcuts
+		var width = parseInt(sty.getPropertyValue("width"), 10);
+
+		// * Setup Element Attributes
+		// --- setup rescaling coefficient
+		self.ratio = width / 1500; // how to calculate this defines the rescaling behaviors
+		// --- get window width
+		self.svgW = self.ratio * 1500;
+		self.svgH = self.ratio * 700;
+		self.setMargin();
+		// --- setup svg fields
+		self.svg
+			.attr('width',  self.svgW)
+			.attr('height', self.svgH);
+
+		// * Update View
 		self.update();
+
 	};
 
 	/**
 	 * Hide function
 	 */
-	self.hide = function(){
+	self.hide = function () {
+
 		self.hidden = true;
 		self.svg.selectAll('*').remove();
 		self.div.style('display','none');
+
 	};
 
 	/**
 	 * Show function
 	 */
-	self.show = function(){
+	self.show = function() {
+
 		self.hidden = false;
 		self.div.style('display',null);
 		self.init();
 		self.update();
-	};
 
+	};
 
 }
