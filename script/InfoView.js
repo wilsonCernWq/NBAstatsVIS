@@ -6,7 +6,7 @@ function InfoView () {
 
     var self = this;
 
-    self.defaultW = 800;
+    self.defaultW = 1500;
 	self.defaultH = 300;
 
     self.setMargin = function () {
@@ -26,11 +26,11 @@ function InfoView () {
 	    var h = window.innerHeight;
 	    // how to calculate this defines the rescaling behaviors
 	    if (W && H) {
-		    self.ratio = Math.min(w/1500, h/800);
+		    self.ratio = Math.min(w/1500, h/300);
 	    } else if (!H) {
 		    self.ratio = w/1500;
 	    } else if (!W) {
-		    self.ratio = h/800;
+		    self.ratio = h/300;
 	    } else {
 		    self.ratio = 1;
 	    }
