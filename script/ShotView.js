@@ -68,7 +68,7 @@ function ShotView() {
 		    globData.currSelectedYearRange[0] : player.info.FROM_YEAR;
 	    var yearTo   = globData.currSelectedYearRange[1] ?
 		    globData.currSelectedYearRange[1] : Math.min(player.info.TO_YEAR,2015);
-	    var attrTitle = 'Shotting Frequency';
+	    var attrTitle = 'Shooting Frequency';
 	    // window ratio
 	    var ratio = self.svgW / 1520;
         // plot court
@@ -120,7 +120,7 @@ function ShotView() {
 		    	var FGA = d.length;
 		    	var FGM = d3.sum(d, function (dd) { return +dd.data[15]; });
 			    return "<strong>Number of Shoots: </strong><span style='color:#ff692d'>" + d.length + "</span>" +
-				    "<br/><strong>Field Goal Percentage: </strong><span style='color:#ff692d'>" + (100*FGM/FGA).toFixed(1) + "%</span>";
+				    "<br/><strong>Field Goals Percentage: </strong><span style='color:#ff692d'>" + (100*FGM/FGA).toFixed(1) + "%</span>";
 		    });
 	    self.grpPlot.call(mytip);
 	    // console.log([imgW, imgH]);
@@ -216,14 +216,14 @@ function ShotView() {
 			    .classed('legend-ShotView', true)
 			    .attr('x', imgX + imgW - 45 * ratio)
 			    .attr('y', imgY + imgH - 65 * ratio)
-			    .text('Field Goal Made')
+			    .text('Field Goals Made')
 			    .style('text-anchor', 'end')
 			    .style('font-size', 12 * ratio);
 		    groupBarLegend.append('text')
 			    .classed('legend-ShotView', true)
 			    .attr('x', imgX + imgW - 45 * ratio)
 			    .attr('y', imgY + imgH - 35 * ratio)
-			    .text('Field Goal Attempted')
+			    .text('Field Goals Attempted')
 			    .style('text-anchor', 'end')
 			    .style('font-size', 12 * ratio);
 		    // hexgon
@@ -383,7 +383,7 @@ function ShotView() {
 				    .style('display',null)
 				    .attr('x', -barRyscale(maxR-d.length) - 8 * ratio)
 				    .attr('y', barRxscale(d.x0) + fgaPad/2 + 8 * ratio)
-				    .text(d.length + ' Field Goal Attempted @ ' + d.x0 + '-' + d.x1 + ' ft (Made ' + FGPCT.toFixed(0) + '%)');
+				    .text(d.length + ' Field Goals Attempted @ ' + d.x0 + '-' + d.x1 + ' ft (Made ' + FGPCT.toFixed(0) + '%)');
 		    })
 		    .on('mouseout', function (d) {
 			    barRelse.select('#shotBarRValue').style('display','none');
