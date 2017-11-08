@@ -3,8 +3,16 @@ html body {
     max-width: 100%;
 }
 .view-block {
-    margin-top: 10px;
-    margin-bottom: 10px;
+    margin-top: 2px;
+    margin-bottom: 2px;
+    border: 2px solid #d9d9d9;
+    border-radius: 5px;
+}
+.view-box {
+    display: inline-block;
+    position: relative;
+    margin-top: 2px;
+    margin-bottom: 2px;
     border: 2px solid #d9d9d9;
     border-radius: 5px;
 }
@@ -15,12 +23,13 @@ html body {
     width: 50%;
     margin: auto;
     font-family: 'Bungee', cursive;
+    font-size: 10px;
 }
 
 /***** query *****/
 #divMenuView {
-    position: relative;
     height: 300px;
+    position: relative;
     margin-top:    10px;
     margin-bottom: 10px;
     padding: 2px;
@@ -77,12 +86,8 @@ html body {
 #divInfoView button {
     display: inline-block;
     text-align: center;
-    position: relative;
-    height: 30px;
-    width: 120px;
-    margin-left: 20px;
-    margin-top: 20px;
-    margin-bottom: 10px;
+    position: absolute;
+    float: left;
     font-family: 'Titillium Web', sans-serif;
 }
 .info-text { /* The display of player general info */
@@ -121,7 +126,7 @@ html body {
     text-anchor: middle;
 }
 /* Creates a small triangle extender for the tooltip */
-.info-d3-tip { /* the top level high light ==> rougly means strong */
+.info-tip { /* the top level high light ==> rougly means strong */
     line-height: 1;
     font-family: sans-serif;
     font-weight: bold;
@@ -132,17 +137,17 @@ html body {
     text-align: center;
     box-shadow: rgba(0, 0, 0, 0.3) 0 2px 10px;
 }
-.info-d3-tip span {  /* normal text */
+.info-tip span {  /* normal text */
     color: #ffffff;
     font-style: normal;
     font-weight: normal;
     font-size: 11px;
 }
-.info-d3-tip .important { /* second level text */
+.info-tip .important { /* second level text */
     color: #ff8b25;
     font-style: italic;
 }
-.info-d3-tip:after {
+.info-tip:after {
     box-sizing: border-box;
     display: inline;
     font-size: 10px;
@@ -153,7 +158,7 @@ html body {
     position: absolute;
     text-align: center;
 }
-.info-d3-tip.n:after { /* Style northward tooltips differently */
+.info-tip.n:after { /* Style northward tooltips differently */
     margin: -1px 0 0 0;
     top: 100%;
     left: 0;

@@ -6,126 +6,235 @@ function InfoView () {
 
     var self = this;
 
+    self.defaultW = 1500;
+	self.defaultH = 300;
+
+    self.setMargin = function () {
+	    self.margin = {
+		    left:   0.0 * self.svgW,
+		    right:  0.0 * self.svgW,
+		    top:    0.1 * self.svgH,
+		    bottom: 0.1 * self.svgH
+	    };
+    };
+
+    self.setupSize = function (W,H,lw,lh,bw,bh) {
+
+	    // * Setup Element Attributes
+	    // --- setup rescaling coefficient
+	    var w = window.innerWidth;
+	    var h = window.innerHeight;
+	    // how to calculate this defines the rescaling behaviors
+	    if (W && H) {
+		    self.ratio = Math.min(w/1500, h/300);
+	    } else if (!H) {
+		    self.ratio = w/1500;
+	    } else if (!W) {
+		    self.ratio = h/300;
+	    } else {
+		    self.ratio = 1;
+	    }
+	    // --- save width and height
+	    self.svgW = self.ratio * lw + (bw?bw:0);
+	    self.svgH = self.ratio * lh + (bh?bh:0);
+	    self.setMargin();
+	    self.svg.attr('width',  self.svgW).attr('height', self.svgH);
+
+    };
+
     /**
-     * Initialization
+     * Initialization (CAN BE CALL MULTIPLE TIMES)
      */
-    self.init = function(height)
+    self.init = function()
     {
-    	// [0]
-	    // great HTML structure
+	    // * Initialize Class Fields
+	    // --- other fields
+	    self.hidden = false;
+	    // --- HTML selections
+	    d3.select('#divInfoView').selectAll('*').remove(); // delete everything for preventing bugs
 	    self.div = d3.select('#divInfoView');
-	    self.div.selectAll('*').remove(); // prevent bug
-	    // creat button
-	    self.div.append('button').attr('onclick', 'myChangePlayer(this)').text('Change Player');
+	    // (two button)
 	    self.div.append('button')
-		    //.style('margin-left', 2+'px')
-		    .attr('onclick', 'myComparePlayer(this)').text('Compare');
-	    // creat SVG elements
+		    .style('display','none')
+		    .attr('onclick', 'myChangePlayer(this)')
+		    .text('Change Player');
+	    self.div.append('button')
+		    .style('display','none')
+		    .attr('onclick', 'myComparePlayer(this)')
+		    .text('Compare');
+	    // (SVG elements)
 	    self.svg     = self.div.append('svg').attr('id','svgInfoView');
-	    // -- left part
-	    self.grpCurr = self.svg.append('g').attr('id','groupCurrPlot-InfoView');
-	    self.grpCurrAxis = self.svg.append('g').attr('id','groupYearAxis-InfoView');
-	    // -- right part
+	    //  -- left part
+	    self.left = self.right = self.svg.append('g');
+	    self.grpCurr = self.left.append('g').attr('id','groupCurrPlot-InfoView');
+	    self.grpCurrAxis = self.left.append('g').attr('id','groupYearAxis-InfoView');
+	    //  -- right part
 	    self.right = self.svg.append('g');
 	    self.grpComp = self.right.append('g').attr('id','groupCompPlot-InfoView');
 	    self.grpCompAxis = self.right .append('g').attr('id','groupCompYearAxis-InfoView');
-	    // -- radial plot
+	    //  -- radial plot
 	    self.grpRadial = self.svg.append('g').attr('id','radialPlot-InfoView');
-	    // * constructure correct structures
-	    // add image
+
+	    // * Constructure Correct Structures
+	    // --- add image
 	    self.grpCurr.append('image');
 	    self.grpComp.append('image');
-	    // current view
+	    // --- current view
 	    self.grpCurrAxis.append('g').classed('axisGroup-InfoView', true);
 	    self.grpCurrAxis.append('g').classed('barsGroup-InfoView', true);
 	    self.grpCurrAxis.append('g').classed('brushGroup-InfoView', true);
-	    // compare view
+	    // --- compare view
 	    self.grpCompAxis.append('g').classed('axisGroup-InfoView', true);
 	    self.grpCompAxis.append('g').classed('barsGroup-InfoView', true);
 	    self.grpCompAxis.append('g').classed('brushGroup-InfoView', true);
 
-	    self.hidden = false;
-	    // [1]
-        // calculate svg default size & get the correct width of the window
-        var div   = document.getElementById('divInfoView'); // shortcuts
-        var style = window.getComputedStyle(div, null);     // shortcuts
-	    // [2]
-        // save width and height
-        self.svgW  = parseInt(style.getPropertyValue("width"), 10);
-        self.svgH = height;
-        self.svg
-	        .attr('width',  self.svgW)
-            .attr('height', self.svgH);
+	    // * Setup Element Attributes
+	    self.setupSize(true,true,self.defaultW,self.defaultH,0,0);
+
     };
 
-	self.hideRadial = function () {
-		self.grpRadial.selectAll('*').remove();
+	/**
+	 * Function to resize
+	 */
+	self.resize = function () {
+
+		// * Setup Element Attributes
+		self.setupSize(true,true,self.defaultW,self.defaultH,0,0);
+
+		// * Update View
+		if (globData.compareMode) {
+			self.compare();
+		} else {
+			self.update();
+		}
+
 	};
 
+	/**
+	 * Hide the Radial Plot
+	 */
+	self.hideRadial = function () { self.grpRadial.selectAll('*').remove(); };
+
+	/**
+	 * Hide the Axis Group
+	 * @param AxisGrp
+	 */
 	self.hideAxis = function (AxisGrp) {
+
 		AxisGrp.select('.axisGroup-InfoView').selectAll('*').remove();
 		AxisGrp.select('.barsGroup-InfoView').selectAll('*').remove();
 		AxisGrp.select('.brushGroup-InfoView').selectAll('*').remove();
+
 	};
 
+	/**
+	 * Hide the Player Bio View
+	 * @param Grp
+	 */
 	self.hideOneView = function (Grp) {
+
 		Grp.select('image').remove();
 		Grp.append('image');
 		Grp.selectAll('text').remove();
+
+	};
+
+	/**
+	 * Hide all view entirely
+	 */
+	self.hide  = function () {
+
+		self.hidden = true;
+		self.div.selectAll('*').remove();
+
+	};
+
+	/**
+	 * show this view
+	 */
+	self.show = function () {
+
+		self.hidden = false;
+		self.init();
+		self.update();
+
 	};
 
     /**
      * self is a function to draw/update view
      */
-    self.update = function()
-    {
-    	// hide right view
+    self.update = function()  {
+
+	    // * Setup Element Attributes
+	    self.setupSize(true,true,self.defaultW,self.defaultH,0,0);
+
+    	// * Put button on right position
+	    var buttonH = 30  * self.ratio,
+		    buttonW = 100 * self.ratio,
+		    buttonP = 10  * self.ratio,
+		    buttonYOff = 5 * self.ratio,
+		    buttonXOff = 5 * self.ratio,
+		    buttonFontSize = 10  * self.ratio;
+	    self.div.selectAll('button')
+		    .style('top',  buttonYOff + 'px')
+		    .style('left', function (d,i) { return buttonXOff + i * (buttonW + buttonP) + 'px'; })
+		    .style('width',  buttonW + 'px')
+		    .style('height', buttonH + 'px')
+		    .style('font-size', buttonFontSize + 'px')
+		    .style('display',null);
+
+	    // * Call Sub-Views
+    	// --- hide right view
 	    self.hideOneView(self.grpComp);
 	    self.hideAxis(self.grpCompAxis);
-    	// draw new stuffs
+    	// --- draw new stuffs
         var player = globData.currPlayerData;
-        var hView = self.OneInfo(self.grpCurr, player);
-	    var hAxis = self.SeasonAxis(self.grpCurrAxis, player);
-        var hRad = self.RadialView(self.grpRadial, player); // console.log(hView, hAxis);
-	    self.svg.attr('height', Math.max(hRad, Math.min(hView + hAxis, self.svgH)));
+        self.PlayerView(self.grpCurr, player);
+	    self.SeasonView(self.grpCurrAxis, player);
+        self.RadialView(self.grpRadial, player);
+
     };
 
-    self.compare = function () {
-	    // get data
-    	var player1 = globData.currPlayerData;
-	    var player2 = globData.comparePlayerData;
-	    // console.log(player1, player2);
-	    // shift right area
-	    self.right.attr('transform', 'translate(' + (self.svgW/2) + ',0)');
-	    // clean radial
-	    self.hideRadial();
-	    // draw new stuffs
-	    var hView1 = self.OneInfo(self.grpCurr, player1);
-	    var hAxis1 = self.SeasonAxis(self.grpCurrAxis, player1);
-	    var hView2 = self.OneInfo(self.grpComp, player2);
-	    var hAxis2 =  self.SeasonAxis(self.grpCompAxis, player2);
-	    // clean brush
-	    self.div.selectAll('.brushGroup-InfoView').html('');
-	    // adjust height
-	    self.svg.attr('height', Math.min(Math.max(hView1 + hAxis1, hView2 + hAxis2), self.svgH));
-    };
 
-    /**
-     * Function to resize
-     */
-    self.resize = function ()
-    {
-        // adjust svg width only
-	    var div   = document.getElementById('divInfoView'); // shortcuts
-	    var style = window.getComputedStyle(div, null);     // shortcuts
-	    self.svgW  = parseInt(style.getPropertyValue("width"), 10);
-	    self.svg.attr('width',  self.svgW);
-	    if (globData.compareMode) {
-	    	self.compare();
-	    } else {
-		    self.update();
-	    }
-    };
+	/**
+	 * draw compare view
+	 */
+	self.compare = function () {
+
+		// * Setup Element Attributes
+		self.setupSize(true,false,1500,self.defaultH,-35,0);
+
+		// * Put button on right position
+		var buttonH = 30  * self.ratio,
+			buttonW = 100 * self.ratio,
+			buttonP = 10  * self.ratio,
+			buttonYOff = 5 * self.ratio,
+			buttonXOff = 5 * self.ratio,
+			buttonFontSize = 10  * self.ratio;
+		self.div.selectAll('button')
+			.style('top',  buttonYOff + 'px')
+			.style('left', function (d,i) { return buttonXOff + i * (buttonW + buttonP) + 'px'; })
+			.style('width',  buttonW + 'px')
+			.style('height', buttonH + 'px')
+			.style('font-size', buttonFontSize + 'px')
+			.style('display',null);
+
+		// * Get Data
+		var player1 = globData.currPlayerData;
+		var player2 = globData.comparePlayerData;
+		// --- shift right area to correct place
+		self.right.attr('transform', 'translate(' + (self.svgW/2) + ',0)');
+		// --- clean radial
+		self.hideRadial();
+		// --- draw new stuffs
+		self.PlayerView(self.grpCurr, player1);
+		self.SeasonView(self.grpCurrAxis, player1);
+		self.PlayerView(self.grpComp, player2);
+		self.SeasonView(self.grpCompAxis, player2);
+		// --- clean brush
+		self.div.selectAll('.brushGroup-InfoView').html('');
+
+	};
 
     /**
      * function to check if the icon file exist
@@ -146,40 +255,41 @@ function InfoView () {
      * @param player
      * @return {number}
      */
-    self.OneInfo = function (group, player)
+    self.PlayerView = function (group, player)
     {
-    	// [0]
-        // get some shortcut names
-    	var id = player.info.PERSON_ID;
-        var ratio = self.svgW / 1520;  // a stupid way of getting rescaling ratio !!
-	    // [1]
-        // parameters
-        var headSize   = 30 * ratio, // player name font size
-            headHeight = 80 * ratio; // player name font height
-        var textSize   = 16 * ratio,
-            textHeight = 26 * ratio,
-	        textYOffset  = 10 * ratio,  // space abvoe the main text
-            textXOffset  = 450 * ratio; // space between divide left border and main text left border
-        var imageWidth   = 230 * ratio, // profile picture width
-            imageHeight  = 185 * ratio, // profile picture height
-	        imageXOffset = (textXOffset - imageWidth)/2,
-            imageYOffset = 20 * ratio;  // space between profile picture and divide border
-	    var groupHeight  = 255 * ratio;
-	    // [2]
-        // attach an image under the svg
+    	// * Short Cut names
+	    var id = player.info.PERSON_ID;
+        var ratio = self.ratio;
+
+	    // * Define Style Parameters
+	    // --- name parameters
+        var nameSize = 16 * ratio, // player name font size
+            nameYoff = 50 * ratio; // player name font height
+	    // --- text parameters
+        var textSize   = 12 * ratio,
+            textHeight = 16 * ratio,
+	        textYoff  = 10 * ratio,  // space abvoe the main text
+            textXoff  = 200 * ratio; // space between divide left border and main text left border
+	    // --- image parameters
+        var imageW = 184 * ratio, // profile picture width
+            imageH = 110 * ratio, // profile picture height
+	        imageXoff = (textXoff - imageW)/2,
+            imageYoff = 20 * ratio;    // space between profile picture and divide border
+
+	    // * Plot Objects
+        // --- attach an image under for profile picture
         var img = group.select('image')
-	        .attr('x',imageXOffset)
-	        .attr('y',imageYOffset)
-            .attr('width',  imageWidth)
-            .attr('height', imageHeight);
+	        .attr('x',imageXoff + self.margin.left)
+	        .attr('y',imageYoff + self.margin.top )
+            .attr('width',  imageW)
+            .attr('height', imageH);
         var url = 'data/playerProfile/' + id + '.png';
         if (self.fileExists(url)) {
             img.attr("xlink:href", url);
         } else {
             img.attr("xlink:href", 'data/playerProfile/NoFound.png');
         }
-	    // [3]
-        // attach player information (construct data)
+	    // --- attach player information (construct data)
         var localPlayerData = [];
         var teamID = globData.globTeamList.lookup[player.info.TEAM];
         try {
@@ -189,7 +299,10 @@ function InfoView () {
 		            globData.globTeamList.current[teamID].TEAM_CITY + ' ' +
 		            globData.globTeamList.current[teamID].TEAM_NAME);
         } catch (e) {
-            console.log(player.info.TEAM);
+	        localPlayerData.push('Team:');
+	        if (!debugMuteAll) {
+		        console.log('Error Team Name: ', player.info.TEAM);
+	        }
         }
         if (player.info.POSITION)   { localPlayerData.push('Position: ' + player.info.POSITION); }
         if (player.info.HEIGHT)     { localPlayerData.push('Height: ' + player.info.HEIGHT + ' ft'); }
@@ -200,22 +313,22 @@ function InfoView () {
         localPlayerData.push('Seasons: ' + player.info.FROM_YEAR + ' - ' + player.info.TO_YEAR);
 	    if (player.info.JERSEY)     { localPlayerData.push('Jersey: ' + player.info.JERSEY); }
 	    if (player.info.ALL_STAR)   { localPlayerData.push('All Star Appearance: ' + player.info.ALL_STAR); }
-	    // [4]
-        // draw texts
+	    // --- draw texts
         group.selectAll('text').remove();
         group.selectAll('text').data(localPlayerData).enter().append('text')
-            .attr('x', textXOffset)
-            .attr('y', function (d, i) { return textYOffset + (1 + i) * textHeight })
+            .attr('x', textXoff + self.margin.left)
+            .attr('y', function (d, i) { return textYoff + (1 + i) * textHeight + self.margin.top })
             .style('font-size', textSize)
 	        .classed('info-text', true)
 	        .text(function (d) { return d; });
-        group.append('text') // attach header (player name)
-            .attr('x', textXOffset/2)
-            .attr('y', imageHeight + headHeight)
-            .style('font-size', headSize)
+	    // --- attach header (player name)
+        group.append('text')
+            .attr('x', textXoff/2 + self.margin.left)
+            .attr('y', imageH + nameYoff + self.margin.top)
+            .style('font-size', nameSize)
 	        .classed('info-title', true)
 	        .text(player.info.FIRST_NAME + ' ' + player.info.LAST_NAME);
-        return groupHeight;
+
     };
 
 	/**
@@ -224,36 +337,38 @@ function InfoView () {
 	 * @param player
 	 * @return {number}
 	 */
-    self.SeasonAxis = function (group, player)
+    self.SeasonView = function (group, player)
     {
-        // [0]
-        // remember input values for reload/resize
+        // * Shortcut Variable Name
         var sYear = player.info.FROM_YEAR;
         var eYear = player.info.TO_YEAR;
         var numOfYears = eYear - sYear + 1;
-        //
-        // rescaling ratio
-        var ratio = self.svgW / 1520; // rescaling ratio
-        // parameters
-        var margin = {left: 50, right: 50}; // margin for the  axis
-        var spanRatio = 0.510;   // the percentage that the axis will span
-        var totalOffsetY = 265 * ratio, // this equals to the icon image height + name font height
-            totalPadding = 30 * ratio;  // this is the margin for axis and info view
-        var axisSize = 20 * ratio,  // the height of axis
-            axisFont = 10 * ratio;  // font size of axis ticks
-        var barsOffY   = 5 * ratio,   // padding between bar and axis
-            barsSize   = 10 * ratio,  // rect size
-            barsPad    = 1 * ratio,   // padding between two neighboring bars
-            barsStroke = 2 * ratio;   // bar stroke
-        var logoOffY  = 18 * ratio, // padding between team logo and bars
-            logoSize  = 45 * ratio; // size of logo image
-        var brushPad  = 10 * ratio; // padding for brush
+	    var ratio = self.ratio; // rescaling ratio
+
+        // * Define Styling Parameters
+        var spanRatio = 0.4; // the length of the axis (count from left end)
+	    // --- total offset
+        var totalYoff = 150 * ratio + self.margin.top, // this equals to the icon image height + name font height
+	        totalXoff = 10  * ratio + self.margin.left,
+            totalYPad =  30 * ratio;                   // this is the margin for axis and info view
+        // --- axis parameters
+	    var axisHeight   = 40 * ratio,  // the height of axis
+            axisFontSize = 10 * ratio;  // font size of axis ticks
+        // --- bar above the axis
+	    var barH      = 10 * ratio, // rect size
+            barP      = 1 * ratio,  // padding between two neighboring bars
+	        barYoff   = 5 * ratio,  // padding between bar and axis
+	        barStroke = 2 * ratio;  // bar stroke
+        // -- leam logo
+	    var logoOffY  = 15 * ratio, // padding between team logo and bars
+            logoSize  = 40 * ratio; // size of logo image
+        var brushPad  = -2 * ratio; // padding for brush
         // -- calculate total plotting area
-        var plotOffY = totalOffsetY + totalPadding + logoOffY + logoSize;
-        var plotWidth = self.svgW * spanRatio - margin.left - margin.right; // the width that will be plotted
-        var plotHeight = 140 * ratio;
-        //
-        // prepare data structore for the plot
+        var plotYoff = totalYoff + totalYPad + logoOffY + logoSize,
+	        plotXoff = totalXoff,
+	        plotW    = (self.svgW - self.margin.left - self.margin.right) * spanRatio;
+
+        // * Prepare Data
         var year, team = null, PlayerTeamList = [];
         for (year = sYear; year <= eYear; ++year) {
             if (player.season.RegularSeason.hasOwnProperty(year)) {
@@ -265,44 +380,38 @@ function InfoView () {
                 } else {
                     PlayerTeamList[PlayerTeamList.length-1].yearTo = year; // update yearTo information
                 }
-            } else {
-                team = null;
-            }
+            } else {team = null; }
         }
-        //
-        // DRAWING
-        // console.log(teamList);
-        // create scale and axis
+
+        // * DRAWING
+        // --- create scale and axis
         var scale = d3.scaleLinear()
             .domain([sYear - 0.5, eYear + 0.5]) // the range is being shifted, for axis ticks
-            .range([margin.left, plotWidth + margin.left]);
+            .range([plotXoff, plotW + plotXoff]);
         var axis  = d3.axisBottom().scale(scale).ticks(numOfYears,'d').tickSizeOuter(0);
-        // adjust group properties
+        // --- adjust group properties
         group
-            .attr('transform', 'translate(0,' + plotOffY + ')') // shift group position
-            .select('.axisGroup-InfoView')
-            .call(axis) // create axis (the axis will be created at level y = 0)
+            .attr('transform', 'translate(' + plotXoff + ',' + plotYoff + ')') // shift group position
+            .select('.axisGroup-InfoView').call(axis) // create axis (the axis will be created at level y = 0)
             .selectAll('text')
-            .style('font-size', axisFont); // adjust axis font size based on window size
+	        .attr('transform','translate(' + (12*ratio) + ',' + (11*ratio) + ') rotate(60)')
+            .style('font-size', axisFontSize); // adjust axis font size based on window size
         // draw bars
         d3SelectAll(group.select('.barsGroup-InfoView'), 'rect', PlayerTeamList)
-            .attr('x', function (d) { return scale(d.yearFrom - 0.5) + barsPad; }) // shift things back
-            .attr('y', -barsSize - barsOffY) // shift bar based on axis position
-            .attr('width', function (d) { return scale(d.yearTo + 0.5) - scale(d.yearFrom - 0.5) - barsPad; })
-            .attr('height', barsSize)
-            .style('stroke-width', barsStroke) // give rect some strokes
+            .attr('x', function (d) { return scale(d.yearFrom - 0.5) + barP; }) // shift things back
+            .attr('y', -barH - barYoff) // shift bar based on axis position
+            .attr('width', function (d) { return scale(d.yearTo + 0.5) - scale(d.yearFrom - 0.5) - barP; })
+            .attr('height', barH)
+            .style('stroke-width', barStroke) // give rect some strokes
             .style('stroke', 'black')          // stroke color based on team color 2
             .style('fill', function (d) {
-                // console.log(d, d.team);
 	            var myTeamId = globData.globTeamList.lookup[d.team];
 	            try {
-	            	if (myTeamId) {
-			            return globData.globTeamList.current[myTeamId].COLOR_1; // filling with team color 1
-		            } else {
-	            		return 'steelblue';
-		            }
+		            return globData.globTeamList.current[myTeamId].COLOR_1; // filling with team color 1
 	            } catch (e) {
-	            	console.log(myTeamId);
+	            	if (!debugMuteAll) {
+			            console.log('Wrong Ream Id', d.team, myTeamId);
+		            }
 	            	return 'steelblue';
 	            }
             });
@@ -311,7 +420,7 @@ function InfoView () {
             .attr('x', function (d) { // --> (somehow the logo is aligned at the center) applied a shift
                 return scale((d.yearFrom + d.yearTo)/2) - logoSize/2; // logo align center
             })
-            .attr('y', -logoSize - logoOffY) // shift logo based on axis position
+            .attr('y', -logoSize-logoOffY) // shift logo based on axis position
             .attr('width',  logoSize)
             .attr('height', logoSize)
             .attr("xlink:href", function (d) {
@@ -320,13 +429,17 @@ function InfoView () {
 		            var myTeamAb = globData.globTeamList.current[myTeamId].TEAM_ABBREVIATION;
 		            return 'data/teamLogo/' + myTeamAb + '_logo.svg'; // load data
 	            } else {
-		            return 'data/teamLogo/NBA_logo.svg'; // load data
+	            	if (!debugMuteAll) {
+			            console.log('Error: wrong team abbreviative', d.team);
+		            }
+		            return 'data/teamLogo/NBA_logo.svg';              // load data
 	            }
             });
-        // draw brush
+
+        // * Draw Brush
         // --> reference https://bl.ocks.org/mbostock/6232537
         var brush = d3.brushX()
-            .extent([[margin.left, -logoSize-logoOffY-brushPad],[margin.left+plotWidth, axisSize+brushPad]])
+            .extent([[totalXoff,-logoSize-logoOffY-brushPad],[totalXoff+plotW,axisHeight+brushPad]])
             .on("end", function () {
                 if (!d3.event.sourceEvent) return; // Only transition after input.
                 if (!d3.event.selection) { // Ignore empty selections
@@ -351,7 +464,7 @@ function InfoView () {
 	                d3.select(this).transition().call(d3.event.target.move, value.map(scale));
                 }
                 // call stuffs
-	            MainReload(false);
+	            MainReload(false); //< false means dont reload data
             });
         group.select('.brushGroup-InfoView')
 	        .classed('brush', true)
@@ -359,8 +472,7 @@ function InfoView () {
 	        .call(brush);
         group.select('.brushGroup-InfoView').select('.selection').style('display','none'); // hide selection
         group.select('.brushGroup-InfoView').select('.handle').style('display','none');    // when resizing
-	    // return area height
-	    return plotHeight;
+
     };
 
 	/**
@@ -369,21 +481,13 @@ function InfoView () {
 	 * @param player
 	 * @return {number}
 	 */
-    self.RadialView = function(group, player)
-    {
-    	// compute rescaling ratio
-	    var ratio = self.svgW / 1520; // rescaling ratio
-        // predefined data range (different range for different data)
-        var dataSet = [
-            // [attribute, min, max, value]
-	        ["TOV"],
-	        ["REB"],
-	        ["BLK"],
-            ["STL"],
-	        ["AST"],
-            ["PTS"]
-        ];
-        // load data
+    self.RadialView = function(group, player) {
+
+    	// * Shortcut variable name
+	    var ratio = self.ratio;  // rescaling ratio
+        var dataSet = [["TOV"], ["REB"], ["BLK"], ["STL"], ["AST"], ["PTS"]]; // predefined data range
+                                                                              // (different range for different data)
+        // * Load Data
         var data = player.career.RegularSeason.PerGame;
         var head = player.career.header;
         for (var k = 0; k < dataSet.length; ++k) {
@@ -394,27 +498,30 @@ function InfoView () {
             dataSet[k].push(data[attrID]);
             dataSet[k].comment = globData.dataComment[dataSet[k][0]].slice(0,3);
         }
-        // [1]
-        // define plotting parameters
-	    var groupXOff = 1050 * ratio,
-		    groupYOff = 180 * ratio;
-        var barH = 40 * ratio,
-            barWMax = 90 * ratio,
-            barWMin = 50 * ratio;
+
+        // * Define Plotting Parameters
+	    // --- overall shift
+	    var groupXoff = 550 * ratio,
+		    groupYoff = self.svgH / 2;
+        // --- bar parameters
+        var barH = 30 * ratio,
+            barWMax = 70 * ratio,
+            barWMin = 30 * ratio;
+        // --- index value parameters
         var attrTextFont = 12 * ratio,
             attrTextYOff =  4 * ratio,
             attrTextROff = -1 * ratio;
+        // --- attribute tag parameters
         var attrTagFont =  14 * ratio,
             attrTagYOff =   4 * ratio,
-            attrTagROff = -40 * ratio;
+            attrTagROff = -30 * ratio;
+        // --- PIC parameters
         var attrPIEFont =  14 * ratio,
-            attrPIEYOff =   5 * ratio;
-        var plotHeight  = 350 * ratio;
-        // [2]
-        // define tooltip
-	    // self.tooltips.selectAll('*').remove();
-	    var tipLabel = d3.tip()
-		    .attr('class', 'info-d3-tip')
+            attrPIEYOff =   5 * ratio,
+	        attrPIERadius = 30 * ratio;
+
+        // * Define Tooltip
+	    var tipLabel = d3.tip().attr('class', 'info-tip')
 		    .offset([-10, 0])
 		    .html(function(d) {
 		    	var remark = "Index 1.0 indicates the player has rank less than 20 for this attribute";
@@ -422,14 +529,12 @@ function InfoView () {
 				    "<br/><span class='important'>" + d.comment[2] + "</span>" +
 				    "<br/><span>" + remark + "</span>";
 		    });
-	    var tipValue = d3.tip()
-		    .attr('class', 'info-d3-tip')
+	    var tipValue = d3.tip().attr('class', 'info-tip')
 		    .offset([-10, 0])
 		    .html(function(d) {
 			    return "<strong>Career Average " + d.comment[0] + " : " + d[4] + "</strong>";
 		    });
-	    var tipPIE = d3.tip()
-		    .attr('class', 'info-d3-tip')
+	    var tipPIE = d3.tip().attr('class', 'info-tip')
 		    .offset([-10, 0])
 		    .html(function(d) {
 			    return "<strong>Player Impact Estimate</strong><br/>" +
@@ -441,16 +546,14 @@ function InfoView () {
 	    self.svg.call(tipLabel);
 	    self.svg.call(tipValue);
 	    self.svg.call(tipPIE);
-	    // [3]
-        // draw everything here
-        // console.log(dataSet);
-        group.attr('transform', 'translate(' + groupXOff + ',' + groupYOff + ')');
-        group.selectAll('*').remove();
-        // creat groups
+
+	    // * Draw Everything here
+        group.attr('transform', 'translate(' + groupXoff + ',' + groupYoff + ')');
+        group.selectAll('*').remove(); // clean everything for preventing bug
+        // --- creat groups
         group.selectAll('g').data(dataSet).enter().append('g')
             .attr('transform', function (d,i) { return 'rotate(' + (360 * i / dataSet.length) + ')'; });
-
-        // -- create background bars
+        // --- create background bars
 	    {
 		    group.selectAll('g').data(dataSet).append('rect')
 			    .attr('x', 0).attr('y', -barH / 2)
@@ -460,7 +563,7 @@ function InfoView () {
 			    .attr('cx', barWMax + barWMin).attr('cy', 0).attr('r', barH / 2)
 			    .classed('info-radial-backgound', true);
 	    }
-        // -- create bars representing data
+        // --- create bars representing data
 	    {
 		    // creat rects
 		    group.selectAll('g').data(dataSet).append('rect')
@@ -480,7 +583,7 @@ function InfoView () {
 	    }
         // --- other component
 	    // central circle
-	    group.append('circle').attr('cx', 0).attr('cy', 0).attr('r', 40 * ratio)
+	    group.append('circle').attr('cx', 0).attr('cy', 0).attr('r', attrPIERadius)
 		    .classed('info-radial-PIE-circle', true) // PIE circle color
 		    .on('mouseover', tipPIE.show)
 		    .on('mouseout', tipPIE.hide);
@@ -549,27 +652,28 @@ function InfoView () {
 		    .classed('info-radial-PIE',true)
 		    .text(pie);
 	    // plot texts (Offence and Defence)
-	    var ODXoff =  280 * ratio,
-		    ODYoff = -150 * ratio,
-		    ODText = 20 * ratio,
-		    ODShift = 8 * ratio;
+	    var ODXoff =   180 * ratio,
+		    ODYoff =  -110 * ratio,
+		    ODYPad  =   15 * ratio,
+		    ODShift =    8 * ratio,
+		    ODTextFont = 12 * ratio;
 	    group.append('text')
 		    .attr('x', ODXoff)
 		    .attr('y', ODYoff+ODShift)
+		    .style('font-size',ODTextFont)
 		    .classed('rank-radial-OD', true)
 		    .text('Offensive');
 	    group.append('text')
 		    .attr('x', ODXoff)
 		    .attr('y', -ODYoff+ODShift)
 		    .classed('rank-radial-OD', true)
+		    .style('font-size',ODTextFont)
 		    .text('Defensive');
 	    group.append('path')
 		    .classed('rank-radial-OD', true)
-		    .attr('d','M' + ODXoff + ',' + (ODYoff+ODText) + 'L' + ODXoff + ',' + (-ODYoff-ODText));
-	    // console.log(dataSet);
+		    .attr('d','M' + ODXoff + ',' + (ODYoff+ODYPad) + 'L' + ODXoff + ',' + (-ODYoff-ODYPad));
 	    var ODindex = (dataSet[0].index + dataSet[1].index + dataSet[2].index - dataSet[3].index - dataSet[4].index - dataSet[5].index) / 3;
 	    var ODbarW = 20 * ratio, ODbarH = 4 * ratio;
-	    // var ODscale = d3.scaleLinear().domain([-1,1]).range(['#FF2223', '#2C1F97'])
 	    group.append('rect')
 		    .attr('x', ODXoff - ODbarW/2)
 		    .attr('y', -ODindex * ODYoff - ODbarH/2)
@@ -582,23 +686,7 @@ function InfoView () {
 		    .attr('cy', 0)
 		    .attr('r', ODbarW/8)
 		    .style('fill', 'black');
-        return plotHeight/2 + groupYOff;
+
     };
 
-	/**
-	 * Hide this view entirely
-	 */
-	self.hide  = function () {
-	    self.hidden = true;
-    	self.div.selectAll('*').remove();
-    };
-
-	/**
-	 * show this view
-	 */
-	self.show = function () {
-	    self.hidden = false;
-	    self.init(self.svgH);
-		self.update();
-    };
 }
